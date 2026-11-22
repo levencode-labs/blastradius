@@ -4,7 +4,7 @@
 
 ## Provenance and sampling
 
-`corpus.json` selects **seven real public GitHub repositories at exact immutable Git commit SHAs**, separated into two non-overlapping cohorts:
+`corpus.json` selects **nine real public GitHub repositories at exact immutable Git commit SHAs**, separated into four disjoint cohorts: development, previously exposed, newly repaired/exposed, and genuinely fresh holdout:
 
 | Cohort | Project | Domain | Exact commit |
 | --- | --- | --- | --- |
@@ -13,12 +13,14 @@
 | Development | `vercel/nextjs-postgres-nextauth-tailwindcss-template` | Next.js App Router pages and imported components | `fe026711c19ac3ee4589c86a738f59b84e611559` |
 | Holdout (previously exposed) | `react-hook-form/react-hook-form` | React hooks, generic types, overloads, controllers | `8d7bd6c2c774fd9b4310e8cbc07d36ce1cacf736` |
 | Holdout (previously exposed) | `TanStack/table` | multi-package TypeScript/React adapter, framework interfaces | `1cfb2e57cbfecf25e3d4ee1bda32fbd65e4e0327` |
-| New untouched holdout | `floating-ui/floating-ui` | TypeScript/React positioning, multiple package boundaries | `c3042f1f37d96dfadff1d8894daa31e120d89ed4` |
-| New untouched holdout | `TanStack/form` | TypeScript form core + React adapter monorepo | `5de1a8de01e3d63a0e5225a7e659a384f3a0effb` |
+| Formerly unseen, now exposed | `floating-ui/floating-ui` | TypeScript/React positioning, multiple package boundaries | `c3042f1f37d96dfadff1d8894daa31e120d89ed4` |
+| Formerly unseen, now exposed | `TanStack/form` | TypeScript form core + React adapter monorepo | `5de1a8de01e3d63a0e5225a7e659a384f3a0effb` |
+| Fresh untouched holdout | `reduxjs/react-redux` | React context/subscription source links | `8e54f5b9dbbdcc972c120ad3ce3c1c57fc2e89fd` |
+| Fresh untouched holdout | `remix-run/react-router` | Large TypeScript/React router monorepo | `9916920a490c018eb78d7cc8c55a0efd6e9feac9` |
 
-The **original 48 development/previously exposed holdout pairs and 16 additional untouched holdout pairs** were labeled manually using the pinned upstream text *before running BlastRadius* (8 usehooks-ts, 8 Zustand, 16 Next.js, 8 React Hook Form, 8 TanStack Table, 8 Floating UI, 8 TanStack Form). They include explicit positives and negatives, default route context, named imports, JSX and type-only references. The official TypeScript compiler independently verifies *every* label at a concrete reference site. If TypeChecker disagrees, the evaluation fails `ORACLE_DISAGREEMENT`: the test never silently relabels a case to match the engine. The oracle does not use BlastRadius's graph, result JSON or reachability. Tests measure **static direct references only**, not indirect runtime effects or externally visible API safety.
+The **64 previously frozen direct-reference labels** on seven original repositories and **16 newly frozen direct-reference labels** on two genuinely fresh repositories were selected by reading the exact pinned source *before running BlastRadius on each cohort* (8 usehooks-ts, 8 Zustand, 16 Next.js, 8 React Hook Form, 8 TanStack Table, 8 Floating UI, 8 TanStack Form, 8 React Redux, 8 React Router). They include explicit positives and negatives, default route context, named imports, JSX and type-only references. The official TypeScript compiler independently verifies *every* label at a concrete reference site. If TypeChecker disagrees, the evaluation fails `ORACLE_DISAGREEMENT`: the test never silently relabels a case to match the engine. The oracle does not use BlastRadius's graph, result JSON or reachability. Tests measure **static direct references only**, not indirect runtime effects or externally visible API safety.
 
-This is a **purposive sample, not a random representative sample**. Thus results on these 64 pairs must not be called general real-world precision/recall. The holdout is never used to select engine fixes in this evaluation PR, and its errors cannot be averaged away by the development cohort. Dynamic imports, unresolved dependencies and public-entry roots have separate coverage counters; a missing edge under incomplete coverage is never permission to delete code. The runner records every labeled pair, mismatch, and diagnostic rather than showing only passing examples.
+This is a **purposive sample, not a random representative sample**. Thus results on these 80 pairs must not be called general real-world precision/recall. The historical Floating UI holdout exposed a defect and is no longer unseen after that repair; only the React Redux/Router fresh cohort was evaluated without contributing to engine changes. Errors in any cohort cannot be averaged away by results from another cohort. Dynamic imports, unresolved dependencies and public-entry roots have separate coverage counters; a missing edge under incomplete coverage is never permission to delete code. The runner records every labeled pair, mismatch, and diagnostic rather than showing only passing examples.
 
 ## What is compared with Knip
 
@@ -73,3 +75,11 @@ The unchanged corpus SHA-256 is `a5adcc1882dfced00de1df54c578a4b7683d23ef8dd5d1b
 ## P4: independent untouched holdout (2026-11-22)
 
 The two new upstream pins were selected from source text **before** scoring BlastRadius. Eight static positive/negative pairs from Floating UI and eight from TanStack Form were fixed independently; the previous 48 labels and five SHA pins remain unchanged. Previous React Hook Form/TanStack Table findings have already influenced fixes and therefore retain their separate `holdout` cohort, which must not be represented as fresh blind validation. New output is `bySplit.unseen_holdout` with TP/TN/FP/FN, precision/recall and explicit UNKNOWN. A mismatch is an auditable FAIL and is not fixed by relabeling or weakening gate thresholds. New corpus results can only be claimed after actual exact-SHA Actions evidence. No third-party dependencies, build or scripts execute from inspected repositories.
+
+## P5: New untouched evaluation after Floating UI repair
+
+The React Redux and React Router exact pins and 16 independent manual labels were committed before any BlastRadius predictions. They are separately scored as `bySplit.fresh_holdout`. The previous seven projects and 64 labels are unchanged, including the full original red/green Floating UI evidence. The older `unseen_holdout` is a historical label but has been exposed by code changes. No FP/FN or TypeChecker disagreement in the new cohort may be relabeled or silently excluded. Missing/unresolved external links and graph coverage warnings remain UNKNOWN. Keep full 8× matrix + byte parity, all three Knip controls, and no release.
+
+## First observed P5 fresh-cohort accuracy (scoped)
+
+Source-pinned first nine-project [GitHub run #45026352897](https://github.com/levencode-labs/blastradius/actions/runs/45026352897) independently checked all 80 unchanged hand labels (48 TP, 32 TN, 0 FP/FN) and 3,627 compiler-resolvable named-import pairs (3,611 TP, 16 TN, 0 FP/FN). The truly previously untouched React Redux/Router group contributed 937 TP, 4 TN, 0 FP/FN, while 108/1,049 attempted named imports remained independently unresolved/external and **0/9 full graphs were complete**. The report must not generalize these scoped measurements to deletion safety, dynamic loading, all routes or public APIs. Original Knip comparisons are unchanged. See [P5 source-exact evidence](../../docs/evidence/P5_FRESH_HOLDOUT.md).

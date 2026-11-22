@@ -24,3 +24,14 @@ On test-only commit `354638cf7dc8671589560c5906dee92045242d84`, the full unmodif
 - Full-graph coverage and external/runtime imports remain UNKNOWN until independently proved. Do not claim production-safe automatic deletion or release `v0.1.0`.
 
 **Acceptance pending on repaired exact SHA**; no PASS claim from this evidence note alone.
+
+## Proven pre-integration P2 acceptance
+
+- Source-exact repaired commit `c9dc08b11150a1ffebed0d4bd90c0ed1c2ee224f`, based on original seven-project main before PR #15 changed the evaluation corpus.
+- [Push full CI #45027276123](https://github.com/levencode-labs/blastradius/actions/runs/45027276123) **9/9 SUCCESS** (8 OS/Node jobs + strict tarball parity).
+- [PR full CI #45027282115](https://github.com/levencode-labs/blastradius/actions/runs/45027282115) **9/9 SUCCESS**.
+- [PR independent eval #45027282158](https://github.com/levencode-labs/blastradius/actions/runs/45027282158) **SUCCESS**. This evaluates the **new nine-repository merge view** after independently merged PR #15, not a claim that the P2 branch modified that fresh holdout.
+- New merged-PR corpus totals: **80 manually labeled probes: 48 TP, 32 TN, 0 FP, 0 FN**; **3627 TypeChecker-resolved named-import pairs: 3611 TP, 16 TN, 0 FP, 0 FN**. All three original Knip controls unchanged.
+- UNKNOWN is still separate: development named excluded 347/567; previously exposed holdout 425/2510; fixed/exposed Floating UI + TanStack Form 346/727; newly merged fresh holdout 108/1049. All nine full graphs remain incomplete. These are scoped static links, not population precision or runtime/deletion safety.
+
+The P2 branch is being integrated via a source-exact two-parent merge commit with `main@795f09b838e65a3507f019bb07434e3625c89cd7`, preserving all new evaluation work **without touching its sources, probes, labels, or threshold gates**. Acceptance on that integrated commit and on the final merge SHA is a separate mandatory CI step. No public package release.
