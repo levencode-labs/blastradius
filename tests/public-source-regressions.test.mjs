@@ -48,3 +48,56 @@ test('nested destructuring alias uses local bound names, not object property nam
   assert.deepEqual(names.sort(),['renamed','signIn']);
   assert.ok(!names.includes('client')&&!names.includes('auth'));
 });
+
+test('react-hook-form: same-name exported type and value resolve through barrel',t=>{
+  const provider=`export type FormState<T>={valid:boolean;data:T};
+export const FormState = <T,>(props:{data:T}) => props.data;
+export const FormStateSubscribe = FormState;`;
+  const facts=analyzeFile('src/formState.tsx',provider);
+  assert.equal(facts.exports.filter(e=>e.exported==='FormState').length,1,
+    'type/value namespaces must share one resolvable export binding');
+  assert.equal(facts.symbols.filter(s=>s.name==='FormState').length,1);
+  assert.equal(facts.symbols.find(s=>s.name==='FormState').kind,'function',
+    'runtime component identity must survive a preceding type alias');
+  const consumer='src/__typetest__/form-state-subscribe.test-d.ts';
+  const g=graphOf(t,{
+    'src/formState.tsx':provider,
+    'src/index.ts':`export {FormState,FormStateSubscribe} from './formState';`,
+    [consumer]:`import {FormState} from '../index';
+type Shape = FormState<{id:string}>;
+const Component:typeof FormState=FormState;
+void Component;`
+  });
+  assert.ok(edge(g,consumer,'export:src/index.ts#FormState'),
+    'TypeChecker-resolvable type/value reference via barrel must not be dropped');
+  assert.ok(g.edges.some(e=>e.from==='export:src/formState.tsx#FormState'&&
+    e.to==='symbol:src/formState.tsx#FormState'&&e.kind==='reexports'));
+  assert.ok(!g.diagnostics.some(d=>d.code==='BARREL_EXPORT_AMBIGUOUS'&&
+    d.file==='src/formState.tsx'),'legitimate paired declaration must not be ambiguous');
+});
+
+test('same-name type alias and effectful value preserve initializer protection',t=>{
+  const provider=`export type Registry={id:string};
+export const Registry=registerRuntimeRegistry();`;
+  const facts=analyzeFile('src/registry.ts',provider);
+  assert.equal(facts.exports.filter(e=>e.exported==='Registry').length,1);
+  const symbol=facts.symbols.find(s=>s.name==='Registry');
+  assert.equal(symbol.kind,'variable');
+  assert.equal(symbol.possibleSideEffect,true);
+  const g=graphOf(t,{'src/registry.ts':provider,'src/main.ts':`import './registry';`});
+  assert.ok(g.edges.some(e=>e.from==='eval:src/registry.ts'&&
+    e.to==='symbol:src/registry.ts#Registry'&&e.kind==='references'&&e.certainty==='inferred'),
+    'coalescing must never mask module evaluation side effects');
+});
+
+test('duplicated declarations in the same namespace still fail closed',t=>{
+  const provider=`export type State={ok:true};
+export type State={ok:false};`;
+  const facts=analyzeFile('src/types.ts',provider);
+  assert.equal(facts.exports.filter(e=>e.exported==='State').length,2,
+    'do not collapse invalid type/type duplicates');
+  const g=graphOf(t,{'src/types.ts':provider,
+    'src/main.ts':`import type {State} from './types'; type Selected=State;`});
+  assert.ok(g.diagnostics.some(d=>d.code==='BARREL_EXPORT_AMBIGUOUS'),
+    'ambiguity must remain visible instead of claiming a resolved reference');
+});

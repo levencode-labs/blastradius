@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "kind": "independent-heldout-pre-fix",
+  "blastRadiusHead": "7f14feb47cd1f3d383f89461d563f0b336a48ff1",
+  "sources": {
+    "reactHookForm": "8d7bd6c2c774fd9b4310e8cbc07d36ce1cacf736",
+    "tanstackTable": "1cfb2e57cbfecf25e3d4ee1bda32fbd65e4e0327"
+  },
+  "corpusSha256": "a5adcc1882dfced00de1df54c578a4b7683d23ef8dd5d1b306437131eeb1c81c",
+  "ci": {
+    "push": {
+      "run": 45019527013,
+      "conclusion": "failure",
+      "evidenceArtifactId": 14752774022,
+      "artifactZipSha256": "aa73b95e7465442b8f9804f6734d180837afbf24486902aa0088939f86601fb7"
+    },
+    "pullRequest": {
+      "run": 45019530640,
+      "conclusion": "failure",
+      "evidenceArtifactId": 14752509180
+    },
+    "platformPush": {
+      "run": 45019527085,
+      "passed": 9,
+      "total": 9
+    },
+    "platformPullRequest": {
+      "run": 45019530638,
+      "passed": 9,
+      "total": 9
+    }
+  },
+  "manual": {
+    "development": {
+      "tp": 18,
+      "tn": 14,
+      "fp": 0,
+      "fn": 0
+    },
+    "holdout": {
+      "tp": 8,
+      "tn": 8,
+      "fp": 0,
+      "fn": 0
+    }
+  },
+  "namedImports": {
+    "development": {
+      "tp": 215,
+      "tn": 5,
+      "fp": 0,
+      "fn": 0,
+      "samples": 220
+    },
+    "holdout": {
+      "tp": 2083,
+      "tn": 1,
+      "fp": 0,
+      "fn": 1,
+      "samples": 2085
+    },
+    "total": {
+      "tp": 2298,
+      "tn": 6,
+      "fp": 0,
+      "fn": 1,
+      "samples": 2305
+    }
+  },
+  "failure": {
+    "kind": "FALSE_NEGATIVE",
+    "repo": "react-hook-form",
+    "consumer": "src/__typetest__/form-state-subscribe.test-d.ts",
+    "target": "src/formState.tsx",
+    "symbol": "FormState",
+    "checkerReferences": 3,
+    "graphPredicted": false,
+    "rootCause": "Legitimate exported TS type alias + value declaration sharing FormState were registered as duplicate direct exports, triggering BARREL_EXPORT_AMBIGUOUS and losing the barrel-resolved consumer edge"
+  },
+  "unknown": {
+    "development": {
+      "attemptedNamedImportBindings": 567,
+      "externalOrUnresolvedNamedBindings": 347,
+      "graph": {
+        "completeRepositories": 0,
+        "totalRepositories": 3,
+        "unresolvedImports": 111,
+        "dynamicEdges": 347,
+        "unsupportedFiles": 23
+      }
+    },
+    "holdout": {
+      "attemptedNamedImportBindings": 2510,
+      "externalOrUnresolvedNamedBindings": 425,
+      "graph": {
+        "completeRepositories": 0,
+        "totalRepositories": 2,
+        "unresolvedImports": 1522,
+        "dynamicEdges": 7115,
+        "unsupportedFiles": 1585
+      }
+    }
+  },
+  "caveats": [
+    "The full raw JSON and CI stdout are retained in linked original GitHub Actions; this compact baseline is a durable reference, not a replacement for the raw report.",
+    "Original holdout exposed a defect; fixing it against that source makes the cohort no longer completely unseen for this change. Additional untouched holdout needed for an unbiased final release estimate.",
+    "UNKNOWN coverage must not count as a true negative or a deletion permit."
+  ]
+}
