@@ -149,7 +149,7 @@ export function projectOptions(root:string,files:Map<string,string>,relative:str
         const patterns=Array.isArray(ws)?ws:
           ws&&typeof ws==='object'?(ws as {packages?:unknown}).packages:undefined;
         if(!Array.isArray(patterns)||!patterns.length||
-           patterns.some(p=>typeof p!=='string'||p.startsWith('!')||p.includes('..')))
+           patterns.some((p:unknown)=>typeof p!=='string'||p.startsWith('!')||p.includes('..')))
           throw Error('Unsupported root workspace patterns for package tsconfig extends: '+spec);
         const patternsNormalized=patterns.map((p:string)=>p.replace(/^\.\//,''));
         const owned=new Map<string,string[]>();
