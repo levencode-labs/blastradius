@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "kind": "independent-heldout-post-fix",
+  "sourceFixCommit": "778240159b9226e3498e26b979aaf0f06d172d6f",
+  "cohortIds": {
+    "development": [
+      "usehooks-ts",
+      "zustand",
+      "next-admin"
+    ],
+    "holdout": [
+      "react-hook-form",
+      "tanstack-table"
+    ]
+  },
+  "corpusSha256": "a5adcc1882dfced00de1df54c578a4b7683d23ef8dd5d1b306437131eeb1c81c",
+  "upstreamPins": {
+    "usehooksTs": "61949134144d3690fe9f521260a16c779a6d3797",
+    "zustand": "9fed2eb2f3af672da9f7bf694b996df3831fc207",
+    "nextAdmin": "fe026711c19ac3ee4589c86a738f59b84e611559",
+    "reactHookForm": "8d7bd6c2c774fd9b4310e8cbc07d36ce1cacf736",
+    "tanstackTable": "1cfb2e57cbfecf25e3d4ee1bda32fbd65e4e0327"
+  },
+  "originalFail": {
+    "commit": "7f14feb47cd1f3d383f89461d563f0b336a48ff1",
+    "pushRunId": 45019527013,
+    "artifactId": 14752774022,
+    "fn": 1
+  },
+  "result": {
+    "acceptance": true,
+    "manual": {
+      "tp": 26,
+      "tn": 22,
+      "fp": 0,
+      "fn": 0,
+      "samples": 48
+    },
+    "namedImports": {
+      "tp": 2299,
+      "tn": 6,
+      "fp": 0,
+      "fn": 0,
+      "samples": 2305,
+      "precision": 1,
+      "recall": 1
+    },
+    "bySplit": {
+      "development": {
+        "tp": 215,
+        "tn": 5,
+        "fp": 0,
+        "fn": 0,
+        "samples": 220,
+        "attemptedNamedImportBindings": 567,
+        "externalOrUnresolvedNamedBindings": 347,
+        "graph": {
+          "completeRepositories": 0,
+          "totalRepositories": 3,
+          "unresolvedImports": 111,
+          "dynamicEdges": 347,
+          "unsupportedFiles": 23
+        }
+      },
+      "holdout": {
+        "tp": 2084,
+        "tn": 1,
+        "fp": 0,
+        "fn": 0,
+        "samples": 2085,
+        "attemptedNamedImportBindings": 2510,
+        "externalOrUnresolvedNamedBindings": 425,
+        "graph": {
+          "completeRepositories": 0,
+          "totalRepositories": 2,
+          "unresolvedImports": 1521,
+          "dynamicEdges": 7115,
+          "unsupportedFiles": 1584
+        }
+      }
+    },
+    "perRepo": [
+      {
+        "id": "usehooks-ts",
+        "tp": 97,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      {
+        "id": "zustand",
+        "tp": 31,
+        "tn": 4,
+        "fp": 0,
+        "fn": 0
+      },
+      {
+        "id": "next-admin",
+        "tp": 87,
+        "tn": 1,
+        "fp": 0,
+        "fn": 0
+      },
+      {
+        "id": "react-hook-form",
+        "tp": 775,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      {
+        "id": "tanstack-table",
+        "tp": 1309,
+        "tn": 1,
+        "fp": 0,
+        "fn": 0
+      }
+    ],
+    "knipControlledMutations": [
+      {
+        "id": "M01",
+        "blastRadiusNewOrphan": true,
+        "knipNewUnusedExport": false,
+        "knipNewUnusedFile": true
+      },
+      {
+        "id": "M02",
+        "blastRadiusNewOrphan": true,
+        "knipNewUnusedExport": false,
+        "knipNewUnusedFile": true
+      },
+      {
+        "id": "M03",
+        "blastRadiusNewOrphan": false,
+        "knipNewUnusedExport": false,
+        "knipNewUnusedFile": false
+      }
+    ]
+  },
+  "ci": {
+    "independentPush": {
+      "runId": 45020084202,
+      "head": "778240159b9226e3498e26b979aaf0f06d172d6f",
+      "conclusion": "success",
+      "artifactId": 14753009075,
+      "artifactZipSha256": "61010904f189b41214ffcd3d43ab3f866f7e6eff8f0cd4bdc38e8b73e1a275af"
+    },
+    "independentPullRequest": {
+      "runId": 45020090449,
+      "head": "778240159b9226e3498e26b979aaf0f06d172d6f",
+      "conclusion": "success",
+      "artifactId": 14753526053
+    },
+    "fullPush": {
+      "runId": 45020084203,
+      "head": "778240159b9226e3498e26b979aaf0f06d172d6f",
+      "conclusion": "success",
+      "passed": 9,
+      "total": 9
+    },
+    "fullPullRequest": {
+      "runId": 45020090425,
+      "head": "778240159b9226e3498e26b979aaf0f06d172d6f",
+      "conclusion": "success",
+      "passed": 9,
+      "total": 9
+    }
+  },
+  "caveat": "Confirmed static named import pairs, NOT accuracy on all graph edges or runtime behavior. Every repository graph remains incomplete. The original holdout exposed a defect that was repaired, so post-fix on these same repos is no longer an untouched holdout evaluation. No deletion permission or v0.1.0 release."
+}
