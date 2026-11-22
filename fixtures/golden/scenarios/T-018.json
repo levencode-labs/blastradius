@@ -1,0 +1,14 @@
+{
+  "files": {
+    "package.json": "{\"name\": \"example\", \"private\": false, \"exports\": {\"./api\": \"./src/api.ts\"}}",
+    "src/api.ts": "export function foo(){return 1;}",
+    "src/main.ts": "import {foo} from './api'; foo();",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-018",
+  "mode": "diff",
+  "title": "Published API export is protected when local production caller leaves",
+  "update": {
+    "src/main.ts": "export const keep = 1;"
+  }
+}

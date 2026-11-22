@@ -1,0 +1,11 @@
+{
+  "complete": true,
+  "diagnosticCodes": [],
+  "mode": "graph",
+  "reachability": {
+    "symbol:src/app/(site)/users/[id]/page.tsx#Page": true
+  },
+  "routes": [
+    "/users/[id]"
+  ]
+}

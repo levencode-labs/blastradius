@@ -1,0 +1,12 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/index.ts": "export {foo, bar} from './lib';",
+    "src/lib.ts": "export function foo(){} export function bar(){}",
+    "src/main.ts": "import {foo} from './index'; foo();",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-004",
+  "mode": "graph",
+  "title": "Explicit barrel re-export is symbol specific"
+}

@@ -1,0 +1,11 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/lib.ts": "export function foo(){return 1;}",
+    "src/main.ts": "import {foo} from './lib'; foo();",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-001",
+  "mode": "graph",
+  "title": "Named import creates a direct symbol dependency"
+}

@@ -1,0 +1,11 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/lib.ts": "export function foo(){}",
+    "src/main.ts": "import {foo} from './lib'; foo();",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-030",
+  "mode": "determinism",
+  "title": "Same snapshot and same Impact request are deterministic"
+}

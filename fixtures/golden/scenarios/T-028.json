@@ -1,0 +1,10 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/main.ts": "export const live=1;",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-028",
+  "mode": "cache_failure",
+  "title": "A corrupted SQLite cache cannot be treated as ready"
+}

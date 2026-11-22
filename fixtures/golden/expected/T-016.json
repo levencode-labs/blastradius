@@ -1,0 +1,11 @@
+{
+  "findings": [
+    {
+      "code": "BROKEN_REFERENCE",
+      "deletionAdvice": "blocked",
+      "file": "src/main.ts"
+    }
+  ],
+  "mode": "diff",
+  "status": "incomplete"
+}

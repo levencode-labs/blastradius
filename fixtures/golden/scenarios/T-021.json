@@ -1,0 +1,17 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/main.ts": "import {foo} from './old'; foo();",
+    "src/old.ts": "export function foo(){return 1;}",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-021",
+  "mode": "diff",
+  "rename": {
+    "src/old.ts": "src/new.ts"
+  },
+  "title": "Rename matching preserves an orphan finding in its new file",
+  "update": {
+    "src/main.ts": "export const keep=1;"
+  }
+}

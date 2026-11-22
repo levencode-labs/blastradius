@@ -1,0 +1,11 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/Widget.tsx": "export default function Widget(){return <div/>;}",
+    "src/main.tsx": "import {lazy} from 'react'; const Lazy = lazy(() => import('./Widget')); console.log(Lazy);",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-009",
+  "mode": "graph",
+  "title": "Literal React.lazy import has a static dependency"
+}

@@ -1,0 +1,12 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/index.ts": "export * from './lib';",
+    "src/lib.ts": "export function foo(){} export const unused = 1;",
+    "src/main.ts": "import {foo} from './index'; foo();",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-006",
+  "mode": "graph",
+  "title": "Unused export behind an export-star barrel stays unreachable"
+}

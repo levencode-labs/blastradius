@@ -1,3 +1,5 @@
+> **P2 update, 2026-11-22:** All 30 formal golden fixtures and eight independent TypeChecker oracle checks now pass locally; the extra boundary suite brings this to 119/119 local tests. See [accuracy evidence](P2_ACCURACY.md). The main/source preview and B-radar hero artwork are published. A fresh P2 CI on its exact SHA is still required, and the v0.1.0 release gates below remain open.
+
 # Publication and CI status
 
 BlastRadius is being published as a **source-only development preview (`0.0.1-dev`)**. GitHub is the source repository. The package is intentionally `private: true`; do not publish npm or tag `v0.1.0`.

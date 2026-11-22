@@ -1,0 +1,11 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/lib.ts": "export function foo(){}",
+    "src/main.ts": "import {foo} from '@/lib'; foo();",
+    "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"baseUrl\": \".\", \"paths\": {\"@/*\": [\"src/*\"]}}}"
+  },
+  "id": "T-007",
+  "mode": "graph",
+  "title": "tsconfig path alias is resolved from the snapshot options"
+}

@@ -1,5 +1,16 @@
 # Changelog
 
+## P2 — golden correctness and product identity (2026-11-22, unreleased)
+
+- Added all 30 explicit requirement-numbered golden fixtures, independent expected outcome files and deterministic CI evidence reporting (true/false-positive and negative labeled probes; unknown cases not hidden).
+- Added eight independent TypeScript TypeChecker alias-resolution comparisons, plus three extra conservative regression controls.
+- Fixed missed orphan findings after uniquely matched unchanged-content file moves; ambiguous candidate matches remain incomplete.
+- Fixed loss of published public API exports caused by `package.json` export-path changes without physical source removal.
+- Mark unresolved explicit `tsconfig paths` imports as incomplete instead of silently treating them as known external packages.
+- Recognize conventional Next.js page/layout routes under `apps/<workspace>` and `packages/<workspace>` while preserving layout ownership.
+- Engine version advanced to `0.0.6-dev` so old cached graph facts cannot masquerade as current semantics; product remains private `0.0.1-dev`.
+- Added branded B-radar emblem and 2:1 hero banner in a separate documentation change, with no runtime changes.
+
 ## Unreleased — 2026-11-22 development continuation
 
 ### P3: GitHub/CI preparation (no GitHub publication)

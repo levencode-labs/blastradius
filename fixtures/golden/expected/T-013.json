@@ -1,0 +1,16 @@
+{
+  "findings": [
+    {
+      "certainty": "verified",
+      "code": "NOW_TEST_ONLY",
+      "deletionAdvice": "review",
+      "file": "src/lib.ts",
+      "reasonsContain": [
+        "ONLY_TEST_CONSUMERS"
+      ],
+      "symbol": "foo"
+    }
+  ],
+  "mode": "diff",
+  "status": "ok"
+}

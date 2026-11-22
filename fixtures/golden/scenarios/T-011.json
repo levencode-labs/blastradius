@@ -1,0 +1,10 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/app/(site)/users/[id]/page.tsx": "export default function Page(){return null;}",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-011",
+  "mode": "graph",
+  "title": "Next.js App Router segments and route groups form normalized patterns"
+}

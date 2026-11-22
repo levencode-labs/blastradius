@@ -1,0 +1,16 @@
+{
+  "findings": [
+    {
+      "certainty": "verified",
+      "code": "NEW_ORPHAN_EXPORT",
+      "deletionAdvice": "candidate",
+      "file": "src/old.ts",
+      "reasonsContain": [
+        "LAST_PRODUCTION_CONSUMER_REMOVED"
+      ],
+      "symbol": "foo"
+    }
+  ],
+  "mode": "diff",
+  "status": "ok"
+}

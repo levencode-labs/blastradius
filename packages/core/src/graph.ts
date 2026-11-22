@@ -18,7 +18,7 @@ export function snapshotId(files:Map<string,string>,config:Config={}):string{
 }
 export interface BuildOptions{root:string;files:Map<string,string>;config?:Config;reuseFacts?:(file:string,sha:string)=>FileFacts|undefined;saveFacts?:(facts:FileFacts)=>void;extraDiagnostics?:Diagnostic[];}
 function collectRoutes(file:string):{path:string;layout:boolean;handler?:boolean}|undefined{
-  const normalized=file.replace(/^(?:src\/)?/,'');
+  const normalized=file.replace(/^(?:(?:apps|packages)\/[^/]+\/)?(?:src\/)?/,'');
   let m=/^app\/(.*\/)?(page|layout|template|loading|error|not-found|route)\.[jt]sx?$/.exec(normalized);
   if(m){const route=(m[1]||'').split('/').filter(s=>s&& !/^\(.*\)$/.test(s)&&!s.startsWith('@')).join('/');return {path:'/'+route,layout:m[2]==='layout',handler:m[2]==='route'};}
   m=/^pages\/(.*)\.[jt]sx?$/.exec(normalized);
@@ -57,8 +57,19 @@ export function buildGraph({root,files,config={},reuseFacts,saveFacts,extraDiagn
     if(resolvedModules.has(key))return resolvedModules.get(key)||undefined;
     const abs=path.resolve(root,source);
     let result:string|undefined;
+    let declaredPathAlias=false;
     try{
       const opts=projectOptions(root,files,source);
+      // A failed configured source alias is an unresolved project dependency,
+      // not an innocent external npm import. Exclude the global "*" fallback,
+      // which may legitimately route unmatched packages to node_modules.
+      declaredPathAlias=Object.keys(opts.paths||{}).some(pattern=>{
+        if(pattern===specifier)return true;
+        const wildcard=pattern.indexOf('*');
+        if(wildcard<=0||pattern.indexOf('*',wildcard+1)!==-1)return false;
+        const prefix=pattern.slice(0,wildcard),suffix=pattern.slice(wildcard+1);
+        return specifier.startsWith(prefix)&&specifier.endsWith(suffix)&&specifier.length>=prefix.length+suffix.length;
+      });
       const host:ts.ModuleResolutionHost={fileExists(p){return files.has(toPosix(path.relative(root,p)));},readFile(p){return files.get(toPosix(path.relative(root,p)));},directoryExists(p){const rel=toPosix(path.relative(root,p));return rel==='.'||[...files.keys()].some(f=>f.startsWith(rel+'/'));},realpath(p){return p;},getCurrentDirectory(){return root;},getDirectories(){return [];}};
       const r=ts.resolveModuleName(specifier,abs,opts,host).resolvedModule?.resolvedFileName;
       if(r){const rel=toPosix(path.relative(root,r));if(byFile.has(rel))result=rel;}
@@ -84,6 +95,7 @@ export function buildGraph({root,files,config={},reuseFacts,saveFacts,extraDiagn
           if(!result)diag('MODULE_RESOLUTION_FAILED',source,1,1,'Workspace package has no supported source export: '+specifier);
         }
       }
+      if(!result && declaredPathAlias)diag('MODULE_RESOLUTION_FAILED',source,1,1,'Configured tsconfig path alias has no indexed source: '+specifier);
     }catch(e){diag('INCOMPLETE_PROJECT_INDEX',source,1,1,'TypeScript module resolution failed: '+String(e));}
     resolvedModules.set(key,result||null);
     return result;

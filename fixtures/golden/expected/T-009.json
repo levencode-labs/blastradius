@@ -1,0 +1,15 @@
+{
+  "complete": true,
+  "diagnosticCodes": [],
+  "edges": [
+    [
+      "symbol:src/main.tsx#Lazy",
+      "export:src/Widget.tsx#default",
+      "dynamic_import"
+    ]
+  ],
+  "mode": "graph",
+  "reachability": {
+    "symbol:src/Widget.tsx#Widget": true
+  }
+}

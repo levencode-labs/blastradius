@@ -1,0 +1,14 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/main.ts": "import {token} from './register'; console.log(token);",
+    "src/register.ts": "export const token = register();",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-019",
+  "mode": "diff",
+  "title": "Effectful initializer is protected against delete advice",
+  "update": {
+    "src/main.ts": "export const keep = 1;"
+  }
+}

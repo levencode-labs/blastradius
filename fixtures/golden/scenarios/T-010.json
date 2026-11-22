@@ -1,0 +1,11 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/main.ts": "const page='A'; import('./pages/'+page);",
+    "src/pages/A.ts": "export const a = 1;",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-010",
+  "mode": "graph",
+  "title": "Computed import remains unknown rather than safely absent"
+}

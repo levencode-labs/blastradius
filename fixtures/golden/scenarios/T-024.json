@@ -1,0 +1,15 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/main.ts": "import {foo} from '@lib'; foo();",
+    "src/new.ts": "export function foo(){}",
+    "src/old.ts": "export function foo(){}",
+    "tsconfig.json": "{\"compilerOptions\": {\"moduleResolution\": \"Bundler\", \"module\": \"ESNext\", \"baseUrl\": \".\", \"paths\": {\"@lib\": [\"src/old.ts\"]}}}"
+  },
+  "id": "T-024",
+  "mode": "diff",
+  "title": "Changing tsconfig paths invalidates old target symbol reachability",
+  "update": {
+    "tsconfig.json": "{\"compilerOptions\": {\"moduleResolution\": \"Bundler\", \"module\": \"ESNext\", \"baseUrl\": \".\", \"paths\": {\"@lib\": [\"src/new.ts\"]}}}"
+  }
+}

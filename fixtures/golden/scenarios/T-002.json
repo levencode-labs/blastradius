@@ -1,0 +1,11 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/foo.ts": "export default function foo(){return 1;}",
+    "src/main.ts": "import foo from './foo'; foo();",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-002",
+  "mode": "graph",
+  "title": "Default import binds the default export, not the function name"
+}

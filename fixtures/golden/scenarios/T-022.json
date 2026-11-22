@@ -1,0 +1,11 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/Button.tsx": "export function Button({variant}:{variant:string}){return <div/>;}",
+    "src/main.tsx": "import {Button} from './Button'; const props={variant:'primary'}; const node=<Button {...props}/>;",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-022",
+  "mode": "graph",
+  "title": "JSX spread produces a warning and incomplete coverage"
+}

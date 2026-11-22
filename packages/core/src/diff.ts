@@ -40,14 +40,37 @@ export function analyzeDiff(before:Snapshot,after:Snapshot,changedPaths:readonly
   const bProd=reachability(before,'production');const aProd=reachability(after,'production');
   const aTest=reachability(after,'test');const aStory=reachability(after,'story');const aApi=reachability(after,'publicApi');const bApi=reachability(before,'publicApi');
   const current=new Map(after.nodes.map(n=>[n.id,n]));const findings:Finding[]=[];
+  // File identity is not a path: a Git rename can keep the exact same source
+  // declaration but move it to a different module. Match only immutable equal-
+  // content source files with a UNIQUE old/new counterpart. Never pick between
+  // duplicate candidates, and never turn an ambiguous match into a verified orphan.
+  const oldPaths=new Set(before.facts.map(f=>f.file));
+  const newPaths=new Set(after.facts.map(f=>f.file));
+  const removed=before.facts.filter(f=>!newPaths.has(f.file));
+  const added=after.facts.filter(f=>!oldPaths.has(f.file));
+  const byHash=new Map<string,string[]>();
+  for(const file of added){const group=byHash.get(file.hash)||[];group.push(file.file);byHash.set(file.hash,group);}
+  const oldByHash=new Map<string,string[]>();
+  for(const file of removed){const group=oldByHash.get(file.hash)||[];group.push(file.file);oldByHash.set(file.hash,group);}
+  const moves=new Map<string,string>();
+  const renameDiagnostics:Diagnostic[]=[];
+  for(const old of removed){
+    const newFiles=byHash.get(old.hash)||[];
+    if(newFiles.length===1&&(oldByHash.get(old.hash)||[]).length===1){moves.set(old.file,newFiles[0]);continue;}
+    if(newFiles.length){renameDiagnostics.push({code:'SYMBOL_MATCH_AMBIGUOUS',file:old.file,severity:'warning',message:'Multiple identical candidates for rename: '+newFiles.join(', ')});}
+  }
+  const matched=(node:GraphNode)=>moves.has(node.file||'')
+    ?node.id.replace(':'+node.file+'#',':'+moves.get(node.file!)+'#')
+    :node.id;
   const exportedSymbols=new Set(after.edges.filter(e=>e.kind==='reexports'&&e.to.startsWith('symbol:')).map(e=>e.to));
-  const uncertain=!after.coverage.complete||!before.coverage.complete;
+  const uncertain=!after.coverage.complete||!before.coverage.complete||renameDiagnostics.length>0;
   for(const node of before.nodes){
-    if(node.kind!=='SYMBOL'||!bProd.has(node.id)||aProd.has(node.id))continue;
-    const next=current.get(node.id);if(!next||!exportedSymbols.has(node.id)||next.flags?.includes('REACT_PROP'))continue; // exported surviving declarations only
-    const pub=aApi.has(node.id);const side=(next.flags||[]).includes('POSSIBLE_SIDE_EFFECT');
+    const newId=matched(node);
+    if(node.kind!=='SYMBOL'||!bProd.has(node.id)||aProd.has(newId))continue;
+    const next=current.get(newId);if(!next||!exportedSymbols.has(newId)||next.flags?.includes('REACT_PROP'))continue; // exported surviving declarations only
+    const pub=aApi.has(newId);const side=(next.flags||[]).includes('POSSIBLE_SIDE_EFFECT');
     const category=aTest.has(node.id)?'NOW_TEST_ONLY':aStory.has(node.id)?'NOW_STORY_ONLY':'NEW_ORPHAN_EXPORT';
-    findings.push({id:'',code:category,file:node.file!,symbol:node.name,before:'production_reachable',after:pub?'public_api_only':category==='NOW_TEST_ONLY'?'test_only':category==='NOW_STORY_ONLY'?'story_only':'unreachable',certainty:uncertain?'unknown':'verified',reasonCodes:[pub?'PUBLIC_API_PROTECTED':category==='NOW_TEST_ONLY'?'ONLY_TEST_CONSUMERS':category==='NOW_STORY_ONLY'?'ONLY_STORY_CONSUMERS':'LAST_PRODUCTION_CONSUMER_REMOVED',...(side?['POSSIBLE_SIDE_EFFECT']:[]),...(uncertain?['INCOMPLETE_PROJECT_INDEX']:[])],deletionAdvice:pub||side?'blocked':uncertain?'review':category==='NEW_ORPHAN_EXPORT'?'candidate':'review',evidence:shortestEvidence(before,node.id)});
+    findings.push({id:'',code:category,file:next.file!,symbol:next.name,before:'production_reachable',after:pub?'public_api_only':category==='NOW_TEST_ONLY'?'test_only':category==='NOW_STORY_ONLY'?'story_only':'unreachable',certainty:uncertain?'unknown':'verified',reasonCodes:[pub?'PUBLIC_API_PROTECTED':category==='NOW_TEST_ONLY'?'ONLY_TEST_CONSUMERS':category==='NOW_STORY_ONLY'?'ONLY_STORY_CONSUMERS':'LAST_PRODUCTION_CONSUMER_REMOVED',...(side?['POSSIBLE_SIDE_EFFECT']:[]),...(uncertain?['INCOMPLETE_PROJECT_INDEX']:[])],deletionAdvice:pub||side?'blocked':uncertain?'review':category==='NEW_ORPHAN_EXPORT'?'candidate':'review',evidence:shortestEvidence(before,node.id)});
   }
   const beforeProblems=new Set(before.diagnostics.filter(d=>d.code==='BROKEN_REFERENCE'||d.code==='MODULE_RESOLUTION_FAILED').map(d=>d.file+'|'+d.code+'|'+d.message));
   for(const diag of after.diagnostics){
@@ -55,8 +78,10 @@ export function analyzeDiff(before:Snapshot,after:Snapshot,changedPaths:readonly
     if(beforeProblems.has(diag.file+'|'+diag.code+'|'+diag.message))continue;
     findings.push({id:'',code:'BROKEN_REFERENCE',file:diag.file||'',certainty:'verified',reasonCodes:[diag.code],deletionAdvice:'blocked'});
   }
-  for(const node of before.nodes){if(node.kind!=='EXPORT_BINDING'||!bApi.has(node.id)||current.has(node.id))continue;
-    findings.push({id:'',code:'REMOVED_PUBLIC_API',file:node.file||'',symbol:node.name,certainty:'verified',reasonCodes:['PUBLIC_API_PROTECTED'],deletionAdvice:'blocked'});
+  // The binding may still exist in source yet be removed from package.json
+  // exports/main/types; external clients lose its published path all the same.
+  for(const node of before.nodes){if(node.kind!=='EXPORT_BINDING'||!bApi.has(node.id)||aApi.has(matched(node)))continue;
+    findings.push({id:'',code:'REMOVED_PUBLIC_API',file:node.file||'',symbol:node.name,certainty:uncertain?'unknown':'verified',reasonCodes:['PUBLIC_API_PROTECTED',...(renameDiagnostics.length?['SYMBOL_MATCH_AMBIGUOUS']:[])],deletionAdvice:'blocked'});
   }
   findings.sort((a,b)=>{
     const priority=(x:Finding)=>x.code==='BROKEN_REFERENCE'?0:x.code==='REMOVED_PUBLIC_API'?1:x.code==='NEW_ORPHAN_EXPORT'?2:3;
@@ -71,5 +96,6 @@ export function analyzeDiff(before:Snapshot,after:Snapshot,changedPaths:readonly
     summary:{changedFiles,affectedRoutes:affectedRoutes.length,relatedTests:relatedTests.length,findingCounts,newOrphans:findings.filter(f=>f.code==='NEW_ORPHAN_EXPORT').length,brokenReferences:findings.filter(f=>f.code==='BROKEN_REFERENCE').length,reviewRequired:findings.filter(f=>f.deletionAdvice!=='candidate').length},
     impact:{routes:affectedRoutes.slice(0,Math.max(1,limit)).map(path=>({path,certainty:uncertain?'unknown' as const:'inferred' as const})),
       tests:relatedTests.slice(0,Math.max(1,limit)).map(file=>({file,relation:'static_dependency' as const}))},
-    findings:visible.slice(0,Math.max(1,limit)),diagnostics:[...before.diagnostics,...after.diagnostics].slice(0,50),coverage:after.coverage,truncated};
+    findings:visible.slice(0,Math.max(1,limit)),diagnostics:[...before.diagnostics,...after.diagnostics,...renameDiagnostics].slice(0,50),
+    coverage:renameDiagnostics.length?{...after.coverage,complete:false,unsupportedFiles:after.coverage.unsupportedFiles+renameDiagnostics.length}:after.coverage,truncated};
 }

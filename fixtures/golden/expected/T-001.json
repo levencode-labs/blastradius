@@ -1,0 +1,21 @@
+{
+  "complete": true,
+  "diagnosticCodes": [],
+  "edges": [
+    [
+      "eval:src/main.ts",
+      "export:src/lib.ts#foo",
+      "references"
+    ],
+    [
+      "export:src/lib.ts#foo",
+      "symbol:src/lib.ts#foo",
+      "reexports"
+    ]
+  ],
+  "mode": "graph",
+  "reachability": {
+    "symbol:src/lib.ts#foo": true
+  },
+  "routes": []
+}

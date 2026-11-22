@@ -1,0 +1,14 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/lib.ts": "export function foo(){return 1;}",
+    "src/main.ts": "import {foo} from './lib'; foo();",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-015",
+  "mode": "diff",
+  "title": "Last removed production consumer creates new orphan in unchanged file",
+  "update": {
+    "src/main.ts": "export const keep = 1;"
+  }
+}

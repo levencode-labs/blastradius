@@ -1,0 +1,14 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/dead.ts": "export function dead(){return 1;}",
+    "src/main.ts": "console.log('ready');",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-017",
+  "mode": "diff",
+  "title": "Preexisting dead exports are not newly orphaned",
+  "update": {
+    "src/main.ts": "console.log('still ready');"
+  }
+}

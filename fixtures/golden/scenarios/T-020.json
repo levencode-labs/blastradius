@@ -1,0 +1,12 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/a.ts": "import {bar} from './b'; export function foo(){bar();}",
+    "src/b.ts": "import {foo} from './a'; export function bar(){return foo;}",
+    "src/main.ts": "import {foo} from './a'; foo();",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-020",
+  "mode": "graph",
+  "title": "Circular import graph closes without infinite traversal"
+}

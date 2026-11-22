@@ -1,0 +1,15 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/Widget.stories.tsx": "import {Widget} from './Widget'; const example=<Widget/>;",
+    "src/Widget.tsx": "export function Widget(){return null;}",
+    "src/main.ts": "import {Widget} from './Widget'; Widget();",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-014",
+  "mode": "diff",
+  "title": "Storybook-only React component must not remain production-live",
+  "update": {
+    "src/main.ts": "export const keep = 1;"
+  }
+}

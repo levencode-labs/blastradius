@@ -1,0 +1,473 @@
+{
+  "schemaVersion": 1,
+  "labelProvenance": "hand-authored TypeScript/React/Git semantic probes, not derived from BlastRadius results",
+  "caveat": "Confusion metrics apply only to labeled fixture probes and differential findings, NOT production-world precision/recall; 8 supplementary checks compare symbol identity against the independent TypeScript TypeChecker.",
+  "cases": 30,
+  "passed": 30,
+  "failed": 0,
+  "incompleteCases": [
+    "T-010",
+    "T-016",
+    "T-022"
+  ],
+  "confusion": {
+    "tp": 35,
+    "tn": 4,
+    "fp": 0,
+    "fn": 0
+  },
+  "labeledPrecision": 1,
+  "labeledRecall": 1,
+  "caseResults": [
+    {
+      "id": "T-001",
+      "title": "Named import creates a direct symbol dependency",
+      "mode": "graph",
+      "pass": true,
+      "probes": 3,
+      "incomplete": false,
+      "metrics": {
+        "tp": 3,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-002",
+      "title": "Default import binds the default export, not the function name",
+      "mode": "graph",
+      "pass": true,
+      "probes": 2,
+      "incomplete": false,
+      "metrics": {
+        "tp": 2,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-003",
+      "title": "Aliased import resolves to original provider symbol",
+      "mode": "graph",
+      "pass": true,
+      "probes": 2,
+      "incomplete": false,
+      "metrics": {
+        "tp": 2,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-004",
+      "title": "Explicit barrel re-export is symbol specific",
+      "mode": "graph",
+      "pass": true,
+      "probes": 3,
+      "incomplete": false,
+      "metrics": {
+        "tp": 2,
+        "tn": 1,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-005",
+      "title": "Transitive export-star barrel follows the exact exported name",
+      "mode": "graph",
+      "pass": true,
+      "probes": 2,
+      "incomplete": false,
+      "metrics": {
+        "tp": 2,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-006",
+      "title": "Unused export behind an export-star barrel stays unreachable",
+      "mode": "graph",
+      "pass": true,
+      "probes": 2,
+      "incomplete": false,
+      "metrics": {
+        "tp": 1,
+        "tn": 1,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-007",
+      "title": "tsconfig path alias is resolved from the snapshot options",
+      "mode": "graph",
+      "pass": true,
+      "probes": 2,
+      "incomplete": false,
+      "metrics": {
+        "tp": 2,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-008",
+      "title": "JSX tag reference resolves imported React component",
+      "mode": "graph",
+      "pass": true,
+      "probes": 2,
+      "incomplete": false,
+      "metrics": {
+        "tp": 2,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-009",
+      "title": "Literal React.lazy import has a static dependency",
+      "mode": "graph",
+      "pass": true,
+      "probes": 2,
+      "incomplete": false,
+      "metrics": {
+        "tp": 2,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-010",
+      "title": "Computed import remains unknown rather than safely absent",
+      "mode": "graph",
+      "pass": true,
+      "probes": 1,
+      "incomplete": true,
+      "metrics": {
+        "tp": 0,
+        "tn": 1,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-011",
+      "title": "Next.js App Router segments and route groups form normalized patterns",
+      "mode": "graph",
+      "pass": true,
+      "probes": 1,
+      "incomplete": false,
+      "metrics": {
+        "tp": 1,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-012",
+      "title": "Next.js parent layout reaches child page routes",
+      "mode": "graph",
+      "pass": true,
+      "probes": 2,
+      "incomplete": false,
+      "metrics": {
+        "tp": 2,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-013",
+      "title": "Removing production use leaves an export test-only",
+      "mode": "diff",
+      "pass": true,
+      "probes": 1,
+      "incomplete": false,
+      "metrics": {
+        "tp": 1,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-014",
+      "title": "Storybook-only React component must not remain production-live",
+      "mode": "diff",
+      "pass": true,
+      "probes": 1,
+      "incomplete": false,
+      "metrics": {
+        "tp": 1,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-015",
+      "title": "Last removed production consumer creates new orphan in unchanged file",
+      "mode": "diff",
+      "pass": true,
+      "probes": 1,
+      "incomplete": false,
+      "metrics": {
+        "tp": 1,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-016",
+      "title": "Removing a provider while its importer remains is BROKEN_REFERENCE",
+      "mode": "diff",
+      "pass": true,
+      "probes": 1,
+      "incomplete": true,
+      "metrics": {
+        "tp": 1,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-017",
+      "title": "Preexisting dead exports are not newly orphaned",
+      "mode": "diff",
+      "pass": true,
+      "probes": 0,
+      "incomplete": false,
+      "metrics": {
+        "tp": 0,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-018",
+      "title": "Published API export is protected when local production caller leaves",
+      "mode": "diff",
+      "pass": true,
+      "probes": 1,
+      "incomplete": false,
+      "metrics": {
+        "tp": 1,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-019",
+      "title": "Effectful initializer is protected against delete advice",
+      "mode": "diff",
+      "pass": true,
+      "probes": 1,
+      "incomplete": false,
+      "metrics": {
+        "tp": 1,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-020",
+      "title": "Circular import graph closes without infinite traversal",
+      "mode": "graph",
+      "pass": true,
+      "probes": 2,
+      "incomplete": false,
+      "metrics": {
+        "tp": 2,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-021",
+      "title": "Rename matching preserves an orphan finding in its new file",
+      "mode": "diff",
+      "pass": true,
+      "probes": 1,
+      "incomplete": false,
+      "metrics": {
+        "tp": 1,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-022",
+      "title": "JSX spread produces a warning and incomplete coverage",
+      "mode": "graph",
+      "pass": true,
+      "probes": 1,
+      "incomplete": true,
+      "metrics": {
+        "tp": 1,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-023",
+      "title": "Type-only imports must not make runtime production symbol reachable",
+      "mode": "graph",
+      "pass": true,
+      "probes": 2,
+      "incomplete": false,
+      "metrics": {
+        "tp": 1,
+        "tn": 1,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-024",
+      "title": "Changing tsconfig paths invalidates old target symbol reachability",
+      "mode": "diff",
+      "pass": true,
+      "probes": 1,
+      "incomplete": false,
+      "metrics": {
+        "tp": 1,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-025",
+      "title": "Changing package exports removes a previously public binding",
+      "mode": "diff",
+      "pass": true,
+      "probes": 1,
+      "incomplete": false,
+      "metrics": {
+        "tp": 1,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-026",
+      "title": "Git index snapshot must differ from unstaged worktree snapshot",
+      "mode": "staged_diff",
+      "pass": true,
+      "probes": 1,
+      "incomplete": false,
+      "metrics": {
+        "tp": 1,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-027",
+      "title": "Unchanged working tree must produce no findings",
+      "mode": "diff",
+      "pass": true,
+      "probes": 0,
+      "incomplete": false,
+      "metrics": {
+        "tp": 0,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-028",
+      "title": "A corrupted SQLite cache cannot be treated as ready",
+      "mode": "cache_failure",
+      "pass": true,
+      "probes": 0,
+      "incomplete": false,
+      "metrics": {
+        "tp": 0,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-029",
+      "title": "File target escaping workspace is denied",
+      "mode": "denied_path",
+      "pass": true,
+      "probes": 0,
+      "incomplete": false,
+      "metrics": {
+        "tp": 0,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    },
+    {
+      "id": "T-030",
+      "title": "Same snapshot and same Impact request are deterministic",
+      "mode": "determinism",
+      "pass": true,
+      "probes": 0,
+      "incomplete": false,
+      "metrics": {
+        "tp": 0,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "failures": []
+    }
+  ]
+}
