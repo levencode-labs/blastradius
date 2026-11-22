@@ -178,7 +178,18 @@ export function analyzeFile(file:string,source:string):FileFacts{
         (ts.isQualifiedName(parent)&&parent.right===node);
       if(!definition){
         let property: string | undefined;
-        if(ts.isPropertyAccessExpression(parent)&&parent.expression===node)property=parent.name.text;
+        if(ts.isPropertyAccessExpression(parent)&&parent.expression===node)
+          property=parent.name.text;
+        // A qualified TypeScript namespace member, e.g. common.Datatype
+        // (Floating UI), has an exact static symbol name. Previously the
+        // AST lost QualifiedName.right and treated this reference as UNKNOWN.
+        if(ts.isQualifiedName(parent)&&parent.left===node)
+          property=parent.right.text;
+        // Like ns.views, a string-literal bracket ns['views'] is statically
+        // known. Computed keys must remain DYNAMIC_PROPERTY_ACCESS/UNKNOWN.
+        if(ts.isElementAccessExpression(parent)&&parent.expression===node&&
+           ts.isStringLiteralLike(parent.argumentExpression))
+          property=parent.argumentExpression.text;
         facts.refs.push({consumer,name:node.text,property,typeOnly:isType,jsx:(ts.isJsxOpeningElement(parent)||ts.isJsxSelfClosingElement(parent)||ts.isJsxClosingElement(parent))&&parent.tagName===node,...loc(sf,node)});
       }
     }
