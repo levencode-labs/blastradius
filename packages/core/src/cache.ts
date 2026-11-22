@@ -17,8 +17,15 @@ export class GraphCache{
     if(realpathSync(dir)!==dir)throw new Error('WORKSPACE_ACCESS_DENIED: cache directory escapes the workspace');
     const filename=path.join(dir,'cache.sqlite');
     if(lstatSync(filename,{throwIfNoEntry:false})?.isSymbolicLink())throw new Error('WORKSPACE_ACCESS_DENIED: cache database is a symlink');
-    try{this.db=new DatabaseSync(filename);this.db.exec('PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;');this.init();}
-    catch(e){throw new Error('CACHE_CORRUPTED: cannot open SQLite cache ('+String(e)+'); remove .blastradius/cache.sqlite after taking a backup');}
+    let opened:DatabaseSync|undefined;
+    try{opened=new DatabaseSync(filename);this.db=opened;this.db.exec('PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;');this.init();}
+    catch(e){
+      // A failed SQLite schema read can still leave the Windows database file open.
+      // Release the handle before throwing, otherwise fixture cleanup and recovery
+      // fail with EPERM even when the diagnostic itself is correct.
+      try{opened?.close();}catch{}
+      throw new Error('CACHE_CORRUPTED: cannot open SQLite cache ('+String(e)+'); remove .blastradius/cache.sqlite after taking a backup');
+    }
   }
   private init(){this.db.exec(`
     CREATE TABLE IF NOT EXISTS schema_metadata(key TEXT PRIMARY KEY,value TEXT);
