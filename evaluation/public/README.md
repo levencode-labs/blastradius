@@ -4,7 +4,7 @@
 
 ## Provenance and sampling
 
-`corpus.json` selects **nine real public GitHub repositories at exact immutable Git commit SHAs**, separated into two non-overlapping cohorts:
+`corpus.json` selects **nine real public GitHub repositories at exact immutable Git commit SHAs**, separated into four disjoint cohorts: development, previously exposed, newly repaired/exposed, and genuinely fresh holdout:
 
 | Cohort | Project | Domain | Exact commit |
 | --- | --- | --- | --- |
@@ -18,9 +18,9 @@
 | Fresh untouched holdout | `reduxjs/react-redux` | React context/subscription source links | `8e54f5b9dbbdcc972c120ad3ce3c1c57fc2e89fd` |
 | Fresh untouched holdout | `remix-run/react-router` | Large TypeScript/React router monorepo | `9916920a490c018eb78d7cc8c55a0efd6e9feac9` |
 
-The **original 48 development/previously exposed holdout pairs and 16 additional untouched holdout pairs** were labeled manually using the pinned upstream text *before running BlastRadius* (8 usehooks-ts, 8 Zustand, 16 Next.js, 8 React Hook Form, 8 TanStack Table, 8 Floating UI, 8 TanStack Form). They include explicit positives and negatives, default route context, named imports, JSX and type-only references. The official TypeScript compiler independently verifies *every* label at a concrete reference site. If TypeChecker disagrees, the evaluation fails `ORACLE_DISAGREEMENT`: the test never silently relabels a case to match the engine. The oracle does not use BlastRadius's graph, result JSON or reachability. Tests measure **static direct references only**, not indirect runtime effects or externally visible API safety.
+The **64 previously frozen direct-reference labels** on seven original repositories and **16 newly frozen direct-reference labels** on two genuinely fresh repositories were selected by reading the exact pinned source *before running BlastRadius on each cohort* (8 usehooks-ts, 8 Zustand, 16 Next.js, 8 React Hook Form, 8 TanStack Table, 8 Floating UI, 8 TanStack Form, 8 React Redux, 8 React Router). They include explicit positives and negatives, default route context, named imports, JSX and type-only references. The official TypeScript compiler independently verifies *every* label at a concrete reference site. If TypeChecker disagrees, the evaluation fails `ORACLE_DISAGREEMENT`: the test never silently relabels a case to match the engine. The oracle does not use BlastRadius's graph, result JSON or reachability. Tests measure **static direct references only**, not indirect runtime effects or externally visible API safety.
 
-This is a **purposive sample, not a random representative sample**. Thus results on these 80 pairs must not be called general real-world precision/recall. The holdout is never used to select engine fixes in this evaluation PR, and its errors cannot be averaged away by the development cohort. Dynamic imports, unresolved dependencies and public-entry roots have separate coverage counters; a missing edge under incomplete coverage is never permission to delete code. The runner records every labeled pair, mismatch, and diagnostic rather than showing only passing examples.
+This is a **purposive sample, not a random representative sample**. Thus results on these 80 pairs must not be called general real-world precision/recall. The historical Floating UI holdout exposed a defect and is no longer unseen after that repair; only the React Redux/Router fresh cohort was evaluated without contributing to engine changes. Errors in any cohort cannot be averaged away by results from another cohort. Dynamic imports, unresolved dependencies and public-entry roots have separate coverage counters; a missing edge under incomplete coverage is never permission to delete code. The runner records every labeled pair, mismatch, and diagnostic rather than showing only passing examples.
 
 ## What is compared with Knip
 
