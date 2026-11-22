@@ -18,6 +18,7 @@
     "dist",
     "skills",
     "README.md",
+    "README.ru.md",
     "LICENSE"
   ],
   "scripts": {
@@ -27,7 +28,11 @@
     "benchmark": "node benchmarks/run.mjs",
     "test:mcp": "npm run build && node ci/run-tests.mjs protocol",
     "test:all": "npm run build && node ci/run-tests.mjs all",
-    "verify:distribution": "node ci/verify-distribution.mjs"
+    "verify:distribution": "node ci/verify-distribution.mjs",
+    "verify:lockfile": "node ci/verify-frozen-lock.mjs",
+    "verify:licenses": "node ci/audit-third-party.mjs --check-installed",
+    "verify:packaging": "node ci/verify-packaging.mjs",
+    "test:lockfile": "node --test ci/test-frozen-lock.mjs"
   },
   "dependencies": {
     "typescript": "5.8.3",

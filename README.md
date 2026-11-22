@@ -12,7 +12,7 @@ Local impact analysis · Git differential orphan detection · CLI + MCP + Agent 
 
 </div>
 
-> **Development preview (0.0.1-dev). Not a v0.1.0 release.** Source and local tests are provided for evaluation. The formal 30-fixture golden acceptance suite, full semantic TypeChecker accuracy, live SDK MCP smoke and hosted OS CI are still pending. Do not use orphan findings for unattended deletions.
+> **Development preview (0.0.1-dev), not a v0.1.0 release.** The 30 curated goldens, 120 baseline tests and live official MCP SDK stdio have passed hosted CI. A frozen npm v3 lock, provenance/license metadata check and repeatable packed-consumer smoke are now tracked by [P1](docs/P1_SUPPLY_CHAIN.md). Real-project accuracy, complete TypeChecker semantics and license-text/NOTICE sign-off remain open. Never auto-delete orphan findings.
 
 BlastRadius helps coding agents and developers answer two questions **before and after a refactor**:
 
@@ -28,7 +28,7 @@ Prerequisites: **Node.js 22.13+** and npm, a Git working tree for differential a
 ```sh
 git clone https://github.com/levencode-labs/blastradius.git
 cd blastradius
-npm install
+npm ci --ignore-scripts --no-audit --no-fund
 npm run build
 node dist/packages/cli/src/main.js --help
 ```
@@ -54,7 +54,7 @@ The server uses **stdio** and the official TypeScript MCP SDK and exposes the sa
 {"target":{"file":"src/hooks/useAuth.ts","symbol":"useAuth"},"changeKind":"signature","limit":20}
 ```
 
-Five tools are declared: `br_status`, `br_resolve_symbol`, `br_impact`, `br_analyze_diff`, `br_explain`. The official SDK stdio handshake test is included in `tests/protocol/mcp-stdio.test.mjs` and is mandatory in every CI matrix cell. A local attempt was **blocked before protocol execution** by the missing `@modelcontextprotocol/sdk` package (`ERR_MODULE_NOT_FOUND`); interoperability remains unverified until a real successful run.
+Five tools are declared: `br_status`, `br_resolve_symbol`, `br_impact`, `br_analyze_diff`, `br_explain`. The official SDK stdio handshake test is included in `tests/protocol/mcp-stdio.test.mjs` and is mandatory in every CI matrix cell. Hosted [8-cell CI on P2 main](https://github.com/levencode-labs/blastradius/actions/runs/45003627005) verified the official SDK initialize/list/call/error/close workflow, including Windows 22/24. This does not imply complete compatibility with every MCP client.
 
 ## Key behavior
 
@@ -84,12 +84,12 @@ These are not proof that either declaration can safely be deleted. External cons
 | Git differential orphan analysis | HEAD/index/worktree, broken references, affected route/test summary and test/story classification | Git rename identity, complex public API/side-effect cases |
 | SQLite | Persistent graphs, file facts, transactional writes, forced rebuild and cache symlink protection | Process concurrency, hardening and migration matrix |
 | CLI | Core commands with JSON | Full pagination and stricter input contracts |
-| MCP and Skill | Five input-validated tool handlers, snapshot-bound explain, agent workflow, live SDK test source | Actual SDK initialization/list/call/shutdown evidence, resources, multi-client testing |
-| Acceptance | 78/78 local Node tests passing (core, regression, MCP validation); synthetic 5k benchmark | Official SDK protocol smoke, full T-001…T-030 golden fixtures, CI, public fixtures, precision/recall |
+| MCP and Skill | Five input-validated tools, snapshot-bound explain and agent Skill; official SDK stdio PASS in all 8 CI cells | Additional clients/resources, formal response contract and integration breadth |
+| Acceptance | 120 P2 baseline tests + 30 hand-labeled goldens + 8 TypeChecker oracles and 8-cell CI PASS | Real-world pinned precision/recall, richer semantic model, repeatable performance and v0.1.0 release review |
 
 The full [requirements and acceptance matrix](docs/ACCEPTANCE.md) distinguishes tests that ran locally from targets and unverified behaviors.
 
-Development notes and local evidence are in [Implementation update](docs/IMPLEMENTATION_UPDATE_2026-11-22.md) and [Publication and CI status](docs/PUBLICATION_STATUS.md). Full 30-fixture golden acceptance, a locked install, and hosted platform CI have not yet been certified. `index --force` reparses all source facts; `git.includeUntracked` controls worktree scanning.
+Development notes and local evidence are in [Implementation update](docs/IMPLEMENTATION_UPDATE_2026-11-22.md) and [Publication and CI status](docs/PUBLICATION_STATUS.md). The 30 goldens and prior hosted CI have been verified. P1 separately checks frozen `npm ci`, installed dependency licenses and a real tarball consumer smoke; see the evidence and remaining gates in [P1 supply-chain notes](docs/P1_SUPPLY_CHAIN.md). `index --force` reparses all source facts; `git.includeUntracked` controls worktree scanning.
 
 ## Design and safety
 

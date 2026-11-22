@@ -13,9 +13,9 @@
 
 ## Hosted CI evidence
 
-The previous **main commit `21dfee911371b55fc571fa3b0bd4ba18728469ca`** passed all **8/8 Linux/Windows/macOS × Node 22/24** jobs, including a real official MCP SDK stdio E2E on both Windows versions: [run #45000613478](https://github.com/levencode-labs/blastradius/actions/runs/45000613478). The branding PR similarly passed all eight jobs before merge: [#45002440649](https://github.com/levencode-labs/blastradius/actions/runs/45002440649).
+**P2 main SHA `6b6daff1f0a2ae85c6b76412dea46fa6e5d0e717`** passed all **8/8 Linux/Windows/macOS × Node 22/24** jobs with the real official MCP SDK stdio client and strict golden evidence: [run #45003627005](https://github.com/levencode-labs/blastradius/actions/runs/45003627005). P1 has a separate [lock provenance action #45010837672](https://github.com/levencode-labs/blastradius/actions/runs/45010837672) and verified full frozen-install push/PR CI on initial P1 source SHA `ed9b4a10ce23f1c9a64f08e8a6fb69b569666412`: [push](https://github.com/levencode-labs/blastradius/actions/runs/45011541337), [PR](https://github.com/levencode-labs/blastradius/actions/runs/45011582483). Newer packed-consumer smoke and documentation commits require their own exact-head checks.
 
-**The P2 implementation must have its own fresh full hosted CI green on its exact head** before merge. Prior greens must not be presented as verification of new P2 changes. The workflow retains all eight jobs, `fail-fast: false`, and mandatory live MCP protocol and reproducible golden-evidence validation.
+**The P1 candidate must have its own fresh full hosted CI green on its exact head** before merge. Previous green runs do not prove new changes. All eight jobs, `fail-fast: false`, live MCP protocol, frozen `npm ci`, license inventory and real npm tarball checks are mandatory.
 
 ## Release gates still open
 
@@ -28,7 +28,7 @@ The previous **main commit `21dfee911371b55fc571fa3b0bd4ba18728469ca`** passed a
 | Persistent cache | SQLite snapshots and invalidation, symlink and corruption protections | Multiple concurrent processes, crash/cancel recovery, long-running project memory profiles |
 | CLI and MCP | 78 baseline tests, five MCP tools, live stdio E2E on previously checked CI SHA | Full audited flags/compatibility matrix and formal response schema/documentation stability |
 | Accuracy | All 30 curated goldens and 8 TypeChecker checks; 0 FP/FN on **39 annotated assertions only** | Independent pinned public-repository corpora, unbiased labeling, precision ≥95% / recall ≥90% with unknown coverage disclosed |
-| Reproducibility | Source-only CI and npm pack dry-run | **Pinned lockfile, frozen `npm ci`/pnpm install, artifact source checks and full license/notice review** |
+| Reproducibility | npm lockfile v3 (98 SHA-512-integrity packages), clean `npm ci` on 8 OS/Node cells, strict SPDX metadata inventory and repeated real npm pack + consumer smoke in P1 | 8-cell cross-OS tarball SHA equality (mandatory P1 aggregation), full license text/NOTICE review, security provenance and independent release approvals |
 | Performance | One synthetic 5,001-file timing in old preview | Repeat p50/p95, RSS and cold/warm updates on real repositories, 50k-file evaluation |
 
-**No task may reduce the CI matrix after a failure to manufacture a pass. No release, tag, or npm publication is part of P2.**
+**No task may reduce the CI matrix after a failure to manufacture a pass. No release, tag, or npm publication is part of P1.**
