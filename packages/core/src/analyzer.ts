@@ -11,6 +11,50 @@ function sideEffect(node:ts.Expression|undefined):boolean {
   const visit=(n:ts.Node)=>{if(ts.isCallExpression(n)||ts.isNewExpression(n)||ts.isAwaitExpression(n)||ts.isTaggedTemplateExpression(n)||ts.isJsxElement(n)||ts.isJsxSelfClosingElement(n)||ts.isJsxFragment(n))found=true;else if(!ts.isArrowFunction(n)&&!ts.isFunctionExpression(n))ts.forEachChild(n,visit);};
   visit(node);return found;
 }
+// Only source-literal strings are proven; never interpret local identifiers,
+// module env, calls, dynamic expressions or string-valued TypeScript types.
+// Bounded recursion prevents an attacker-controlled workspace from expanding
+// huge expressions during graph construction.
+function literalString(node:ts.Expression|undefined,depth=0):string|undefined {
+  if(!node||depth>12)return undefined;
+  if(ts.isStringLiteralLike(node))return node.text.length<=1024?node.text:undefined;
+  if(ts.isParenthesizedExpression(node))return literalString(node.expression,depth+1);
+  if(ts.isBinaryExpression(node)&&node.operatorToken.kind===ts.SyntaxKind.PlusToken){
+    const left=literalString(node.left,depth+1),right=literalString(node.right,depth+1);
+    return left!==undefined&&right!==undefined&&left.length+right.length<=1024?left+right:undefined;
+  }
+  if(ts.isTemplateExpression(node)){
+    let value=node.head.text;
+    for(const span of node.templateSpans){
+      const part=literalString(span.expression,depth+1);
+      if(part===undefined||value.length+part.length+span.literal.text.length>1024)return undefined;
+      value+=part+span.literal.text;
+    }
+    return value;
+  }
+  return undefined;
+}
+// JSX spreads from runtime bindings remain UNKNOWN. We only fully resolve an
+// inline object whose complete own-key set is syntactically known. No spread
+// assignments, getters/methods or computed runtime property keys are guessed.
+function literalJsxProps(node:ts.Expression|undefined):{name:string;node:ts.Node}[]|undefined {
+  if(!node)return undefined;
+  while(ts.isParenthesizedExpression(node))node=node.expression;
+  if(!ts.isObjectLiteralExpression(node))return undefined;
+  const result:{name:string;node:ts.Node}[]=[];
+  for(const prop of node.properties){
+    if(!ts.isPropertyAssignment(prop)&&!ts.isShorthandPropertyAssignment(prop))return undefined;
+    const nameNode=prop.name;
+    const name=ts.isIdentifier(nameNode)||ts.isStringLiteralLike(nameNode)||ts.isNumericLiteral(nameNode)
+      ?nameNode.text
+      :ts.isComputedPropertyName(nameNode)?literalString(nameNode.expression):undefined;
+    // React handles key/ref specially; do not claim a verified ordinary prop
+    // for them across different React runtimes and versions.
+    if(!name||name==='__proto__'||name==='key'||name==='ref')return undefined;
+    result.push({name,node:prop});
+  }
+  return result;
+}
 export function analyzeFile(file:string,source:string):FileFacts{
   const sf=ts.createSourceFile(file,source,ts.ScriptTarget.Latest,true,/\.(tsx|jsx)$/.test(file)?ts.ScriptKind.TSX:ts.ScriptKind.TS);
   const facts:FileFacts={file,hash:hash(source),imports:[],exports:[],symbols:[],refs:[],dynamics:[],props:[],propReads:[],diagnostics:[]};
@@ -150,7 +194,7 @@ export function analyzeFile(file:string,source:string):FileFacts{
       const isImport=node.expression.kind===ts.SyntaxKind.ImportKeyword;
       const isRequire=ts.isIdentifier(node.expression)&&node.expression.text==='require';
       if(isImport||isRequire){
-        const arg=node.arguments[0]; const spec=arg&&ts.isStringLiteralLike(arg)?arg.text:undefined;
+        const arg=node.arguments[0]; const spec=literalString(arg);
         facts.dynamics.push({consumer,specifier:spec,...loc(sf,node)});
         if(!spec) facts.diagnostics.push({code:'DYNAMIC_IMPORT_UNRESOLVED',file,...loc(sf,node),severity:'warning',message:'Computed dynamic import/require; runtime target unknown'});
       }
@@ -158,15 +202,21 @@ export function analyzeFile(file:string,source:string):FileFacts{
     if(ts.isJsxOpeningElement(node)||ts.isJsxSelfClosingElement(node)){
       const component=node.tagName.getText(sf).split('.')[0];
       for(const prop of node.attributes.properties){
-        const spread=ts.isJsxSpreadAttribute(prop);
-        facts.props.push({consumer,component,prop:spread?'*':prop.name.getText(sf),spread,...loc(sf,prop)});
-        if(spread)facts.diagnostics.push({code:'POSSIBLE_PROP_USAGE',file,...loc(sf,prop),severity:'warning',message:'JSX spread may pass additional component props'});
+        if(ts.isJsxSpreadAttribute(prop)){
+          const known=literalJsxProps(prop.expression);
+          if(known!==undefined){
+            for(const item of known)facts.props.push({consumer,component,prop:item.name,spread:false,...loc(sf,item.node)});
+          }else{
+            facts.props.push({consumer,component,prop:'*',spread:true,...loc(sf,prop)});
+            facts.diagnostics.push({code:'POSSIBLE_PROP_USAGE',file,...loc(sf,prop),severity:'warning',message:'JSX spread may pass additional component props'});
+          }
+        }else facts.props.push({consumer,component,prop:prop.name.getText(sf),spread:false,...loc(sf,prop)});
       }
     }
     if(ts.isPropertyAccessExpression(node)&&consumer&&ts.isIdentifier(node.expression)&&propParamNames.get(consumer)===node.expression.text){
       facts.propReads.push({component:consumer,prop:node.name.text,...loc(sf,node.name)});
     }
-    if(ts.isElementAccessExpression(node)&&!ts.isStringLiteralLike(node.argumentExpression)){
+    if(ts.isElementAccessExpression(node)&&literalString(node.argumentExpression)===undefined){
       facts.diagnostics.push({code:'DYNAMIC_PROPERTY_ACCESS',file,...loc(sf,node),severity:'warning',message:'Computed property access is not statically resolved'});
     }
     if(ts.isIdentifier(node)&&!shadowed.has(node.text)&&(imports.has(node.text)||localSymbols.has(node.text))){
@@ -187,9 +237,8 @@ export function analyzeFile(file:string,source:string):FileFacts{
           property=parent.right.text;
         // Like ns.views, a string-literal bracket ns['views'] is statically
         // known. Computed keys must remain DYNAMIC_PROPERTY_ACCESS/UNKNOWN.
-        if(ts.isElementAccessExpression(parent)&&parent.expression===node&&
-           ts.isStringLiteralLike(parent.argumentExpression))
-          property=parent.argumentExpression.text;
+        if(ts.isElementAccessExpression(parent)&&parent.expression===node)
+          property=literalString(parent.argumentExpression);
         facts.refs.push({consumer,name:node.text,property,typeOnly:isType,jsx:(ts.isJsxOpeningElement(parent)||ts.isJsxSelfClosingElement(parent)||ts.isJsxClosingElement(parent))&&parent.tagName===node,...loc(sf,node)});
       }
     }
