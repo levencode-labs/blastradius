@@ -41,8 +41,10 @@ function sourceFiles(spec,root){
 }
 function compilerOptions(root){
   const configPath=path.join(root,'tsconfig.json');
-  const raw=fs.existsSync(configPath)?JSON.parse(fs.readFileSync(configPath,'utf8')):{};
-  const c=ts.convertCompilerOptionsFromJson(raw.compilerOptions||{},root,'tsconfig.json');
+  // tsconfig.json is JSONC (comments/trailing commas are legal); JSON.parse is not.
+  const parsed=fs.existsSync(configPath)?ts.readConfigFile(configPath,ts.sys.readFile):{config:{}};
+  if(parsed.error)throw Error('TypeScript tsconfig parser failed at '+configPath+': '+ts.flattenDiagnosticMessageText(parsed.error.messageText,'; '));
+  const c=ts.convertCompilerOptionsFromJson(parsed.config.compilerOptions||{},root,'tsconfig.json');
   // Missing installed external packages must not prevent TS's source-to-source alias lookup.
   // Verify every positive alias independently instead of treating missing evidence as negative.
   return {...c.options,module:ts.ModuleKind.ESNext,moduleResolution:ts.ModuleResolutionKind.Bundler,jsx:ts.JsxEmit.ReactJSX,
