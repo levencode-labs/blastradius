@@ -29,7 +29,9 @@ function apply(clone){return spawnSync(process.execPath,[script,clone],{encoding
 
 test('Org profile: current GitHub baseline produces exact BlastRadius → Deploom → SelfReview preview',t=>{
   // Captured blob identity; update intentionally when the organization's README changes.
-  assert.equal(gitBlobHash(original),'3cfdbaf7fe676d1a524ecf1d0e02c4d06c45259a');
+  // Git blob identity is measured on canonical LF bytes; Windows checkout may
+  // convert the working copy to CRLF without changing the object in Git.
+  assert.equal(gitBlobHash(original.replace(/\r\n/g,'\n')),'3cfdbaf7fe676d1a524ecf1d0e02c4d06c45259a');
   const {clone,file}=prepare(t,original);
   const done=apply(clone);
   assert.equal(done.status,0,done.stderr);
@@ -48,4 +50,12 @@ test('Org profile: unexpected original structure is rejected without edits',t=>{
   const result=apply(clone);
   assert.notEqual(result.status,0);
   assert.equal(fs.readFileSync(file,'utf8'),original);
+});
+
+// Keep canonical Git evidence independent of platform line-ending conversion.
+test('Org profile: LF and CRLF working copies have the same normalized baseline identity',()=>{
+  const lf=preview.replace(section,'').replace(/\r\n/g,'\n');
+  const crlf=lf.replace(/\n/g,'\r\n');
+  assert.notEqual(gitBlobHash(crlf),gitBlobHash(lf));
+  assert.equal(gitBlobHash(crlf.replace(/\r\n/g,'\n')),gitBlobHash(lf));
 });

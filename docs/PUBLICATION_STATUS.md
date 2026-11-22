@@ -4,7 +4,7 @@ BlastRadius is being published as a **source-only development preview (`0.0.1-de
 
 ## Local evidence (2026-11-22)
 
-On the authoring Linux environment with Node 22.16.0: `npm test` ran **77 tests, 77 passed, none skipped**, and `node ci/verify-distribution.mjs` passed. The local official SDK MCP smoke **did not run**: `@modelcontextprotocol/sdk` was missing and registry DNS was unavailable. The local number is not cross-platform or SDK integration acceptance.
+On the authoring Linux environment with Node 22.16.0: `npm test` ran **78 tests, 78 passed, none skipped**, and `node ci/verify-distribution.mjs` passed. The local official SDK MCP smoke **did not run**: `@modelcontextprotocol/sdk` was missing and registry DNS was unavailable. The local number is not cross-platform or SDK integration acceptance.
 
 ## Required CI
 

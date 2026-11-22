@@ -83,7 +83,7 @@ These are not proof that either declaration can safely be deleted. External cons
 | SQLite | Persistent graphs, file facts, transactional writes, forced rebuild and cache symlink protection | Process concurrency, hardening and migration matrix |
 | CLI | Core commands with JSON | Full pagination and stricter input contracts |
 | MCP and Skill | Five input-validated tool handlers, snapshot-bound explain, agent workflow, live SDK test source | Actual SDK initialization/list/call/shutdown evidence, resources, multi-client testing |
-| Acceptance | 77/77 local Node tests passing (core, regression, MCP validation); synthetic 5k benchmark | Official SDK protocol smoke, full T-001…T-030 golden fixtures, CI, public fixtures, precision/recall |
+| Acceptance | 78/78 local Node tests passing (core, regression, MCP validation); synthetic 5k benchmark | Official SDK protocol smoke, full T-001…T-030 golden fixtures, CI, public fixtures, precision/recall |
 
 The full [requirements and acceptance matrix](docs/ACCEPTANCE.md) distinguishes tests that ran locally from targets and unverified behaviors.
 
