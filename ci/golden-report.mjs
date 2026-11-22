@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {ids,readCase,evaluateCase,difference} from '../tests/helpers/golden-oracle.mjs';
+import {sameGoldenEvidence} from './golden-evidence-format.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const target=path.join(root,'docs/evidence/p2-golden-report.json');
 if(ids.length!==30||ids.some((s,i)=>s!=='T-'+String(i+1).padStart(3,'0'))){console.error('Incomplete golden corpus; refusing a vacuous metrics result');process.exit(2);}
@@ -34,7 +35,7 @@ const report={
 const rendered=JSON.stringify(report,null,2)+'\n';
 if(process.argv.includes('--check')){
   let existing;try{existing=fs.readFileSync(target,'utf8');}catch{console.error('P2 evidence report missing; do not generate it silently in CI');process.exit(2);}
-  if(existing!==rendered){console.error('P2 golden accuracy report differs from observed results; review mismatches and regenerate intentionally');process.exit(1);}
+  if(!sameGoldenEvidence(existing,rendered)){console.error('P2 golden accuracy report differs from observed results even after normalizing Git checkout CRLF; review mismatches and regenerate intentionally');process.exit(1);}
   if(report.failed){console.error('P2 report has '+report.failed+' failed fixtures');process.exit(1);}
   console.log('Golden evidence identical: '+report.passed+'/30 fixtures; labeled FP='+summary.fp+', FN='+summary.fn+'; incomplete='+report.incompleteCases.join(','));
 }else if(process.argv.includes('--write')){

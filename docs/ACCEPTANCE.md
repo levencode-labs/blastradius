@@ -4,7 +4,7 @@
 
 ## What is confirmed for P2 (2026-11-22)
 
-- **119/119 local Node tests PASS** on Linux x64 / Node 22.16.0, no skips, with TypeScript 5.8.3. This includes the original 78 tests, **30 strict hand-labeled T-001…T-030 golden fixtures**, eight separate TypeChecker semantic-oracle assertions, and three extra negative-control regressions.
+- **120/120 local Node tests PASS** on Linux x64 / Node 22.16.0, no skips, with TypeScript 5.8.3. This includes the original 78 tests, **30 strict hand-labeled T-001…T-030 golden fixtures**, eight separate TypeChecker semantic-oracle assertions, and three extra negative-control regressions.
 - The P2 report [`docs/evidence/p2-golden-report.json`](evidence/p2-golden-report.json) measures **35 labeled positive** and **4 labeled negative** relationship/finding probes: **0 observed false positives, 0 observed false negatives** in the *curated fixture probes only*. Coverage is incomplete on **T-010, T-016, T-022** (and remains visible to users). These rates **cannot** be extrapolated to unknown real repositories.
 - `T-021` proved a false-negative orphan when an unchanged provider module was renamed; new conservative one-to-one identical-content matching finds the surviving export at the new path. Ambiguous duplicate candidates are marked incomplete, not silently matched.
 - `T-025` proved a missed public API removal when package exports no longer exposed a binding although source still declared it; the public-before / non-public-after transition is now reported as blocked advice.

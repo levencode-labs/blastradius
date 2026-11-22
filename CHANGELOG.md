@@ -9,6 +9,7 @@
 - Mark unresolved explicit `tsconfig paths` imports as incomplete instead of silently treating them as known external packages.
 - Recognize conventional Next.js page/layout routes under `apps/<workspace>` and `packages/<workspace>` while preserving layout ownership.
 - Engine version advanced to `0.0.6-dev` so old cached graph facts cannot masquerade as current semantics; product remains private `0.0.1-dev`.
+- Fixed golden-evidence comparison on Windows CRLF checkout without weakening JSON content checks; added tampering/line-ending tests (120 local tests).
 - Added branded B-radar emblem and 2:1 hero banner in a separate documentation change, with no runtime changes.
 
 ## Unreleased — 2026-11-22 development continuation
