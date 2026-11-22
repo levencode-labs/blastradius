@@ -58,6 +58,28 @@ try{
     assert.ok(!/(?:^|\/)(?:node_modules|tests|fixtures|\.github|\.blastradius|\.env)(?:\/|$)/.test(file),`Leaked internal file: ${file}`);
   }
   assert.ok(a.size>0&&a.size<2_000_000,'Unexpected npm archive size');
+
+  // Independently install the actual tarball, not the source checkout; no scripts or publication.
+  // The *source* CI install remains frozen (npm ci); a consumer's normal npm install
+  // is only an archive usability smoke, not proof of a frozen downstream dependency graph.
+  const consumer=path.join(work,'consumer');
+  fs.mkdirSync(consumer);
+  fs.writeFileSync(path.join(consumer,'package.json'),'{\"name\":\"blastradius-package-smoke\",\"version\":\"0.0.0\",\"private\":true}\n');
+  const tarball=path.join(work,'a',a.data.filename);
+  const install=spawnSync(process.execPath,[npmCli,'install','--no-save','--no-package-lock','--ignore-scripts','--no-audit','--no-fund',tarball],
+    {cwd:consumer,encoding:'utf8',timeout:120000,env:{...process.env,npm_config_ignore_scripts:'true'}});
+  if(install.status!==0)throw new Error(`Clean-consumer archive install failed (${install.status}) ${install.stderr}\n${install.stdout}`);
+  const installedRoot=path.join(consumer,'node_modules','blastradius');
+  const installed=JSON.parse(fs.readFileSync(path.join(installedRoot,'package.json'),'utf8'));
+  assert.equal(installed.name,pkg.name);
+  assert.equal(installed.version,pkg.version);
+  for(const relative of ['dist/packages/cli/src/main.js','dist/packages/core/src/index.js','dist/packages/mcp/src/server.js','skills/blastradius/SKILL.md','LICENSE'])
+    assert.ok(fs.existsSync(path.join(installedRoot,relative)),`Packed consumer missing ${relative}`);
+  const probe=spawnSync(process.execPath,[path.join(installedRoot,'dist/packages/cli/src/main.js'),'--help'],
+    {cwd:consumer,encoding:'utf8',timeout:30000});
+  assert.equal(probe.status,0,`Packed CLI --help failed: ${probe.stderr}`);
+  assert.match(probe.stdout,/BlastRadius|blastradius/, 'Packed CLI did not return help');
+  console.log('Clean consumer: installed the actual tarball; CLI --help PASS; scripts disabled.');
   console.log(`npm pack deterministic: ${files.length} safe entries; ${a.size} bytes; sha256=${a.sha256}; ${process.platform}/${process.version}.`);
   console.log('Preview tarball uses runtime dependency installation; not an offline/self-contained distribution. No publication occurred.');
 }finally{fs.rmSync(work,{recursive:true,force:true,maxRetries:10,retryDelay:200});}
