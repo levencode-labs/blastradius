@@ -24,7 +24,7 @@ for(const repo of config.repositories){
  const dir=path.join(root,repo.id);fs.mkdirSync(dir);
  git(['init','-q'],dir);
  git(['remote','add','origin',repo.url],dir);
- git(['-c','protocol.version=2','fetch','--no-tags','--depth=1','--filter=blob:none','origin',repo.sha],dir);
+ git(['-c','protocol.version=2','fetch','--no-tags','--depth=1','origin',repo.sha],dir);
  git(['-c','core.hooksPath=/dev/null','checkout','--detach','FETCH_HEAD'],dir);
  const actual=git(['rev-parse','HEAD'],dir);assert.equal(actual,repo.sha);
  console.log(`PINNED_PUBLIC_SOURCE ${repo.id} ${actual} ${repo.url}`);
