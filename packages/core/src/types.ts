@@ -1,4 +1,4 @@
-export const ENGINE_VERSION = '0.0.11-dev';
+export const ENGINE_VERSION = '0.0.12-dev';
 export type NodeKind = 'FILE' | 'MODULE_EVAL' | 'SYMBOL' | 'EXPORT_BINDING' | 'ROUTE' | 'TEST_ENTRY' | 'STORY_ENTRY' | 'PACKAGE_API' | 'UNKNOWN_ENTRY' | 'EXTERNAL';
 export type RootKind = 'production' | 'test' | 'story' | 'publicApi';
 export type EdgeKind = 'imports' | 'references' | 'calls' | 'renders' | 'reexports' | 'type_references' | 'dynamic_import' | 'side_effect_import' | 'prop_access' | 'prop_pass' | 'route_entry' | 'test_dependency' | 'public_export' | 'possible_dynamic';
