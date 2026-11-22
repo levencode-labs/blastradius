@@ -1,0 +1,318 @@
+{
+  "schemaVersion": 1,
+  "evidence": "pre-fix-source-backed-observation",
+  "benchmarkHead": "031d34a09018802b7431f3680bab2d8bd876fd50",
+  "source": "GitHub Actions push 45014919615",
+  "corpusSha256": "1fa3676635fc1c257e83818f8f711cf2d1052bd6b9b36fd2b355a7b3a200cdb5",
+  "repositorySHAs": {
+    "usehooks-ts": "61949134144d3690fe9f521260a16c779a6d3797",
+    "zustand": "9fed2eb2f3af672da9f7bf694b996df3831fc207",
+    "next-admin": "fe026711c19ac3ee4589c86a738f59b84e611559"
+  },
+  "curated": {
+    "tp": 18,
+    "tn": 14,
+    "fp": 0,
+    "fn": 0,
+    "precision": 1,
+    "recall": 1,
+    "samples": 32
+  },
+  "exhaustive": {
+    "tp": 202,
+    "tn": 5,
+    "fp": 0,
+    "fn": 13,
+    "samples": 220,
+    "precision": 1,
+    "recall": 0.9395348837209302,
+    "perRepo": [
+      {
+        "repo": "usehooks-ts",
+        "tp": 88,
+        "tn": 0,
+        "fp": 0,
+        "fn": 9,
+        "samples": 97,
+        "precision": 1,
+        "recall": 0.9072164948453608,
+        "omitted": {
+          "externalOrUnresolved": 159,
+          "nonNamedImport": 1,
+          "unrecognizedDeclarations": 0,
+          "duplicate": 0
+        }
+      },
+      {
+        "repo": "zustand",
+        "tp": 31,
+        "tn": 4,
+        "fp": 0,
+        "fn": 0,
+        "samples": 35,
+        "precision": 1,
+        "recall": 1,
+        "omitted": {
+          "externalOrUnresolved": 136,
+          "nonNamedImport": 6,
+          "unrecognizedDeclarations": 0,
+          "duplicate": 0
+        }
+      },
+      {
+        "repo": "next-admin",
+        "tp": 83,
+        "tn": 1,
+        "fp": 0,
+        "fn": 4,
+        "samples": 88,
+        "precision": 1,
+        "recall": 0.9540229885057471,
+        "omitted": {
+          "externalOrUnresolved": 52,
+          "nonNamedImport": 25,
+          "unrecognizedDeclarations": 0,
+          "duplicate": 0
+        }
+      }
+    ],
+    "errors": [
+      {
+        "repo": "usehooks-ts",
+        "consumer": "packages/usehooks-ts/src/useEventCallback/useEventCallback.demo.tsx",
+        "target": "packages/usehooks-ts/src/useEventCallback/useEventCallback.ts",
+        "symbol": "useEventCallback",
+        "used": true,
+        "refCount": 1,
+        "predicted": false
+      },
+      {
+        "repo": "usehooks-ts",
+        "consumer": "packages/usehooks-ts/src/useEventCallback/useEventCallback.test.tsx",
+        "target": "packages/usehooks-ts/src/useEventCallback/useEventCallback.ts",
+        "symbol": "useEventCallback",
+        "used": true,
+        "refCount": 5,
+        "predicted": false
+      },
+      {
+        "repo": "usehooks-ts",
+        "consumer": "packages/usehooks-ts/src/useLocalStorage/useLocalStorage.ts",
+        "target": "packages/usehooks-ts/src/useEventCallback/useEventCallback.ts",
+        "symbol": "useEventCallback",
+        "used": true,
+        "refCount": 2,
+        "predicted": false
+      },
+      {
+        "repo": "usehooks-ts",
+        "consumer": "packages/usehooks-ts/src/useReadLocalStorage/useReadLocalStorage.demo.tsx",
+        "target": "packages/usehooks-ts/src/useReadLocalStorage/useReadLocalStorage.ts",
+        "symbol": "useReadLocalStorage",
+        "used": true,
+        "refCount": 1,
+        "predicted": false
+      },
+      {
+        "repo": "usehooks-ts",
+        "consumer": "packages/usehooks-ts/src/useReadLocalStorage/useReadLocalStorage.test.ts",
+        "target": "packages/usehooks-ts/src/useReadLocalStorage/useReadLocalStorage.ts",
+        "symbol": "useReadLocalStorage",
+        "used": true,
+        "refCount": 1,
+        "predicted": false
+      },
+      {
+        "repo": "usehooks-ts",
+        "consumer": "packages/usehooks-ts/src/useScreen/useScreen.demo.tsx",
+        "target": "packages/usehooks-ts/src/useScreen/useScreen.ts",
+        "symbol": "useScreen",
+        "used": true,
+        "refCount": 1,
+        "predicted": false
+      },
+      {
+        "repo": "usehooks-ts",
+        "consumer": "packages/usehooks-ts/src/useSessionStorage/useSessionStorage.ts",
+        "target": "packages/usehooks-ts/src/useEventCallback/useEventCallback.ts",
+        "symbol": "useEventCallback",
+        "used": true,
+        "refCount": 2,
+        "predicted": false
+      },
+      {
+        "repo": "usehooks-ts",
+        "consumer": "packages/usehooks-ts/src/useWindowSize/useWindowSize.demo.tsx",
+        "target": "packages/usehooks-ts/src/useWindowSize/useWindowSize.ts",
+        "symbol": "useWindowSize",
+        "used": true,
+        "refCount": 1,
+        "predicted": false
+      },
+      {
+        "repo": "usehooks-ts",
+        "consumer": "packages/usehooks-ts/src/useWindowSize/useWindowSize.test.ts",
+        "target": "packages/usehooks-ts/src/useWindowSize/useWindowSize.ts",
+        "symbol": "useWindowSize",
+        "used": true,
+        "refCount": 4,
+        "predicted": false
+      },
+      {
+        "repo": "next-admin",
+        "consumer": "app/(dashboard)/user.tsx",
+        "target": "lib/auth.ts",
+        "symbol": "auth",
+        "used": true,
+        "refCount": 1,
+        "predicted": false
+      },
+      {
+        "repo": "next-admin",
+        "consumer": "app/(dashboard)/user.tsx",
+        "target": "lib/auth.ts",
+        "symbol": "signOut",
+        "used": true,
+        "refCount": 1,
+        "predicted": false
+      },
+      {
+        "repo": "next-admin",
+        "consumer": "app/api/auth/[...nextauth]/route.ts",
+        "target": "lib/auth.ts",
+        "symbol": "handlers",
+        "used": true,
+        "refCount": 1,
+        "predicted": false
+      },
+      {
+        "repo": "next-admin",
+        "consumer": "app/login/page.tsx",
+        "target": "lib/auth.ts",
+        "symbol": "signIn",
+        "used": true,
+        "refCount": 1,
+        "predicted": false
+      }
+    ]
+  },
+  "unknownCoverage": [
+    {
+      "repo": "usehooks-ts",
+      "coverage": {
+        "complete": false,
+        "unresolvedImports": 99,
+        "dynamicEdges": 254,
+        "unsupportedFiles": 35
+      }
+    },
+    {
+      "repo": "zustand",
+      "coverage": {
+        "complete": false,
+        "unresolvedImports": 10,
+        "dynamicEdges": 45,
+        "unsupportedFiles": 15
+      }
+    },
+    {
+      "repo": "next-admin",
+      "coverage": {
+        "complete": false,
+        "unresolvedImports": 7,
+        "dynamicEdges": 48,
+        "unsupportedFiles": 0
+      }
+    }
+  ],
+  "comparator": [
+    {
+      "id": "M01",
+      "target": "app/(dashboard)/products-table.tsx#ProductsTable",
+      "expectedOrphan": true,
+      "blastRadius": {
+        "found": true,
+        "matchingFindings": [
+          {
+            "code": "NEW_ORPHAN_EXPORT",
+            "advice": "review",
+            "certainty": "unknown"
+          }
+        ],
+        "coverage": {
+          "complete": false,
+          "unresolvedImports": 7,
+          "dynamicEdges": 48,
+          "unsupportedFiles": 0
+        },
+        "status": "incomplete"
+      },
+      "knip": {
+        "newUnusedExport": false,
+        "newUnusedFile": true,
+        "baselineReportedExport": false,
+        "baselineReportedFile": false,
+        "afterReportedExport": false,
+        "afterReportedFile": true
+      },
+      "note": "Knip unused export/file is not the same semantics as BlastRadius newly unreachable export; compare both signals, do not conflate."
+    },
+    {
+      "id": "M02",
+      "target": "app/(dashboard)/search.tsx#SearchInput",
+      "expectedOrphan": true,
+      "blastRadius": {
+        "found": true,
+        "matchingFindings": [
+          {
+            "code": "NEW_ORPHAN_EXPORT",
+            "advice": "review",
+            "certainty": "unknown"
+          }
+        ],
+        "coverage": {
+          "complete": false,
+          "unresolvedImports": 7,
+          "dynamicEdges": 48,
+          "unsupportedFiles": 0
+        },
+        "status": "incomplete"
+      },
+      "knip": {
+        "newUnusedExport": false,
+        "newUnusedFile": true,
+        "baselineReportedExport": false,
+        "baselineReportedFile": false,
+        "afterReportedExport": false,
+        "afterReportedFile": true
+      },
+      "note": "Knip unused export/file is not the same semantics as BlastRadius newly unreachable export; compare both signals, do not conflate."
+    },
+    {
+      "id": "M03",
+      "target": "components/ui/button.tsx#Button",
+      "expectedOrphan": false,
+      "blastRadius": {
+        "found": false,
+        "matchingFindings": [],
+        "coverage": {
+          "complete": false,
+          "unresolvedImports": 7,
+          "dynamicEdges": 48,
+          "unsupportedFiles": 0
+        },
+        "status": "incomplete"
+      },
+      "knip": {
+        "newUnusedExport": false,
+        "newUnusedFile": false,
+        "baselineReportedExport": false,
+        "baselineReportedFile": false,
+        "afterReportedExport": false,
+        "afterReportedFile": false
+      },
+      "note": "Knip unused export/file is not the same semantics as BlastRadius newly unreachable export; compare both signals, do not conflate."
+    }
+  ],
+  "provenanceNote": "Computed before any engine corrections. Oracle generated from TypeScript checker; changes after this evidence must not modify pinned public sources or original manual labels. Not a population-representative corpus."
+}

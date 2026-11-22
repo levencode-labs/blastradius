@@ -265,8 +265,12 @@ try{
   const knipMissing=report.comparison.length!==3;
   failed=knipMissing||stats.precision===null||stats.recall===null||stats.precision<0.95||stats.recall<0.90||
     report.allNamedImports.precision===null||report.allNamedImports.recall===null||
-    report.allNamedImports.precision<0.95||report.allNamedImports.recall<0.90;
-  report.acceptance={pass:!failed,thresholds:{precision:0.95,recall:0.90},caveat:'These thresholds only evaluate 32 manually selected static source pairs, not population-wide real-repo performance.'};
+    report.allNamedImports.precision<0.95||report.allNamedImports.recall<0.90||
+    // This exact pinned 220-pair corpus exposed 13 source-backed false negatives.
+    // Treat every known independently resolved missed binding as a regression,
+    // rather than relaxing the population threshold or removing difficult cases.
+    report.allNamedImports.fn!==0||report.allNamedImports.fp!==0;
+  report.acceptance={pass:!failed,thresholds:{curatedPrecision:0.95,curatedRecall:0.90,knownStaticCorpusFalseNegatives:0,knownStaticCorpusFalsePositives:0},caveat:'Only pinned independent static named imports are graded; the three full projects have UNKNOWN global coverage, and this is not population-wide real-project precision/recall.'};
 }catch(e){failed=true;report.error={message:e.message,stack:String(e.stack).slice(0,1800)};}
 fs.mkdirSync(path.dirname(outFile),{recursive:true});fs.writeFileSync(outFile,JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify({status:failed?'FAILED':'PASS',reportFile:outFile,total:report.total,allNamedImports:report.allNamedImports&&{tp:report.allNamedImports.tp,tn:report.allNamedImports.tn,fp:report.allNamedImports.fp,fn:report.allNamedImports.fn,precision:report.allNamedImports.precision,recall:report.allNamedImports.recall},comparator:report.comparison.map(x=>({id:x.id,expected:x.expectedOrphan,br:x.blastRadius.found,knipExport:x.knip.newUnusedExport,knipFile:x.knip.newUnusedFile})),error:report.error?.message}));

@@ -45,3 +45,11 @@ node evaluation/public/run.mjs --sources /tmp/br-public-sources-new \
 Use a **new/empty** source directory: the checkout helper refuses existing data. Git fetch uses exact SHA, `--depth=1`, no submodules or hooks, and verifies HEAD before analysis. The benchmark prints an exit failure for a malformed oracle, Knip crash, an incomplete comparator set, precision below 95%, or recall below 90% *on this curated sample*. It always writes the machine-readable report even on a scoring failure. The **existing eight-cell Linux/Windows/macOS × Node 22/24 main CI matrix remains entirely unchanged** and is required separately for every PR.
 
 The report contains individual probe predictions, compiler evidence, per-repository precision/recall, unknown coverage and Knip baseline/delta without automatic golden updates. No code is considered safe to remove solely on the basis of these counts.
+
+## Expanded compiler census and fixes
+
+In addition to the 32 manual probes, `run.mjs` uses a separate TypeScript Program to enumerate every **compiler-resolvable local named-import binding** in the pinned selection (220 at the initial SHA), compares each with BlastRadius's resolved reference edges, and records TP/TN/FP/FN per repository and omitted/unresolved counts. A schema-stable `result.json` is emitted even on test failure. No file from the public corpus is modified outside the three explicitly named Next.js mutation copies, and no expected label is derived from BlastRadius itself.
+
+The baseline is archived at [`docs/evidence/p2-public-baseline.json`](../../docs/evidence/p2-public-baseline.json). It exposed thirteen real missed references: nine from TS function overload export aliases and four from NextAuth destructuring export declarations. `tests/public-source-regressions.test.mjs` provides independent reduced failing cases and negative controls. These known mistakes are now **hard failure gates** in the pinned source corpus, not averaged away by the >=95%/90% scoped thresholds.
+
+This benchmark measures **statically resolved import relations**, not all references in arbitrary code, dead-code safety, dynamic access, project runtime, side-effect equivalence or complete external public API coverage. Separate Knip observations are only on the three controlled mutation deltas and must not be translated into false claims about equal features.

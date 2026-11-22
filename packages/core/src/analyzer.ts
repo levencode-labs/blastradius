@@ -27,6 +27,16 @@ export function analyzeFile(file:string,source:string):FileFacts{
   };
   const pushExport=(exported:string,local:string|undefined,node:ts.Node,other:Partial<ExportFact>={})=>
     facts.exports.push({exported,local,...loc(sf,node),...other});
+  // TypeScript overload signatures and their implementation are one binding.
+  // Only collapse declarations backed by an actual same-name function body;
+  // duplicate exports without an implementation remain ambiguous.
+  const overloadImplementations=new Set(sf.statements.filter((st):st is ts.FunctionDeclaration=>
+    ts.isFunctionDeclaration(st)&&!!st.body).map(st=>st.name?.text||
+      (hasModifier(st,ts.SyntaxKind.DefaultKeyword)?'default':'')));
+  function boundIdentifiers(name:ts.BindingName):ts.Identifier[]{
+    if(ts.isIdentifier(name))return [name];
+    return name.elements.flatMap(e=>ts.isOmittedExpression(e)?[]:boundIdentifiers(e.name));
+  }
   for(const st of sf.statements){
     if(ts.isImportDeclaration(st)&&ts.isStringLiteralLike(st.moduleSpecifier)){
       const spec=st.moduleSpecifier.text;const clause=st.importClause;
@@ -52,6 +62,7 @@ export function analyzeFile(file:string,source:string):FileFacts{
     if(ts.isFunctionDeclaration(st)||ts.isClassDeclaration(st)||ts.isInterfaceDeclaration(st)||ts.isTypeAliasDeclaration(st)||ts.isEnumDeclaration(st)){
       const named=st.name?.text|| (hasModifier(st,ts.SyntaxKind.DefaultKeyword)?'default':undefined);
       if(!named)continue;
+      if(ts.isFunctionDeclaration(st)&&!st.body&&overloadImplementations.has(named))continue;
       const exported=hasModifier(st,ts.SyntaxKind.ExportKeyword);
       const defaulted=hasModifier(st,ts.SyntaxKind.DefaultKeyword);
       pushSymbol(named,ts.SyntaxKind[st.kind].replace('Declaration','').toLowerCase(),st,exported);
@@ -61,12 +72,17 @@ export function analyzeFile(file:string,source:string):FileFacts{
     if(ts.isVariableStatement(st)){
       const exported=hasModifier(st,ts.SyntaxKind.ExportKeyword);
       for(const decl of st.declarationList.declarations){
-        if(!ts.isIdentifier(decl.name))continue;
-        const name=decl.name.text;
-        const kind=decl.initializer&&(ts.isArrowFunction(decl.initializer)||ts.isFunctionExpression(decl.initializer))?'function':'variable';
-        pushSymbol(name,kind,decl,exported,sideEffect(decl.initializer));
-        if(decl.initializer&&(ts.isArrowFunction(decl.initializer)||ts.isFunctionExpression(decl.initializer))){registerProps(name,decl.initializer.parameters);if(decl.initializer.parameters[0]&&ts.isIdentifier(decl.initializer.parameters[0].name))propParamNames.set(name,decl.initializer.parameters[0].name.text);}
-        if(exported)pushExport(name,name,decl);
+        const names=boundIdentifiers(decl.name);
+        for(const identifier of names){
+          const name=identifier.text;
+          const directlyNamed=ts.isIdentifier(decl.name);
+          const kind=directlyNamed&&decl.initializer&&(ts.isArrowFunction(decl.initializer)||ts.isFunctionExpression(decl.initializer))?'function':'variable';
+          // A destructuring initializer may invoke a factory (e.g. NextAuth).
+          // Keep its exported members visible without treating them as pure.
+          pushSymbol(name,kind,identifier,exported,sideEffect(decl.initializer));
+          if(directlyNamed&&decl.initializer&&(ts.isArrowFunction(decl.initializer)||ts.isFunctionExpression(decl.initializer))){registerProps(name,decl.initializer.parameters);if(decl.initializer.parameters[0]&&ts.isIdentifier(decl.initializer.parameters[0].name))propParamNames.set(name,decl.initializer.parameters[0].name.text);}
+          if(exported)pushExport(name,name,identifier);
+        }
       }
     }
   }
