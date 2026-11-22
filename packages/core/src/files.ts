@@ -118,25 +118,35 @@ export function projectOptions(root:string,files:Map<string,string>,relative:str
   const ts=globalTypeScript();
   const defaults:import('typescript').CompilerOptions={module:ts.ModuleKind.ESNext,moduleResolution:ts.ModuleResolutionKind.Bundler,jsx:ts.JsxEmit.ReactJSX,allowJs:true};
   if(!name)return defaults;
-  const parse=(filename:string, visited:Set<string>): Record<string,unknown> => {
+  // Convert each config in its *own* directory before inheritance. The old
+  // implementation flattened raw JSON first and converted once from the leaf
+  // directory, silently rebasing an ancestor's baseUrl/paths/rootDirs into a
+  // nested workspace (a compiler-resolvable import became UNKNOWN).
+  const parse=(filename:string, visited:Set<string>):import('typescript').CompilerOptions => {
     if(visited.has(filename))throw Error('tsconfig extends cycle');visited.add(filename);
     const raw=files.get(filename);if(!raw)return {};
     const parsed=ts.parseConfigFileTextToJson(filename,raw);
     if(parsed.error)throw new Error(ts.flattenDiagnosticMessageText(parsed.error.messageText,' '));
     const json=parsed.config || {};
-    let inherited:Record<string,unknown>={};
+    let inherited:import('typescript').CompilerOptions={};
     if(typeof json.extends==='string'){
       const base=json.extends.endsWith('.json')?json.extends:json.extends+'.json';
       const baseRel=toPosix(path.posix.normalize(path.posix.join(path.posix.dirname(filename),base)));
       if(files.has(baseRel)) inherited=parse(baseRel,visited);
       else throw Error('tsconfig extends missing or not snapshot-resolvable: '+baseRel);
     }
-    return {...inherited,...(json.compilerOptions||{})};
+    const converted=ts.convertCompilerOptionsFromJson(
+      json.compilerOptions||{},path.join(root,path.dirname(filename)),filename);
+    if(converted.errors.length)throw Error('tsconfig compilerOptions errors in '+filename);
+    // TypeScript also supports paths without baseUrl. Anchor these mappings
+    // at the config that declared them, never at the importing child package.
+    const local=converted.options;
+    if(local.paths && !local.baseUrl)
+      local.pathsBasePath=path.join(root,path.dirname(filename));
+    return {...inherited,...local};
   };
   try {
-    const options=ts.convertCompilerOptionsFromJson(parse(name,new Set()),path.join(root,path.dirname(name)),name);
-    if(options.errors.length)throw Error('tsconfig compilerOptions errors');
-    return {...defaults,...options.options};
+    return {...defaults,...parse(name,new Set())};
   }catch(e){throw new Error('INCOMPLETE_PROJECT_INDEX: '+String(e));}
 }
 let TS:typeof import('typescript')|undefined;

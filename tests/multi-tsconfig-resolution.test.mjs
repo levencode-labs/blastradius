@@ -49,3 +49,17 @@ test('P2 tsconfig extends cycle is INCOMPLETE, not a successful resolution',t=>{
   assert.ok(graph.diagnostics.some(d=>d.code==='INCOMPLETE_PROJECT_INDEX'),'cycle must be reported');
   assert.equal(graph.coverage.complete,false);
 });
+
+test('P2 inherited paths with no baseUrl also resolve against parent config directory',t=>{
+  const graph=isolatedGraph(t,{
+    'tsconfig.base.json':JSON.stringify({compilerOptions:{paths:{'@ui/*':['packages/ui/src/*']}}}),
+    'apps/web/tsconfig.json':JSON.stringify({extends:'../../tsconfig.base.json',compilerOptions:{strict:true}}),
+    'apps/web/src/main.tsx':`import {Button} from '@ui/Button';export const result=Button();`,
+    'packages/ui/src/Button.tsx':`export const Button=()=>true;`
+  });
+  assert.ok(graph.edges.some(e=>e.sourceFile==='apps/web/src/main.tsx'&&
+    e.to==='export:packages/ui/src/Button.tsx#Button'&&e.kind==='references'),
+    'paths mapping declared without baseUrl must retain inherited config directory');
+  assert.ok(!graph.diagnostics.some(d=>d.code==='MODULE_RESOLUTION_FAILED'&&
+    d.file==='apps/web/src/main.tsx'));
+});
