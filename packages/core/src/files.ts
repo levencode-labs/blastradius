@@ -118,25 +118,81 @@ export function projectOptions(root:string,files:Map<string,string>,relative:str
   const ts=globalTypeScript();
   const defaults:import('typescript').CompilerOptions={module:ts.ModuleKind.ESNext,moduleResolution:ts.ModuleResolutionKind.Bundler,jsx:ts.JsxEmit.ReactJSX,allowJs:true};
   if(!name)return defaults;
-  const parse=(filename:string, visited:Set<string>): Record<string,unknown> => {
+  // Convert each config in its *own* directory before inheritance. The old
+  // implementation flattened raw JSON first and converted once from the leaf
+  // directory, silently rebasing an ancestor's baseUrl/paths/rootDirs into a
+  // nested workspace (a compiler-resolvable import became UNKNOWN).
+  const parse=(filename:string, visited:Set<string>):import('typescript').CompilerOptions => {
     if(visited.has(filename))throw Error('tsconfig extends cycle');visited.add(filename);
     const raw=files.get(filename);if(!raw)return {};
     const parsed=ts.parseConfigFileTextToJson(filename,raw);
     if(parsed.error)throw new Error(ts.flattenDiagnosticMessageText(parsed.error.messageText,' '));
     const json=parsed.config || {};
-    let inherited:Record<string,unknown>={};
+    let inherited:import('typescript').CompilerOptions={};
     if(typeof json.extends==='string'){
-      const base=json.extends.endsWith('.json')?json.extends:json.extends+'.json';
-      const baseRel=toPosix(path.posix.normalize(path.posix.join(path.posix.dirname(filename),base)));
+      const spec:string=json.extends;
+      let baseRel:string;
+      if(spec.startsWith('./')||spec.startsWith('../')){
+        const base=spec.endsWith('.json')?spec:spec+'.json';
+        baseRel=toPosix(path.posix.normalize(path.posix.join(path.posix.dirname(filename),base)));
+      }else{
+        // A bare TypeScript "extends" can reference a *package* subpath. Only
+        // trust uniquely owned workspace packages recorded by the same
+        // snapshot; never look in node_modules, fetch, or execute a config.
+        if(path.posix.isAbsolute(spec)||spec.includes('\\')||spec.includes('\0')||
+           spec.split('/').includes('..')||spec.split('/').includes('.'))
+          throw Error('Unsupported package tsconfig extends: '+spec);
+        const rootManifest=files.get('package.json');
+        if(!rootManifest)throw Error('Package tsconfig extends has no root workspace manifest: '+spec);
+        const rootPkg=JSON.parse(rootManifest) as Record<string,unknown>;
+        const ws=rootPkg.workspaces;
+        const patterns=Array.isArray(ws)?ws:
+          ws&&typeof ws==='object'?(ws as {packages?:unknown}).packages:undefined;
+        if(!Array.isArray(patterns)||!patterns.length||
+           patterns.some((p:unknown)=>typeof p!=='string'||p.startsWith('!')||p.includes('..')))
+          throw Error('Unsupported root workspace patterns for package tsconfig extends: '+spec);
+        const patternsNormalized=patterns.map((p:string)=>p.replace(/^\.\//,''));
+        const owned=new Map<string,string[]>();
+        for(const [manifestFile,body] of files){
+          if(!manifestFile.endsWith('/package.json'))continue;
+          const dir=path.posix.dirname(manifestFile);
+          if(!patternsNormalized.some(p=>matchesGlob(dir,p)))continue;
+          let parsed:Record<string,unknown>;
+          try{parsed=JSON.parse(body) as Record<string,unknown>;}catch{
+            throw Error('Unparseable owned workspace manifest: '+manifestFile);
+          }
+          if(typeof parsed.name!=='string')continue;
+          const current=owned.get(parsed.name)||[];
+          current.push(dir);owned.set(parsed.name,current);
+        }
+        const packages=[...owned.keys()].filter(n=>spec===n||spec.startsWith(n+'/'))
+          .sort((a,b)=>b.length-a.length);
+        if(!packages.length)throw Error('Unowned package tsconfig extends: '+spec);
+        const chosen=packages[0],dirs=owned.get(chosen)!;
+        if(dirs.length!==1)throw Error('Ambiguous workspace package tsconfig extends: '+spec);
+        const rel=spec===chosen?'tsconfig.json':spec.slice(chosen.length+1);
+        if(!rel||rel.startsWith('/')||rel.includes('\\')||rel.split('/').some(p=>!p||p==='.'||p==='..'))
+          throw Error('Unsafe package tsconfig extends subpath: '+spec);
+        const normalized=rel.endsWith('.json')?rel:rel+'.json';
+        baseRel=path.posix.normalize(path.posix.join(dirs[0],normalized));
+        if(!baseRel.startsWith(dirs[0]+'/'))
+          throw Error('Package tsconfig extends escapes owned workspace: '+spec);
+      }
       if(files.has(baseRel)) inherited=parse(baseRel,visited);
       else throw Error('tsconfig extends missing or not snapshot-resolvable: '+baseRel);
     }
-    return {...inherited,...(json.compilerOptions||{})};
+    const converted=ts.convertCompilerOptionsFromJson(
+      json.compilerOptions||{},path.join(root,path.dirname(filename)),filename);
+    if(converted.errors.length)throw Error('tsconfig compilerOptions errors in '+filename);
+    // TypeScript also supports paths without baseUrl. Anchor these mappings
+    // at the config that declared them, never at the importing child package.
+    const local=converted.options;
+    if(local.paths && !local.baseUrl)
+      local.pathsBasePath=path.join(root,path.dirname(filename));
+    return {...inherited,...local};
   };
   try {
-    const options=ts.convertCompilerOptionsFromJson(parse(name,new Set()),path.join(root,path.dirname(name)),name);
-    if(options.errors.length)throw Error('tsconfig compilerOptions errors');
-    return {...defaults,...options.options};
+    return {...defaults,...parse(name,new Set())};
   }catch(e){throw new Error('INCOMPLETE_PROJECT_INDEX: '+String(e));}
 }
 let TS:typeof import('typescript')|undefined;
