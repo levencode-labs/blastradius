@@ -18,16 +18,30 @@ const decode=call=>JSON.parse(call.content.find(part=>part.type==='text').text);
 test('MCP stdio: initialize, list, sequential call, schema rejection, path isolation, Git diff, explain, shutdown',{timeout:70_000},async t=>{
   const stage=(name)=>console.error(`MCP_STDIO_STAGE ${name}`);
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'br-protocol-'));
-  t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
+  let client,transport;
+  // One teardown hook with explicit order: close the live MCP session and its
+  // SQLite handle BEFORE removing the fixture. A separate rm hook ran first
+  // on Windows and failed EBUSY even after all protocol assertions passed.
+  t.after(async()=>{
+    const errors=[];
+    stage('cleanup:close-client');
+    if(client)try{await client.close();}catch(e){errors.push(e);}
+    stage('cleanup:close-transport');
+    if(transport)try{await transport.close();}catch(e){errors.push(e);}
+    stage('cleanup:remove-fixture');
+    try{fs.rmSync(root,{recursive:true,force:true,maxRetries:10,retryDelay:100});}
+    catch(e){errors.push(e);}
+    stage('cleanup:done');
+    if(errors.length)throw new AggregateError(errors,'MCP stdio cleanup failed');
+  });
   write(root,'.gitignore','.blastradius/\n');
   write(root,'src/main.ts',`import {used} from './lib'; used();`);
   write(root,'src/lib.ts',`export function used(){return 1;}`);
   execFileSync('git',['-C',root,'init','-q']);
   execFileSync('git',['-C',root,'add','.']);
   execFileSync('git',['-C',root,'-c','user.name=Fixture','-c','user.email=fixture@example.test','commit','-qm','baseline']);
-  const transport=new StdioClientTransport({command:process.execPath,args:[cli,'mcp','--stdio','--root',root],stderr:'pipe'});
-  const client=new Client({name:'blastradius-smoke',version:'0.0.1'},{capabilities:{}});
-  t.after(async()=>{stage('cleanup:close-client');try{await client.close();}catch{}stage('cleanup:close-transport');try{await transport.close();}catch{}stage('cleanup:done');});
+  transport=new StdioClientTransport({command:process.execPath,args:[cli,'mcp','--stdio','--root',root],stderr:'pipe'});
+  client=new Client({name:'blastradius-smoke',version:'0.0.1'},{capabilities:{}});
   stage('connect:begin');
   await client.connect(transport);
   stage('connect:done');
