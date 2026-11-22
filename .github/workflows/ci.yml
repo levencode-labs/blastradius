@@ -1,0 +1,61 @@
+name: Cross-platform CI (development preview)
+
+# No releases or publishing occur in this workflow. This preview is private:true.
+# Node 22 + 24 on Linux x64, Windows x64, macOS Apple Silicon and macOS Intel.
+# A pinned dependency lockfile is still required before the v0.1.0 release gate.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / Node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025, macos-15, macos-15-intel]
+        node: ['22', '24']
+    steps:
+      - name: Check out source (no persisted GitHub credentials)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # Preview-only install: registry DNS is unavailable in the local authoring
+      # environment, so a complete frozen lockfile cannot yet be produced.
+      # NEVER treat a green preview matrix as release acceptance without a lock.
+      - name: Install preview dependencies (not frozen)
+        run: npm install --no-audit --no-fund --ignore-scripts --no-package-lock
+
+      - name: Record runtime and top-level dependencies
+        run: |
+          node --version
+          npm --version
+          npm ls --depth=0
+
+      - name: TypeScript compile
+        run: npm run build
+
+      - name: Core, CLI and MCP contract tests (no SDK mocks)
+        run: node ci/run-tests.mjs unit
+
+      - name: Official MCP SDK stdio E2E (required, never skipped)
+        run: node ci/run-tests.mjs protocol
+
+      - name: Validate packed CLI, Core, MCP and Skill layout
+        run: node ci/verify-distribution.mjs
+
+      - name: Verify npm package contents (no publication)
+        run: npm pack --dry-run --json

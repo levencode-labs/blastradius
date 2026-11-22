@@ -1,0 +1,40 @@
+{
+  "name": "blastradius",
+  "version": "0.0.1-dev",
+  "private": true,
+  "description": "Local, evidence-backed blast radius and differential orphan analysis for TypeScript and React",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "bin": {
+    "blastradius": "./dist/packages/cli/src/main.js"
+  },
+  "exports": {
+    ".": "./dist/packages/core/src/index.js",
+    "./mcp": "./dist/packages/mcp/src/server.js"
+  },
+  "files": [
+    "dist",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node ci/run-tests.mjs unit",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "benchmark": "node benchmarks/run.mjs",
+    "test:mcp": "npm run build && node ci/run-tests.mjs protocol",
+    "test:all": "npm run build && node ci/run-tests.mjs all",
+    "verify:distribution": "node ci/verify-distribution.mjs"
+  },
+  "dependencies": {
+    "typescript": "5.8.3",
+    "@modelcontextprotocol/sdk": "1.32.2"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.7"
+  },
+  "license": "MIT"
+}
