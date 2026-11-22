@@ -87,12 +87,28 @@ export function buildGraph({root,files,config={},reuseFacts,saveFacts,extraDiagn
           if(sub==='.'&&typeof exports==='string')entry=exports;
           else if(exports&&typeof exports==='object')entry=(exports as Record<string,unknown>)[sub];
           const prefer=(e:unknown):string|undefined=>typeof e==='string'?e:e&&typeof e==='object'?(prefer((e as Record<string,unknown>).import)||prefer((e as Record<string,unknown>).default)||prefer((e as Record<string,unknown>).types)):undefined;
-          const candidates=[prefer(entry),...(sub==='.'?[pkg.manifest.module,pkg.manifest.main,pkg.manifest.types,'./src/index.ts','./index.ts']:[sub])].filter((x):x is string=>typeof x==='string');
-          for(const candidate of candidates){const base=path.posix.normalize(path.posix.join(pkg.dir,candidate));
-            const possibilities=[base,base+'.ts',base+'.tsx',base+'.js',base+'.jsx',base+'/index.ts',base+'/index.tsx'];
-            result=possibilities.find(p=>byFile.has(p));if(result)break;
+          // An explicit package "exports" map is authoritative for subpaths.
+          // Never turn an unlisted/blocked private import into a *verified*
+          // edge just because ./src/private.ts or ./private.ts exists in the
+          // workspace (TanStack Table). Do not guess dist->src equivalence.
+          const hasExportMap=exports!==undefined;
+          const rejectedSubpath=sub!=='.'&&hasExportMap&&(entry===undefined||entry===null);
+          if(rejectedSubpath){
+            diag('MODULE_RESOLUTION_FAILED',source,1,1,'Workspace package subpath lacks a proven supported export: '+specifier);
+          }else{
+            // Legacy deep-source fallback is allowed only when the package has
+            // no explicit export map. An explicitly exported source subpath
+            // still resolves when its exact exported target is in the snapshot.
+            const fallback=sub==='.'
+              ?[pkg.manifest.module,pkg.manifest.main,pkg.manifest.types,'./src/index.ts','./index.ts']
+              :hasExportMap?[]:[sub];
+            const candidates=[prefer(entry),...fallback].filter((x):x is string=>typeof x==='string');
+            for(const candidate of candidates){const base=path.posix.normalize(path.posix.join(pkg.dir,candidate));
+              const possibilities=[base,base+'.ts',base+'.tsx',base+'.js',base+'.jsx',base+'/index.ts',base+'/index.tsx'];
+              result=possibilities.find(p=>byFile.has(p));if(result)break;
+            }
+            if(!result)diag('MODULE_RESOLUTION_FAILED',source,1,1,'Workspace package has no supported source export: '+specifier);
           }
-          if(!result)diag('MODULE_RESOLUTION_FAILED',source,1,1,'Workspace package has no supported source export: '+specifier);
         }
       }
       if(!result && declaredPathAlias)diag('MODULE_RESOLUTION_FAILED',source,1,1,'Configured tsconfig path alias has no indexed source: '+specifier);
