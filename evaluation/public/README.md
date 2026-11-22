@@ -4,19 +4,21 @@
 
 ## Provenance and sampling
 
-`corpus.json` selects **five real public GitHub repositories at exact immutable Git commit SHAs**, separated into two non-overlapping cohorts:
+`corpus.json` selects **seven real public GitHub repositories at exact immutable Git commit SHAs**, separated into two non-overlapping cohorts:
 
 | Cohort | Project | Domain | Exact commit |
 | --- | --- | --- | --- |
 | Development | `juliencrn/usehooks-ts` | TypeScript React hooks and demo/test consumers | `61949134144d3690fe9f521260a16c779a6d3797` |
 | Development | `pmndrs/zustand` | React state manager, value/type re-exports | `9fed2eb2f3af672da9f7bf694b996df3831fc207` |
 | Development | `vercel/nextjs-postgres-nextauth-tailwindcss-template` | Next.js App Router pages and imported components | `fe026711c19ac3ee4589c86a738f59b84e611559` |
-| Holdout | `react-hook-form/react-hook-form` | React hooks, generic types, overloads, controllers | `8d7bd6c2c774fd9b4310e8cbc07d36ce1cacf736` |
-| Holdout | `TanStack/table` | multi-package TypeScript/React adapter, framework interfaces | `1cfb2e57cbfecf25e3d4ee1bda32fbd65e4e0327` |
+| Holdout (previously exposed) | `react-hook-form/react-hook-form` | React hooks, generic types, overloads, controllers | `8d7bd6c2c774fd9b4310e8cbc07d36ce1cacf736` |
+| Holdout (previously exposed) | `TanStack/table` | multi-package TypeScript/React adapter, framework interfaces | `1cfb2e57cbfecf25e3d4ee1bda32fbd65e4e0327` |
+| New untouched holdout | `floating-ui/floating-ui` | TypeScript/React positioning, multiple package boundaries | `c3042f1f37d96dfadff1d8894daa31e120d89ed4` |
+| New untouched holdout | `TanStack/form` | TypeScript form core + React adapter monorepo | `5de1a8de01e3d63a0e5225a7e659a384f3a0effb` |
 
-The **original 32 development pairs and 16 new holdout pairs** were labeled manually using the pinned upstream text *before running BlastRadius* (8 usehooks-ts, 8 Zustand, 16 Next.js, 8 React Hook Form, 8 TanStack Table). They include explicit positives and negatives, default route context, named imports, JSX and type-only references. The official TypeScript compiler independently verifies *every* label at a concrete reference site. If TypeChecker disagrees, the evaluation fails `ORACLE_DISAGREEMENT`: the test never silently relabels a case to match the engine. The oracle does not use BlastRadius's graph, result JSON or reachability. Tests measure **static direct references only**, not indirect runtime effects or externally visible API safety.
+The **original 48 development/previously exposed holdout pairs and 16 additional untouched holdout pairs** were labeled manually using the pinned upstream text *before running BlastRadius* (8 usehooks-ts, 8 Zustand, 16 Next.js, 8 React Hook Form, 8 TanStack Table, 8 Floating UI, 8 TanStack Form). They include explicit positives and negatives, default route context, named imports, JSX and type-only references. The official TypeScript compiler independently verifies *every* label at a concrete reference site. If TypeChecker disagrees, the evaluation fails `ORACLE_DISAGREEMENT`: the test never silently relabels a case to match the engine. The oracle does not use BlastRadius's graph, result JSON or reachability. Tests measure **static direct references only**, not indirect runtime effects or externally visible API safety.
 
-This is a **purposive sample, not a random representative sample**. Thus results on these 48 pairs must not be called general real-world precision/recall. The holdout is never used to select engine fixes in this evaluation PR, and its errors cannot be averaged away by the development cohort. Dynamic imports, unresolved dependencies and public-entry roots have separate coverage counters; a missing edge under incomplete coverage is never permission to delete code. The runner records every labeled pair, mismatch, and diagnostic rather than showing only passing examples.
+This is a **purposive sample, not a random representative sample**. Thus results on these 64 pairs must not be called general real-world precision/recall. The holdout is never used to select engine fixes in this evaluation PR, and its errors cannot be averaged away by the development cohort. Dynamic imports, unresolved dependencies and public-entry roots have separate coverage counters; a missing edge under incomplete coverage is never permission to delete code. The runner records every labeled pair, mismatch, and diagnostic rather than showing only passing examples.
 
 ## What is compared with Knip
 
@@ -67,3 +69,7 @@ The two holdout repositories were pinned and sixteen positive/negative source-sy
 The original five-source benchmark found one reproducible local reference FN in the *held-out* React Hook Form source: a legal same-name `export type FormState` and `export const FormState` was mistaken for two conflicting direct export bindings. The fix coalesces only this exact disjoint type/value declaration pair and retains negative controls for duplicate same-namespace exports and initializer side effects. The original failing source, report, checks and exact SHA are preserved in [P3 holdout evidence](../../docs/evidence/P3_HOLDOUT_ACCURACY.md).
 
 The unchanged corpus SHA-256 is `a5adcc1882dfced00de1df54c578a4b7683d23ef8dd5d1b306437131eeb1c81c`. On fixed source `778240159b9226e3498e26b979aaf0f06d172d6f`, independent push and PR CI passed: **2299 TP, 6 TN, 0 FP, 0 FN** in the compiler-resolvable direct named-import subset, with 48 unchanged hand labels and all three unchanged Knip mutations. The original fail was 2298 TP, 6 TN, 0 FP, 1 FN. The five full graphs remain incomplete; no missing edge under UNKNOWN is a proven negative. Because the exposed holdout finding was repaired, the same projects are *not* an untouched post-fix holdout and cannot justify general accuracy claims.
+
+## P4: independent untouched holdout (2026-11-22)
+
+The two new upstream pins were selected from source text **before** scoring BlastRadius. Eight static positive/negative pairs from Floating UI and eight from TanStack Form were fixed independently; the previous 48 labels and five SHA pins remain unchanged. Previous React Hook Form/TanStack Table findings have already influenced fixes and therefore retain their separate `holdout` cohort, which must not be represented as fresh blind validation. New output is `bySplit.unseen_holdout` with TP/TN/FP/FN, precision/recall and explicit UNKNOWN. A mismatch is an auditable FAIL and is not fixed by relabeling or weakening gate thresholds. New corpus results can only be claimed after actual exact-SHA Actions evidence. No third-party dependencies, build or scripts execute from inspected repositories.

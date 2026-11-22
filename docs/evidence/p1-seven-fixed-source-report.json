@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "baselineSourceCommit": "80682544a1699ec5204a378fd76cfa6cdd1ee21f",
+  "sourceFixCommit": "ce361ff5688c9d75bc87df5178e5066a4d883c0a",
+  "sourceFixMergeCommit": "a084555a1d7055eec127cf8d0197017e95d04fcd",
+  "verifiedIntegratedSourceCommit": "0d3671a2ad33fdae17dc8eca0c4301557a00678e",
+  "corpusSha256": "5cdf015173021d722983aaf3a92f504fea958af283bc9fffc429c1b93be3094b",
+  "repositoriyCount": 7,
+  "manualLabels": 64,
+  "original": {
+    "run": 45022182077,
+    "artifact": 14754422045,
+    "artifactZipSha256": "ade5c0f5b49db328a3c6475cef22dc1663e949e219958beb0129af9af34958d0",
+    "confusion": {
+      "tp": 2508,
+      "tn": 12,
+      "fp": 0,
+      "fn": 166,
+      "samples": 2686
+    },
+    "manual": {
+      "tp": 31,
+      "tn": 28,
+      "fp": 0,
+      "fn": 5,
+      "samples": 64
+    }
+  },
+  "repaired": {
+    "independentRun": 45025472680,
+    "fullMatrixRun": 45025472676,
+    "artifact": 14755682712,
+    "artifactZipSha256": "7b93966912602bf35ad1ac9a174a75afae44fb3933c266195cc0393d61564068",
+    "confusion": {
+      "tp": 2674,
+      "tn": 12,
+      "fp": 0,
+      "fn": 0,
+      "samples": 2686
+    },
+    "manual": {
+      "tp": 36,
+      "tn": 28,
+      "fp": 0,
+      "fn": 0,
+      "samples": 64
+    },
+    "unknown": {
+      "newCohort": {
+        "attemptedNamedImportBindings": 727,
+        "externalOrUnresolvedNamedBindings": 346,
+        "graph": {
+          "completeRepositories": 0,
+          "totalRepositories": 2,
+          "unresolvedImports": 172,
+          "dynamicEdges": 1000,
+          "unsupportedFiles": 2840
+        }
+      }
+    }
+  },
+  "knownLimitations": [
+    "All seven full graphs are still incomplete",
+    "Original unseen_holdout group is now exposed because its failure informed the code fix",
+    "Results are not population representative and do not justify code deletion",
+    "New untouched cohort required before release"
+  ]
+}
