@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "selectionMethod": "Seven original pinned public repositories and all 64 manual labels remain untouched. Two new public source repositories and 16 manually labeled positive/negative relations selected before running BlastRadius. The original Floating UI cohort has been exposed by repair; fresh_holdout is independently unseen.",
+  "selectionMethod": "Seven original pinned public repositories and all 64 manual labels remain untouched. Two new public source repositories and 16 manually labeled positive/negative relations selected before running BlastRadius. The original Floating UI cohort has been exposed by repair; fresh_holdout is independently unseen. P6: three newly sourced public monorepos (Radix Primitives, SWR, Jotai), 18 source-picked manually labeled pairs, freeze BEFORE ANY BlastRadius evaluation. Previous nine projects and 80 labels unchanged. New cohort is blind_holdout.",
   "repositories": [
     {
       "id": "usehooks-ts",
@@ -694,6 +694,165 @@
           "symbol": "Router",
           "consumer": "packages/react-router/lib/dom/lib.tsx",
           "used": true
+        }
+      ]
+    },
+    {
+      "id": "radix-primitives",
+      "url": "https://github.com/radix-ui/primitives.git",
+      "sha": "eb3a2b7091293e27df8f9ba906632d8daa3d81a3",
+      "split": "blind_holdout",
+      "sourcePrefixes": [
+        "packages/react/"
+      ],
+      "probes": [
+        {
+          "id": "W01",
+          "target": "packages/react/primitive/src/primitive.tsx",
+          "symbol": "Primitive",
+          "consumer": "packages/react/primitive/src/primitive.test.tsx",
+          "used": true
+        },
+        {
+          "id": "W02",
+          "target": "packages/react/primitive/src/primitive.tsx",
+          "symbol": "dispatchDiscreteCustomEvent",
+          "consumer": "packages/react/primitive/src/primitive.test.tsx",
+          "used": false
+        },
+        {
+          "id": "W03",
+          "target": "packages/react/slot/src/slot.tsx",
+          "symbol": "Slot",
+          "consumer": "packages/react/slot/src/slot.test.tsx",
+          "used": true
+        },
+        {
+          "id": "W04",
+          "target": "packages/react/slot/src/slot.tsx",
+          "symbol": "createSlot",
+          "consumer": "packages/react/slot/src/slot.test.tsx",
+          "used": false
+        },
+        {
+          "id": "W05",
+          "target": "packages/react/dialog/src/dialog.tsx",
+          "symbol": "Dialog",
+          "consumer": "packages/react/dialog/src/dialog.test.tsx",
+          "used": true
+        },
+        {
+          "id": "W06",
+          "target": "packages/react/dialog/src/dialog.tsx",
+          "symbol": "DialogTrigger",
+          "consumer": "packages/react/dialog/src/dialog.test.tsx",
+          "used": true
+        }
+      ]
+    },
+    {
+      "id": "swr",
+      "url": "https://github.com/vercel/swr.git",
+      "sha": "8148ef012fd5b317d1e8ec2da4b2ca0673f63c0f",
+      "split": "blind_holdout",
+      "sourcePrefixes": [
+        "src/"
+      ],
+      "probes": [
+        {
+          "id": "W07",
+          "target": "src/_internal/utils/hash.ts",
+          "symbol": "stableHash",
+          "consumer": "src/_internal/utils/serialize.ts",
+          "used": true
+        },
+        {
+          "id": "W08",
+          "target": "src/_internal/utils/shared.ts",
+          "symbol": "isFunction",
+          "consumer": "src/_internal/utils/serialize.ts",
+          "used": true
+        },
+        {
+          "id": "W09",
+          "target": "src/_internal/utils/shared.ts",
+          "symbol": "isUndefined",
+          "consumer": "src/_internal/utils/serialize.ts",
+          "used": false
+        },
+        {
+          "id": "W10",
+          "target": "src/_internal/utils/serialize.ts",
+          "symbol": "serialize",
+          "consumer": "src/index/serialize.ts",
+          "used": true
+        },
+        {
+          "id": "W11",
+          "target": "src/_internal/events.ts",
+          "symbol": "FOCUS_EVENT",
+          "consumer": "src/index/serialize.ts",
+          "used": false
+        },
+        {
+          "id": "W12",
+          "target": "src/index/serialize.ts",
+          "symbol": "unstable_serialize",
+          "consumer": "src/infinite/index.ts",
+          "used": false
+        }
+      ]
+    },
+    {
+      "id": "jotai",
+      "url": "https://github.com/pmndrs/jotai.git",
+      "sha": "5fe0e825f9674b16162e6952c0a1afea01c1485f",
+      "split": "blind_holdout",
+      "sourcePrefixes": [
+        "src/"
+      ],
+      "probes": [
+        {
+          "id": "W13",
+          "target": "src/react/useAtomValue.ts",
+          "symbol": "useAtomValue",
+          "consumer": "src/react/useAtom.ts",
+          "used": true
+        },
+        {
+          "id": "W14",
+          "target": "src/react/useAtomValue.ts",
+          "symbol": "useAtomValue",
+          "consumer": "src/react/useSetAtom.ts",
+          "used": false
+        },
+        {
+          "id": "W15",
+          "target": "src/react/useSetAtom.ts",
+          "symbol": "useSetAtom",
+          "consumer": "src/react/useAtom.ts",
+          "used": true
+        },
+        {
+          "id": "W16",
+          "target": "src/react/useSetAtom.ts",
+          "symbol": "useSetAtom",
+          "consumer": "src/react/useAtomValue.ts",
+          "used": false
+        },
+        {
+          "id": "W17",
+          "target": "src/react/continuablePromise.ts",
+          "symbol": "isPromiseLike",
+          "consumer": "src/react/useAtomValue.ts",
+          "used": true
+        },
+        {
+          "id": "W18",
+          "target": "src/react/continuablePromise.ts",
+          "symbol": "isPromiseLike",
+          "consumer": "src/react/useAtom.ts",
+          "used": false
         }
       ]
     }
