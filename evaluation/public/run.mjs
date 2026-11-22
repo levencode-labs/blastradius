@@ -41,9 +41,8 @@ function sourceFiles(spec,root){
 }
 function compilerOptions(root){
   const configPath=path.join(root,'tsconfig.json');
-  // tsconfig.json is JSONC (comments/trailing commas are legal); JSON.parse is not.
   const parsed=fs.existsSync(configPath)?ts.readConfigFile(configPath,ts.sys.readFile):{config:{}};
-  if(parsed.error)throw Error('TypeScript tsconfig parser failed at '+configPath+': '+ts.flattenDiagnosticMessageText(parsed.error.messageText,'; '));
+  if(parsed.error)throw Error('TypeScript tsconfig parser failed: '+ts.flattenDiagnosticMessageText(parsed.error.messageText,'; '));
   const c=ts.convertCompilerOptionsFromJson(parsed.config.compilerOptions||{},root,'tsconfig.json');
   // Missing installed external packages must not prevent TS's source-to-source alias lookup.
   // Verify every positive alias independently instead of treating missing evidence as negative.
@@ -55,6 +54,47 @@ function resolveAlias(checker,sym){
   if(sym.flags&ts.SymbolFlags.Alias){const next=checker.getAliasedSymbol(sym);return next&&next.name!=='unknown'?next:undefined;}
   return sym;
 }
+function inspectAllNamedImports(root,files,program,checker){
+  const allowed=new Set(files);const candidates=[];
+  const omitted={externalOrUnresolved:0,nonNamedImport:0,unrecognizedDeclarations:0,duplicate:0};
+  for(const consumer of files){
+    const sf=program.getSourceFile(path.join(root,consumer));if(!sf)throw Error('Missing source file in TypeChecker: '+consumer);
+    const named=[];
+    for(const st of sf.statements){
+      if(!ts.isImportDeclaration(st))continue;
+      const bindings=st.importClause?.namedBindings;
+      if(!bindings||!ts.isNamedImports(bindings)){omitted.nonNamedImport++;continue;}
+      for(const imp of bindings.elements){
+        const exportedName=imp.propertyName?.text||imp.name.text;
+        if(exportedName==='default'){omitted.nonNamedImport++;continue;}
+        const alias=checker.getSymbolAtLocation(imp.name),sym=resolveAlias(checker,alias);
+        if(!sym){omitted.externalOrUnresolved++;continue;}
+        const declarations=(sym.getDeclarations()||[]).filter(d=>allowed.has(posix(path.relative(root,d.getSourceFile().fileName)))&&d.name&&ts.isIdentifier(d.name));
+        if(!declarations.length){omitted.externalOrUnresolved++;continue;}
+        const d=declarations[0],target=posix(path.relative(root,d.getSourceFile().fileName)),symbol=d.name.text;
+        if(target===consumer){omitted.unrecognizedDeclarations++;continue;}
+        named.push({consumer,target,symbol,alias:imp.name.text,resolved:sym,refs:0});
+      }
+    }
+    const bySym=new Map();
+    for(const candidate of named){if(!bySym.has(candidate.resolved))bySym.set(candidate.resolved,[]);bySym.get(candidate.resolved).push(candidate);}
+    function walk(node){
+      if(ts.isImportDeclaration(node)||ts.isExportDeclaration(node)||ts.isImportEqualsDeclaration(node))return;
+      if(ts.isIdentifier(node)){
+        const actual=resolveAlias(checker,checker.getSymbolAtLocation(node));
+        for(const candidate of bySym.get(actual)||[])candidate.refs++;
+      }
+      ts.forEachChild(node,walk);
+    }
+    for(const st of sf.statements)walk(st);
+    for(const item of named)candidates.push({consumer:item.consumer,target:item.target,symbol:item.symbol,used:item.refs>0,refCount:item.refs});
+  }
+  const byPair=new Map();
+  for(const x of candidates){const key=[x.consumer,x.target,x.symbol].join('\0');if(byPair.has(key)){omitted.duplicate++;const prev=byPair.get(key);prev.used||=x.used;prev.refCount+=x.refCount;}else byPair.set(key,x);}
+  const ordered=[...byPair.values()].sort((a,b)=>a.consumer.localeCompare(b.consumer)||a.target.localeCompare(b.target)||a.symbol.localeCompare(b.symbol));
+  return {candidatePairs:ordered.length,omitted,pairs:ordered};
+}
+
 function inspectChecker(spec,root,files){
   const p=ts.createProgram(files.map(f=>path.join(root,f)),compilerOptions(root));
   const checker=p.getTypeChecker(), results=[];
@@ -90,7 +130,7 @@ function inspectChecker(spec,root,files){
     if(actual!==q.used)throw Error(`ORACLE_DISAGREEMENT ${spec.id}/${q.id}: curated label=${q.used}, independent checker=${actual}, refs=${JSON.stringify(refs.slice(0,5))}`);
     results.push({...q,checker:{used:actual,refCount:refs.length,first:refs[0]||null}});
   }
-  return results;
+  return {manual:results,all:inspectAllNamedImports(root,files,p,checker)};
 }
 function graphRefsToSymbol(graph,symbolId){
   const paths=new Set([symbolId]);
@@ -103,7 +143,8 @@ function graphRefsToSymbol(graph,symbolId){
   }
   return paths;
 }
-function inspectGraph(spec,root,probes){
+function inspectGraph(spec,root,oracle){
+  const probes=oracle.manual;
   const start=process.hrtime.bigint();const br=new BlastRadius(root);let graph;
   try{graph=br.index();}finally{br.close();}
   const elapsedMs=Number(process.hrtime.bigint()-start)/1e6;
@@ -118,7 +159,16 @@ function inspectGraph(spec,root,probes){
     const predicted=found.length>0;
     return {...q,graph:{used:predicted,edgeCount:found.length,kinds:[...new Set(found.map(x=>x.kind))].sort(),certainty:[...new Set(found.map(x=>x.certainty))].sort(),targetExists:graph.nodes.some(n=>n.id==='symbol:'+q.target+'#'+q.symbol)}};
   });
-  return {probes:checked,graph:{files:graph.facts.length,nodes:graph.nodes.length,edges:graph.edges.length,indexMs:Math.round(elapsedMs),coverage:graph.coverage,diagnosticsByCode:Object.fromEntries([...new Set(graph.diagnostics.map(x=>x.code))].sort().map(code=>[code,graph.diagnostics.filter(x=>x.code===code).length]))}};
+  const full=oracle.all.pairs.map(q=>{
+    const refSet=graphRefsToSymbol(graph,'symbol:'+q.target+'#'+q.symbol);
+    const actual=graph.edges.some(e=>e.sourceFile===q.consumer&&['references','renders','type_references','calls'].includes(e.kind)&&refSet.has(e.to));
+    return {...q,predicted:actual};
+  });
+  const cm={tp:0,tn:0,fp:0,fn:0};
+  for(const x of full){if(x.used&&x.predicted)cm.tp++;else if(!x.used&&!x.predicted)cm.tn++;else if(!x.used&&x.predicted)cm.fp++;else cm.fn++;}
+  const fullResults={...cm,samples:full.length,precision:cm.tp+cm.fp?cm.tp/(cm.tp+cm.fp):null,recall:cm.tp+cm.fn?cm.tp/(cm.tp+cm.fn):null,
+    omitted:oracle.all.omitted,mismatches:full.filter(x=>x.used!==x.predicted).slice(0,100)};
+  return {probes:checked,fullNamedImports:fullResults,graph:{files:graph.facts.length,nodes:graph.nodes.length,edges:graph.edges.length,indexMs:Math.round(elapsedMs),coverage:graph.coverage,diagnosticsByCode:Object.fromEntries([...new Set(graph.diagnostics.map(x=>x.code))].sort().map(code=>[code,graph.diagnostics.filter(x=>x.code===code).length]))}};
 }
 function confusion(rows,expectedField='used',resultField='used'){
   const c={tp:0,tn:0,fp:0,fn:0};
@@ -201,14 +251,23 @@ try{
   }
   const rows=report.repositories.flatMap(x=>x.probes),stats=confusion(rows);
   report.total=stats;
+  const exhaustive=report.repositories.map(r=>({repo:r.id,...r.fullNamedImports}));
+  const aggregate={tp:0,tn:0,fp:0,fn:0,samples:0};
+  for(const x of exhaustive){for(const k of Object.keys(aggregate))aggregate[k]+=x[k];}
+  report.allNamedImports={...aggregate,precision:aggregate.tp+aggregate.fp?aggregate.tp/(aggregate.tp+aggregate.fp):null,
+    recall:aggregate.tp+aggregate.fn?aggregate.tp/(aggregate.tp+aggregate.fn):null,
+    perRepo:exhaustive.map(x=>({repo:x.repo,tp:x.tp,tn:x.tn,fp:x.fp,fn:x.fn,samples:x.samples,precision:x.precision,recall:x.recall,omitted:x.omitted})),
+    errors:exhaustive.flatMap(x=>x.mismatches.map(m=>({repo:x.repo,...m}))).slice(0,120)};
   const mismatch=rows.filter(p=>p.used!==p.graph.used);
   report.mismatches=mismatch.map(p=>({id:p.id,target:p.target+'#'+p.symbol,consumer:p.consumer,expected:p.used,actual:p.graph.used}));
   report.knipCompared=report.comparison.length;
   report.unknownCoverage=report.repositories.map(x=>({repo:x.id,coverage:x.graph.coverage}));
   const knipMissing=report.comparison.length!==3;
-  failed=knipMissing||stats.precision===null||stats.recall===null||stats.precision<0.95||stats.recall<0.90;
+  failed=knipMissing||stats.precision===null||stats.recall===null||stats.precision<0.95||stats.recall<0.90||
+    report.allNamedImports.precision===null||report.allNamedImports.recall===null||
+    report.allNamedImports.precision<0.95||report.allNamedImports.recall<0.90;
   report.acceptance={pass:!failed,thresholds:{precision:0.95,recall:0.90},caveat:'These thresholds only evaluate 32 manually selected static source pairs, not population-wide real-repo performance.'};
 }catch(e){failed=true;report.error={message:e.message,stack:String(e.stack).slice(0,1800)};}
 fs.mkdirSync(path.dirname(outFile),{recursive:true});fs.writeFileSync(outFile,JSON.stringify(report,null,2)+'\n');
-console.log(JSON.stringify({status:failed?'FAILED':'PASS',reportFile:outFile,total:report.total,comparator:report.comparison.map(x=>({id:x.id,expected:x.expectedOrphan,br:x.blastRadius.found,knipExport:x.knip.newUnusedExport,knipFile:x.knip.newUnusedFile})),error:report.error?.message}));
+console.log(JSON.stringify({status:failed?'FAILED':'PASS',reportFile:outFile,total:report.total,allNamedImports:report.allNamedImports&&{tp:report.allNamedImports.tp,tn:report.allNamedImports.tn,fp:report.allNamedImports.fp,fn:report.allNamedImports.fn,precision:report.allNamedImports.precision,recall:report.allNamedImports.recall},comparator:report.comparison.map(x=>({id:x.id,expected:x.expectedOrphan,br:x.blastRadius.found,knipExport:x.knip.newUnusedExport,knipFile:x.knip.newUnusedFile})),error:report.error?.message}));
 if(failed)process.exitCode=1;
