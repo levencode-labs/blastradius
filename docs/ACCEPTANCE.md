@@ -17,6 +17,10 @@
 
 **The P1 candidate must have its own fresh full hosted CI green on its exact head** before merge. Previous green runs do not prove new changes. All eight jobs, `fail-fast: false`, live MCP protocol, frozen `npm ci`, license inventory and real npm tarball checks are mandatory.
 
+## Independent pinned public-source evaluation (P2 research PR)
+
+A read-only study at three exact pinned TypeScript/React/Next.js Git SHAs and Knip 6.45.1 independently checks 32 manually annotated pairs and 220 TypeChecker-resolvable local named import relations. The [original 13 missed relations](evidence/p2-public-baseline.json) were source-backed; overload declarations and NextAuth destructuring exports have regression fixes. The [post-fix actual GitHub Actions evidence](evidence/p2-public-post-fix.json) yields **215 TP, 5 TN, 0 FP, 0 FN on the 220 eligible pairs**. The scoped measurements do **not** establish population-wide real-project precision or recall. All three full graphs are incomplete; dynamic and unrecognized links remain excluded and visibly reported. Two controlled Next.js mutations produce new orphan exports in BlastRadius and new unused files in Knip; these are different detection units, and neither finding proves safe deletion. See the [methodology and limitations](evidence/P2_PUBLIC_ACCURACY.md).
+
 ## Release gates still open
 
 | Area | Verified preview evidence | Remaining v0.1.0 work |

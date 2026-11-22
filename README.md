@@ -75,6 +75,10 @@ NOW_TEST_ONLY      useLegacyData    test references still exist
 
 These are not proof that either declaration can safely be deleted. External consumers, runtime registries and side effects still require review. The tool can explain the old route → component → hook chain, not claim that it executed a test.
 
+### Independent public-source evaluation
+
+The [pinned independent source/Knip study](docs/evidence/P2_PUBLIC_ACCURACY.md) reproduces and fixes 13 missed static bindings in real usehooks-ts and Next.js source, then scores **215 true-positive and 5 true-negative relations with no FP/FN among 220 compiler-resolvable pairs**. The full projects nevertheless have **incomplete/unknown graph coverage**; these metrics must not be generalized or treated as authorization to remove code. See the [before/after evidence](docs/evidence/p2-public-post-fix.json) and limitations before interpreting the result.
+
 ## Implementation status
 
 | Area | Development preview | Remaining for v0.1.0 |

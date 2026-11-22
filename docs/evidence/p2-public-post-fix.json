@@ -1,0 +1,1119 @@
+{
+  "schemaVersion": 1,
+  "corpusSha256": "1fa3676635fc1c257e83818f8f711cf2d1052bd6b9b36fd2b355a7b3a200cdb5",
+  "generatedAt": "2026-11-22T11:05:21.876Z",
+  "methodology": "Static named/exported TypeScript symbol-reference pairs; independent compiler checks manual probes before BlastRadius; Knip only on 3 controlled real Next.js source mutations, with baseline delta.",
+  "toolchain": {
+    "node": "v22.23.5",
+    "typescript": "5.8.3",
+    "knipPinnedVersion": "6.45.1"
+  },
+  "repositories": [
+    {
+      "id": "usehooks-ts",
+      "url": "https://github.com/juliencrn/usehooks-ts.git",
+      "sha": "61949134144d3690fe9f521260a16c779a6d3797",
+      "sourceFiles": 129,
+      "metricUnit": "manually selected static source-symbol/consumer pairs",
+      "probes": [
+        {
+          "id": "H01",
+          "target": "packages/usehooks-ts/src/useBoolean/useBoolean.ts",
+          "symbol": "useBoolean",
+          "consumer": "packages/usehooks-ts/src/useBoolean/useBoolean.demo.tsx",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 1,
+            "first": {
+              "line": 4,
+              "column": 58,
+              "text": "useBoolean"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 1,
+            "kinds": [
+              "references"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "H02",
+          "target": "packages/usehooks-ts/src/useBoolean/useBoolean.ts",
+          "symbol": "useBoolean",
+          "consumer": "packages/usehooks-ts/src/useBoolean/useBoolean.test.ts",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 10,
+            "first": {
+              "line": 7,
+              "column": 41,
+              "text": "useBoolean"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 10,
+            "kinds": [
+              "references"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "H03",
+          "target": "packages/usehooks-ts/src/useBoolean/useBoolean.ts",
+          "symbol": "useBoolean",
+          "consumer": "packages/usehooks-ts/src/useCopyToClipboard/useCopyToClipboard.demo.tsx",
+          "used": false,
+          "checker": {
+            "used": false,
+            "refCount": 0,
+            "first": null
+          },
+          "graph": {
+            "used": false,
+            "edgeCount": 0,
+            "kinds": [],
+            "certainty": [],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "H04",
+          "target": "packages/usehooks-ts/src/useCopyToClipboard/useCopyToClipboard.ts",
+          "symbol": "useCopyToClipboard",
+          "consumer": "packages/usehooks-ts/src/useCopyToClipboard/useCopyToClipboard.demo.tsx",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 1,
+            "first": {
+              "line": 4,
+              "column": 30,
+              "text": "useCopyToClipboard"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 1,
+            "kinds": [
+              "references"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "H05",
+          "target": "packages/usehooks-ts/src/useCopyToClipboard/useCopyToClipboard.ts",
+          "symbol": "useCopyToClipboard",
+          "consumer": "packages/usehooks-ts/src/useBoolean/useBoolean.demo.tsx",
+          "used": false,
+          "checker": {
+            "used": false,
+            "refCount": 0,
+            "first": null
+          },
+          "graph": {
+            "used": false,
+            "edgeCount": 0,
+            "kinds": [],
+            "certainty": [],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "H06",
+          "target": "packages/usehooks-ts/src/useCounter/useCounter.ts",
+          "symbol": "useCounter",
+          "consumer": "packages/usehooks-ts/src/useCounter/useCounter.demo.tsx",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 1,
+            "first": {
+              "line": 4,
+              "column": 60,
+              "text": "useCounter"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 1,
+            "kinds": [
+              "references"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "H07",
+          "target": "packages/usehooks-ts/src/useCounter/useCounter.ts",
+          "symbol": "useCounter",
+          "consumer": "packages/usehooks-ts/src/useBoolean/useBoolean.demo.tsx",
+          "used": false,
+          "checker": {
+            "used": false,
+            "refCount": 0,
+            "first": null
+          },
+          "graph": {
+            "used": false,
+            "edgeCount": 0,
+            "kinds": [],
+            "certainty": [],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "H08",
+          "target": "packages/usehooks-ts/src/useBoolean/useBoolean.ts",
+          "symbol": "useBoolean",
+          "consumer": "packages/usehooks-ts/src/useCounter/useCounter.demo.tsx",
+          "used": false,
+          "checker": {
+            "used": false,
+            "refCount": 0,
+            "first": null
+          },
+          "graph": {
+            "used": false,
+            "edgeCount": 0,
+            "kinds": [],
+            "certainty": [],
+            "targetExists": true
+          }
+        }
+      ],
+      "fullNamedImports": {
+        "tp": 97,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0,
+        "samples": 97,
+        "precision": 1,
+        "recall": 1,
+        "omitted": {
+          "externalOrUnresolved": 159,
+          "nonNamedImport": 1,
+          "unrecognizedDeclarations": 0,
+          "duplicate": 0
+        },
+        "mismatches": []
+      },
+      "graph": {
+        "files": 193,
+        "nodes": 1182,
+        "edges": 1255,
+        "indexMs": 605,
+        "coverage": {
+          "complete": false,
+          "unresolvedImports": 99,
+          "dynamicEdges": 254,
+          "unsupportedFiles": 8
+        },
+        "diagnosticsByCode": {
+          "DYNAMIC_PROPERTY_ACCESS": 203,
+          "INCOMPLETE_PROJECT_INDEX": 8,
+          "MODULE_RESOLUTION_FAILED": 99,
+          "POSSIBLE_PROP_USAGE": 51
+        }
+      },
+      "confusion": {
+        "tp": 4,
+        "tn": 4,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1,
+        "recall": 1,
+        "samples": 8
+      }
+    },
+    {
+      "id": "zustand",
+      "url": "https://github.com/pmndrs/zustand.git",
+      "sha": "9fed2eb2f3af672da9f7bf694b996df3831fc207",
+      "sourceFiles": 31,
+      "metricUnit": "manually selected static source-symbol/consumer pairs",
+      "probes": [
+        {
+          "id": "Z01",
+          "target": "src/vanilla.ts",
+          "symbol": "createStore",
+          "consumer": "src/react.ts",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 1,
+            "first": {
+              "line": 54,
+              "column": 15,
+              "text": "createStore"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 1,
+            "kinds": [
+              "references"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "Z02",
+          "target": "src/vanilla.ts",
+          "symbol": "createStore",
+          "consumer": "src/middleware/combine.ts",
+          "used": false,
+          "checker": {
+            "used": false,
+            "refCount": 0,
+            "first": null
+          },
+          "graph": {
+            "used": false,
+            "edgeCount": 0,
+            "kinds": [],
+            "certainty": [],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "Z03",
+          "target": "src/vanilla.ts",
+          "symbol": "StateCreator",
+          "consumer": "src/middleware/combine.ts",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 2,
+            "first": {
+              "line": 12,
+              "column": 11,
+              "text": "StateCreator"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 2,
+            "kinds": [
+              "type_references"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "Z04",
+          "target": "src/vanilla.ts",
+          "symbol": "StateCreator",
+          "consumer": "src/react.ts",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 4,
+            "first": {
+              "line": 46,
+              "column": 18,
+              "text": "StateCreator"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 4,
+            "kinds": [
+              "type_references"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "Z05",
+          "target": "src/vanilla.ts",
+          "symbol": "StateCreator",
+          "consumer": "src/index.ts",
+          "used": false,
+          "checker": {
+            "used": false,
+            "refCount": 0,
+            "first": null
+          },
+          "graph": {
+            "used": false,
+            "edgeCount": 0,
+            "kinds": [],
+            "certainty": [],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "Z06",
+          "target": "src/vanilla.ts",
+          "symbol": "StoreApi",
+          "consumer": "src/react.ts",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 3,
+            "first": {
+              "line": 12,
+              "column": 3,
+              "text": "StoreApi"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 3,
+            "kinds": [
+              "type_references"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "Z07",
+          "target": "src/vanilla.ts",
+          "symbol": "StoreApi",
+          "consumer": "src/middleware/combine.ts",
+          "used": false,
+          "checker": {
+            "used": false,
+            "refCount": 0,
+            "first": null
+          },
+          "graph": {
+            "used": false,
+            "edgeCount": 0,
+            "kinds": [],
+            "certainty": [],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "Z08",
+          "target": "src/vanilla.ts",
+          "symbol": "StoreMutatorIdentifier",
+          "consumer": "src/middleware/combine.ts",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 2,
+            "first": {
+              "line": 8,
+              "column": 16,
+              "text": "StoreMutatorIdentifier"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 2,
+            "kinds": [
+              "type_references"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        }
+      ],
+      "fullNamedImports": {
+        "tp": 31,
+        "tn": 4,
+        "fp": 0,
+        "fn": 0,
+        "samples": 35,
+        "precision": 1,
+        "recall": 1,
+        "omitted": {
+          "externalOrUnresolved": 136,
+          "nonNamedImport": 6,
+          "unrecognizedDeclarations": 0,
+          "duplicate": 0
+        },
+        "mismatches": []
+      },
+      "graph": {
+        "files": 50,
+        "nodes": 457,
+        "edges": 1511,
+        "indexMs": 373,
+        "coverage": {
+          "complete": false,
+          "unresolvedImports": 10,
+          "dynamicEdges": 45,
+          "unsupportedFiles": 15
+        },
+        "diagnosticsByCode": {
+          "DYNAMIC_PROPERTY_ACCESS": 40,
+          "INCOMPLETE_PROJECT_INDEX": 15,
+          "MODULE_RESOLUTION_FAILED": 10,
+          "POSSIBLE_PROP_USAGE": 5
+        }
+      },
+      "confusion": {
+        "tp": 5,
+        "tn": 3,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1,
+        "recall": 1,
+        "samples": 8
+      }
+    },
+    {
+      "id": "next-admin",
+      "url": "https://github.com/vercel/nextjs-postgres-nextauth-tailwindcss-template.git",
+      "sha": "fe026711c19ac3ee4589c86a738f59b84e611559",
+      "sourceFiles": 30,
+      "metricUnit": "manually selected static source-symbol/consumer pairs",
+      "probes": [
+        {
+          "id": "N01",
+          "target": "app/(dashboard)/products-table.tsx",
+          "symbol": "ProductsTable",
+          "consumer": "app/(dashboard)/page.tsx",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 1,
+            "first": {
+              "line": 49,
+              "column": 10,
+              "text": "ProductsTable"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 1,
+            "kinds": [
+              "renders"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "N02",
+          "target": "app/(dashboard)/products-table.tsx",
+          "symbol": "ProductsTable",
+          "consumer": "app/login/page.tsx",
+          "used": false,
+          "checker": {
+            "used": false,
+            "refCount": 0,
+            "first": null
+          },
+          "graph": {
+            "used": false,
+            "edgeCount": 0,
+            "kinds": [],
+            "certainty": [],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "N03",
+          "target": "lib/db.ts",
+          "symbol": "getProducts",
+          "consumer": "app/(dashboard)/page.tsx",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 1,
+            "first": {
+              "line": 17,
+              "column": 56,
+              "text": "getProducts"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 1,
+            "kinds": [
+              "references"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "N04",
+          "target": "lib/db.ts",
+          "symbol": "getProducts",
+          "consumer": "app/login/page.tsx",
+          "used": false,
+          "checker": {
+            "used": false,
+            "refCount": 0,
+            "first": null
+          },
+          "graph": {
+            "used": false,
+            "edgeCount": 0,
+            "kinds": [],
+            "certainty": [],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "N05",
+          "target": "components/ui/button.tsx",
+          "symbol": "Button",
+          "consumer": "app/(dashboard)/page.tsx",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 4,
+            "first": {
+              "line": 34,
+              "column": 12,
+              "text": "Button"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 4,
+            "kinds": [
+              "renders"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "N06",
+          "target": "components/ui/button.tsx",
+          "symbol": "Button",
+          "consumer": "app/login/page.tsx",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 2,
+            "first": {
+              "line": 31,
+              "column": 14,
+              "text": "Button"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 2,
+            "kinds": [
+              "renders"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "N07",
+          "target": "components/ui/button.tsx",
+          "symbol": "Button",
+          "consumer": "lib/db.ts",
+          "used": false,
+          "checker": {
+            "used": false,
+            "refCount": 0,
+            "first": null
+          },
+          "graph": {
+            "used": false,
+            "edgeCount": 0,
+            "kinds": [],
+            "certainty": [],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "N08",
+          "target": "app/(dashboard)/search.tsx",
+          "symbol": "SearchInput",
+          "consumer": "app/(dashboard)/layout.tsx",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 1,
+            "first": {
+              "line": 48,
+              "column": 14,
+              "text": "SearchInput"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 1,
+            "kinds": [
+              "renders"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "N09",
+          "target": "app/(dashboard)/search.tsx",
+          "symbol": "SearchInput",
+          "consumer": "app/login/page.tsx",
+          "used": false,
+          "checker": {
+            "used": false,
+            "refCount": 0,
+            "first": null
+          },
+          "graph": {
+            "used": false,
+            "edgeCount": 0,
+            "kinds": [],
+            "certainty": [],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "N10",
+          "target": "app/(dashboard)/nav-item.tsx",
+          "symbol": "NavItem",
+          "consumer": "app/(dashboard)/layout.tsx",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 10,
+            "first": {
+              "line": 73,
+              "column": 10,
+              "text": "NavItem"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 10,
+            "kinds": [
+              "renders"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "N11",
+          "target": "app/(dashboard)/nav-item.tsx",
+          "symbol": "NavItem",
+          "consumer": "app/(dashboard)/page.tsx",
+          "used": false,
+          "checker": {
+            "used": false,
+            "refCount": 0,
+            "first": null
+          },
+          "graph": {
+            "used": false,
+            "edgeCount": 0,
+            "kinds": [],
+            "certainty": [],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "N12",
+          "target": "app/(dashboard)/product.tsx",
+          "symbol": "Product",
+          "consumer": "app/(dashboard)/products-table.tsx",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 1,
+            "first": {
+              "line": 73,
+              "column": 16,
+              "text": "Product"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 1,
+            "kinds": [
+              "renders"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "N13",
+          "target": "app/(dashboard)/product.tsx",
+          "symbol": "Product",
+          "consumer": "app/login/page.tsx",
+          "used": false,
+          "checker": {
+            "used": false,
+            "refCount": 0,
+            "first": null
+          },
+          "graph": {
+            "used": false,
+            "edgeCount": 0,
+            "kinds": [],
+            "certainty": [],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "N14",
+          "target": "lib/db.ts",
+          "symbol": "SelectProduct",
+          "consumer": "app/(dashboard)/products-table.tsx",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 1,
+            "first": {
+              "line": 29,
+              "column": 13,
+              "text": "SelectProduct"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 1,
+            "kinds": [
+              "type_references"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "N15",
+          "target": "lib/db.ts",
+          "symbol": "SelectProduct",
+          "consumer": "app/(dashboard)/product.tsx",
+          "used": true,
+          "checker": {
+            "used": true,
+            "refCount": 1,
+            "first": {
+              "line": 16,
+              "column": 49,
+              "text": "SelectProduct"
+            }
+          },
+          "graph": {
+            "used": true,
+            "edgeCount": 1,
+            "kinds": [
+              "type_references"
+            ],
+            "certainty": [
+              "verified"
+            ],
+            "targetExists": true
+          }
+        },
+        {
+          "id": "N16",
+          "target": "lib/db.ts",
+          "symbol": "SelectProduct",
+          "consumer": "app/login/page.tsx",
+          "used": false,
+          "checker": {
+            "used": false,
+            "refCount": 0,
+            "first": null
+          },
+          "graph": {
+            "used": false,
+            "edgeCount": 0,
+            "kinds": [],
+            "certainty": [],
+            "targetExists": true
+          }
+        }
+      ],
+      "fullNamedImports": {
+        "tp": 87,
+        "tn": 1,
+        "fp": 0,
+        "fn": 0,
+        "samples": 88,
+        "precision": 1,
+        "recall": 1,
+        "omitted": {
+          "externalOrUnresolved": 52,
+          "nonNamedImport": 25,
+          "unrecognizedDeclarations": 0,
+          "duplicate": 0
+        },
+        "mismatches": []
+      },
+      "graph": {
+        "files": 33,
+        "nodes": 363,
+        "edges": 690,
+        "indexMs": 98,
+        "coverage": {
+          "complete": false,
+          "unresolvedImports": 2,
+          "dynamicEdges": 48,
+          "unsupportedFiles": 0
+        },
+        "diagnosticsByCode": {
+          "DYNAMIC_PROPERTY_ACCESS": 1,
+          "MODULE_RESOLUTION_FAILED": 2,
+          "POSSIBLE_PROP_USAGE": 47
+        }
+      },
+      "confusion": {
+        "tp": 9,
+        "tn": 7,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1,
+        "recall": 1,
+        "samples": 16
+      }
+    }
+  ],
+  "comparison": [
+    {
+      "id": "M01",
+      "target": "app/(dashboard)/products-table.tsx#ProductsTable",
+      "expectedOrphan": true,
+      "blastRadius": {
+        "found": true,
+        "matchingFindings": [
+          {
+            "code": "NEW_ORPHAN_EXPORT",
+            "advice": "review",
+            "certainty": "unknown"
+          }
+        ],
+        "coverage": {
+          "complete": false,
+          "unresolvedImports": 2,
+          "dynamicEdges": 48,
+          "unsupportedFiles": 0
+        },
+        "status": "incomplete"
+      },
+      "knip": {
+        "newUnusedExport": false,
+        "newUnusedFile": true,
+        "baselineReportedExport": false,
+        "baselineReportedFile": false,
+        "afterReportedExport": false,
+        "afterReportedFile": true
+      },
+      "note": "Knip unused export/file is not the same semantics as BlastRadius newly unreachable export; compare both signals, do not conflate."
+    },
+    {
+      "id": "M02",
+      "target": "app/(dashboard)/search.tsx#SearchInput",
+      "expectedOrphan": true,
+      "blastRadius": {
+        "found": true,
+        "matchingFindings": [
+          {
+            "code": "NEW_ORPHAN_EXPORT",
+            "advice": "review",
+            "certainty": "unknown"
+          }
+        ],
+        "coverage": {
+          "complete": false,
+          "unresolvedImports": 2,
+          "dynamicEdges": 48,
+          "unsupportedFiles": 0
+        },
+        "status": "incomplete"
+      },
+      "knip": {
+        "newUnusedExport": false,
+        "newUnusedFile": true,
+        "baselineReportedExport": false,
+        "baselineReportedFile": false,
+        "afterReportedExport": false,
+        "afterReportedFile": true
+      },
+      "note": "Knip unused export/file is not the same semantics as BlastRadius newly unreachable export; compare both signals, do not conflate."
+    },
+    {
+      "id": "M03",
+      "target": "components/ui/button.tsx#Button",
+      "expectedOrphan": false,
+      "blastRadius": {
+        "found": false,
+        "matchingFindings": [],
+        "coverage": {
+          "complete": false,
+          "unresolvedImports": 2,
+          "dynamicEdges": 48,
+          "unsupportedFiles": 0
+        },
+        "status": "incomplete"
+      },
+      "knip": {
+        "newUnusedExport": false,
+        "newUnusedFile": false,
+        "baselineReportedExport": false,
+        "baselineReportedFile": false,
+        "afterReportedExport": false,
+        "afterReportedFile": false
+      },
+      "note": "Knip unused export/file is not the same semantics as BlastRadius newly unreachable export; compare both signals, do not conflate."
+    }
+  ],
+  "total": {
+    "tp": 18,
+    "tn": 14,
+    "fp": 0,
+    "fn": 0,
+    "precision": 1,
+    "recall": 1,
+    "samples": 32
+  },
+  "allNamedImports": {
+    "tp": 215,
+    "tn": 5,
+    "fp": 0,
+    "fn": 0,
+    "samples": 220,
+    "precision": 1,
+    "recall": 1,
+    "perRepo": [
+      {
+        "repo": "usehooks-ts",
+        "tp": 97,
+        "tn": 0,
+        "fp": 0,
+        "fn": 0,
+        "samples": 97,
+        "precision": 1,
+        "recall": 1,
+        "omitted": {
+          "externalOrUnresolved": 159,
+          "nonNamedImport": 1,
+          "unrecognizedDeclarations": 0,
+          "duplicate": 0
+        }
+      },
+      {
+        "repo": "zustand",
+        "tp": 31,
+        "tn": 4,
+        "fp": 0,
+        "fn": 0,
+        "samples": 35,
+        "precision": 1,
+        "recall": 1,
+        "omitted": {
+          "externalOrUnresolved": 136,
+          "nonNamedImport": 6,
+          "unrecognizedDeclarations": 0,
+          "duplicate": 0
+        }
+      },
+      {
+        "repo": "next-admin",
+        "tp": 87,
+        "tn": 1,
+        "fp": 0,
+        "fn": 0,
+        "samples": 88,
+        "precision": 1,
+        "recall": 1,
+        "omitted": {
+          "externalOrUnresolved": 52,
+          "nonNamedImport": 25,
+          "unrecognizedDeclarations": 0,
+          "duplicate": 0
+        }
+      }
+    ],
+    "errors": []
+  },
+  "mismatches": [],
+  "knipCompared": 3,
+  "unknownCoverage": [
+    {
+      "repo": "usehooks-ts",
+      "coverage": {
+        "complete": false,
+        "unresolvedImports": 99,
+        "dynamicEdges": 254,
+        "unsupportedFiles": 8
+      }
+    },
+    {
+      "repo": "zustand",
+      "coverage": {
+        "complete": false,
+        "unresolvedImports": 10,
+        "dynamicEdges": 45,
+        "unsupportedFiles": 15
+      }
+    },
+    {
+      "repo": "next-admin",
+      "coverage": {
+        "complete": false,
+        "unresolvedImports": 2,
+        "dynamicEdges": 48,
+        "unsupportedFiles": 0
+      }
+    }
+  ],
+  "acceptance": {
+    "pass": true,
+    "thresholds": {
+      "curatedPrecision": 0.95,
+      "curatedRecall": 0.9,
+      "knownStaticCorpusFalseNegatives": 0,
+      "knownStaticCorpusFalsePositives": 0
+    },
+    "caveat": "Only pinned independent static named imports are graded; the three full projects have UNKNOWN global coverage, and this is not population-wide real-project precision/recall."
+  }
+}

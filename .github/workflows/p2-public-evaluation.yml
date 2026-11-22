@@ -1,0 +1,62 @@
+name: Independent pinned public-source accuracy and Knip comparison
+
+on:
+  push:
+    branches: [eval/p2-public-corpus-knip]
+    paths:
+      - .github/workflows/p2-public-evaluation.yml
+      - evaluation/public/**
+      - packages/core/**
+  pull_request:
+    paths:
+      - .github/workflows/p2-public-evaluation.yml
+      - evaluation/public/**
+      - packages/core/**
+  workflow_dispatch:
+
+# This workflow executes no scripts, builds, install hooks, npm binaries or dependencies
+# from the three inspected public projects. Its own Knip comparator is separately locked.
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    name: 3 pinned repos · TypeChecker oracle · Knip 6.45.1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout BlastRadius evaluation code (credentials not persisted)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Node.js 22 from primary supported matrix
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Frozen BlastRadius dependency installation (no scripts)
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Frozen isolated Knip 6.45.1 installation (no upstream project dependencies)
+        run: npm ci --prefix evaluation/public/knip-tool --ignore-scripts --no-audit --no-fund
+      - name: Check exact Knip executable version and immutable package manifests
+        run: |
+          node evaluation/public/check-corpus.mjs
+          evaluation/public/knip-tool/node_modules/.bin/knip --version
+          git diff --exit-code -- package.json package-lock.json evaluation/public/knip-tool/package.json evaluation/public/knip-tool/package-lock.json
+      - name: Compile BlastRadius from committed TypeScript
+        run: npm run build
+      - name: Clone exactly three pinned public source snapshots (no install/build)
+        run: node evaluation/public/checkout.mjs --directory '${{ runner.temp }}/br-public-sources'
+      - name: Score independent static reference oracle and controlled Knip overlap
+        run: |
+          node evaluation/public/run.mjs \
+            --sources '${{ runner.temp }}/br-public-sources' \
+            --knip-bin '${{ github.workspace }}/evaluation/public/knip-tool/node_modules/.bin/knip' \
+            --output '${{ runner.temp }}/br-public-evidence/result.json'
+      - name: Upload exact machine-readable evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blastradius-p2-public-accuracy
+          path: ${{ runner.temp }}/br-public-evidence/result.json
+          if-no-files-found: warn
+          retention-days: 30
