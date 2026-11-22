@@ -1,72 +1,441 @@
 {
   "schemaVersion": 1,
-  "selectionMethod": "Manually selected from pinned real public source before running either analyzer; TypeChecker validates exact labels independently. Not random or population-representative.",
+  "selectionMethod": "Development cohort: three previously evaluated pinned projects. Holdout cohort: two additional pinned, source-read and labeled projects selected without inspecting BlastRadius predictions. Neither cohort is representative; do not relabel after scoring.",
   "repositories": [
     {
       "id": "usehooks-ts",
       "url": "https://github.com/juliencrn/usehooks-ts.git",
       "sha": "61949134144d3690fe9f521260a16c779a6d3797",
-      "sourcePrefixes": ["packages/usehooks-ts/src/"],
+      "sourcePrefixes": [
+        "packages/usehooks-ts/src/"
+      ],
       "probes": [
-        {"id":"H01","target":"packages/usehooks-ts/src/useBoolean/useBoolean.ts","symbol":"useBoolean","consumer":"packages/usehooks-ts/src/useBoolean/useBoolean.demo.tsx","used":true},
-        {"id":"H02","target":"packages/usehooks-ts/src/useBoolean/useBoolean.ts","symbol":"useBoolean","consumer":"packages/usehooks-ts/src/useBoolean/useBoolean.test.ts","used":true},
-        {"id":"H03","target":"packages/usehooks-ts/src/useBoolean/useBoolean.ts","symbol":"useBoolean","consumer":"packages/usehooks-ts/src/useCopyToClipboard/useCopyToClipboard.demo.tsx","used":false},
-        {"id":"H04","target":"packages/usehooks-ts/src/useCopyToClipboard/useCopyToClipboard.ts","symbol":"useCopyToClipboard","consumer":"packages/usehooks-ts/src/useCopyToClipboard/useCopyToClipboard.demo.tsx","used":true},
-        {"id":"H05","target":"packages/usehooks-ts/src/useCopyToClipboard/useCopyToClipboard.ts","symbol":"useCopyToClipboard","consumer":"packages/usehooks-ts/src/useBoolean/useBoolean.demo.tsx","used":false},
-        {"id":"H06","target":"packages/usehooks-ts/src/useCounter/useCounter.ts","symbol":"useCounter","consumer":"packages/usehooks-ts/src/useCounter/useCounter.demo.tsx","used":true},
-        {"id":"H07","target":"packages/usehooks-ts/src/useCounter/useCounter.ts","symbol":"useCounter","consumer":"packages/usehooks-ts/src/useBoolean/useBoolean.demo.tsx","used":false},
-        {"id":"H08","target":"packages/usehooks-ts/src/useBoolean/useBoolean.ts","symbol":"useBoolean","consumer":"packages/usehooks-ts/src/useCounter/useCounter.demo.tsx","used":false}
-      ]
+        {
+          "id": "H01",
+          "target": "packages/usehooks-ts/src/useBoolean/useBoolean.ts",
+          "symbol": "useBoolean",
+          "consumer": "packages/usehooks-ts/src/useBoolean/useBoolean.demo.tsx",
+          "used": true
+        },
+        {
+          "id": "H02",
+          "target": "packages/usehooks-ts/src/useBoolean/useBoolean.ts",
+          "symbol": "useBoolean",
+          "consumer": "packages/usehooks-ts/src/useBoolean/useBoolean.test.ts",
+          "used": true
+        },
+        {
+          "id": "H03",
+          "target": "packages/usehooks-ts/src/useBoolean/useBoolean.ts",
+          "symbol": "useBoolean",
+          "consumer": "packages/usehooks-ts/src/useCopyToClipboard/useCopyToClipboard.demo.tsx",
+          "used": false
+        },
+        {
+          "id": "H04",
+          "target": "packages/usehooks-ts/src/useCopyToClipboard/useCopyToClipboard.ts",
+          "symbol": "useCopyToClipboard",
+          "consumer": "packages/usehooks-ts/src/useCopyToClipboard/useCopyToClipboard.demo.tsx",
+          "used": true
+        },
+        {
+          "id": "H05",
+          "target": "packages/usehooks-ts/src/useCopyToClipboard/useCopyToClipboard.ts",
+          "symbol": "useCopyToClipboard",
+          "consumer": "packages/usehooks-ts/src/useBoolean/useBoolean.demo.tsx",
+          "used": false
+        },
+        {
+          "id": "H06",
+          "target": "packages/usehooks-ts/src/useCounter/useCounter.ts",
+          "symbol": "useCounter",
+          "consumer": "packages/usehooks-ts/src/useCounter/useCounter.demo.tsx",
+          "used": true
+        },
+        {
+          "id": "H07",
+          "target": "packages/usehooks-ts/src/useCounter/useCounter.ts",
+          "symbol": "useCounter",
+          "consumer": "packages/usehooks-ts/src/useBoolean/useBoolean.demo.tsx",
+          "used": false
+        },
+        {
+          "id": "H08",
+          "target": "packages/usehooks-ts/src/useBoolean/useBoolean.ts",
+          "symbol": "useBoolean",
+          "consumer": "packages/usehooks-ts/src/useCounter/useCounter.demo.tsx",
+          "used": false
+        }
+      ],
+      "split": "development"
     },
     {
       "id": "zustand",
       "url": "https://github.com/pmndrs/zustand.git",
       "sha": "9fed2eb2f3af672da9f7bf694b996df3831fc207",
-      "sourcePrefixes": ["src/", "tests/"],
+      "sourcePrefixes": [
+        "src/",
+        "tests/"
+      ],
       "probes": [
-        {"id":"Z01","target":"src/vanilla.ts","symbol":"createStore","consumer":"src/react.ts","used":true},
-        {"id":"Z02","target":"src/vanilla.ts","symbol":"createStore","consumer":"src/middleware/combine.ts","used":false},
-        {"id":"Z03","target":"src/vanilla.ts","symbol":"StateCreator","consumer":"src/middleware/combine.ts","used":true},
-        {"id":"Z04","target":"src/vanilla.ts","symbol":"StateCreator","consumer":"src/react.ts","used":true},
-        {"id":"Z05","target":"src/vanilla.ts","symbol":"StateCreator","consumer":"src/index.ts","used":false},
-        {"id":"Z06","target":"src/vanilla.ts","symbol":"StoreApi","consumer":"src/react.ts","used":true},
-        {"id":"Z07","target":"src/vanilla.ts","symbol":"StoreApi","consumer":"src/middleware/combine.ts","used":false},
-        {"id":"Z08","target":"src/vanilla.ts","symbol":"StoreMutatorIdentifier","consumer":"src/middleware/combine.ts","used":true}
-      ]
+        {
+          "id": "Z01",
+          "target": "src/vanilla.ts",
+          "symbol": "createStore",
+          "consumer": "src/react.ts",
+          "used": true
+        },
+        {
+          "id": "Z02",
+          "target": "src/vanilla.ts",
+          "symbol": "createStore",
+          "consumer": "src/middleware/combine.ts",
+          "used": false
+        },
+        {
+          "id": "Z03",
+          "target": "src/vanilla.ts",
+          "symbol": "StateCreator",
+          "consumer": "src/middleware/combine.ts",
+          "used": true
+        },
+        {
+          "id": "Z04",
+          "target": "src/vanilla.ts",
+          "symbol": "StateCreator",
+          "consumer": "src/react.ts",
+          "used": true
+        },
+        {
+          "id": "Z05",
+          "target": "src/vanilla.ts",
+          "symbol": "StateCreator",
+          "consumer": "src/index.ts",
+          "used": false
+        },
+        {
+          "id": "Z06",
+          "target": "src/vanilla.ts",
+          "symbol": "StoreApi",
+          "consumer": "src/react.ts",
+          "used": true
+        },
+        {
+          "id": "Z07",
+          "target": "src/vanilla.ts",
+          "symbol": "StoreApi",
+          "consumer": "src/middleware/combine.ts",
+          "used": false
+        },
+        {
+          "id": "Z08",
+          "target": "src/vanilla.ts",
+          "symbol": "StoreMutatorIdentifier",
+          "consumer": "src/middleware/combine.ts",
+          "used": true
+        }
+      ],
+      "split": "development"
     },
     {
       "id": "next-admin",
       "url": "https://github.com/vercel/nextjs-postgres-nextauth-tailwindcss-template.git",
       "sha": "fe026711c19ac3ee4589c86a738f59b84e611559",
-      "sourcePrefixes": ["app/", "components/", "lib/", "middleware.ts"],
+      "sourcePrefixes": [
+        "app/",
+        "components/",
+        "lib/",
+        "middleware.ts"
+      ],
       "probes": [
-        {"id":"N01","target":"app/(dashboard)/products-table.tsx","symbol":"ProductsTable","consumer":"app/(dashboard)/page.tsx","used":true},
-        {"id":"N02","target":"app/(dashboard)/products-table.tsx","symbol":"ProductsTable","consumer":"app/login/page.tsx","used":false},
-        {"id":"N03","target":"lib/db.ts","symbol":"getProducts","consumer":"app/(dashboard)/page.tsx","used":true},
-        {"id":"N04","target":"lib/db.ts","symbol":"getProducts","consumer":"app/login/page.tsx","used":false},
-        {"id":"N05","target":"components/ui/button.tsx","symbol":"Button","consumer":"app/(dashboard)/page.tsx","used":true},
-        {"id":"N06","target":"components/ui/button.tsx","symbol":"Button","consumer":"app/login/page.tsx","used":true},
-        {"id":"N07","target":"components/ui/button.tsx","symbol":"Button","consumer":"lib/db.ts","used":false},
-        {"id":"N08","target":"app/(dashboard)/search.tsx","symbol":"SearchInput","consumer":"app/(dashboard)/layout.tsx","used":true},
-        {"id":"N09","target":"app/(dashboard)/search.tsx","symbol":"SearchInput","consumer":"app/login/page.tsx","used":false},
-        {"id":"N10","target":"app/(dashboard)/nav-item.tsx","symbol":"NavItem","consumer":"app/(dashboard)/layout.tsx","used":true},
-        {"id":"N11","target":"app/(dashboard)/nav-item.tsx","symbol":"NavItem","consumer":"app/(dashboard)/page.tsx","used":false},
-        {"id":"N12","target":"app/(dashboard)/product.tsx","symbol":"Product","consumer":"app/(dashboard)/products-table.tsx","used":true},
-        {"id":"N13","target":"app/(dashboard)/product.tsx","symbol":"Product","consumer":"app/login/page.tsx","used":false},
-        {"id":"N14","target":"lib/db.ts","symbol":"SelectProduct","consumer":"app/(dashboard)/products-table.tsx","used":true},
-        {"id":"N15","target":"lib/db.ts","symbol":"SelectProduct","consumer":"app/(dashboard)/product.tsx","used":true},
-        {"id":"N16","target":"lib/db.ts","symbol":"SelectProduct","consumer":"app/login/page.tsx","used":false}
+        {
+          "id": "N01",
+          "target": "app/(dashboard)/products-table.tsx",
+          "symbol": "ProductsTable",
+          "consumer": "app/(dashboard)/page.tsx",
+          "used": true
+        },
+        {
+          "id": "N02",
+          "target": "app/(dashboard)/products-table.tsx",
+          "symbol": "ProductsTable",
+          "consumer": "app/login/page.tsx",
+          "used": false
+        },
+        {
+          "id": "N03",
+          "target": "lib/db.ts",
+          "symbol": "getProducts",
+          "consumer": "app/(dashboard)/page.tsx",
+          "used": true
+        },
+        {
+          "id": "N04",
+          "target": "lib/db.ts",
+          "symbol": "getProducts",
+          "consumer": "app/login/page.tsx",
+          "used": false
+        },
+        {
+          "id": "N05",
+          "target": "components/ui/button.tsx",
+          "symbol": "Button",
+          "consumer": "app/(dashboard)/page.tsx",
+          "used": true
+        },
+        {
+          "id": "N06",
+          "target": "components/ui/button.tsx",
+          "symbol": "Button",
+          "consumer": "app/login/page.tsx",
+          "used": true
+        },
+        {
+          "id": "N07",
+          "target": "components/ui/button.tsx",
+          "symbol": "Button",
+          "consumer": "lib/db.ts",
+          "used": false
+        },
+        {
+          "id": "N08",
+          "target": "app/(dashboard)/search.tsx",
+          "symbol": "SearchInput",
+          "consumer": "app/(dashboard)/layout.tsx",
+          "used": true
+        },
+        {
+          "id": "N09",
+          "target": "app/(dashboard)/search.tsx",
+          "symbol": "SearchInput",
+          "consumer": "app/login/page.tsx",
+          "used": false
+        },
+        {
+          "id": "N10",
+          "target": "app/(dashboard)/nav-item.tsx",
+          "symbol": "NavItem",
+          "consumer": "app/(dashboard)/layout.tsx",
+          "used": true
+        },
+        {
+          "id": "N11",
+          "target": "app/(dashboard)/nav-item.tsx",
+          "symbol": "NavItem",
+          "consumer": "app/(dashboard)/page.tsx",
+          "used": false
+        },
+        {
+          "id": "N12",
+          "target": "app/(dashboard)/product.tsx",
+          "symbol": "Product",
+          "consumer": "app/(dashboard)/products-table.tsx",
+          "used": true
+        },
+        {
+          "id": "N13",
+          "target": "app/(dashboard)/product.tsx",
+          "symbol": "Product",
+          "consumer": "app/login/page.tsx",
+          "used": false
+        },
+        {
+          "id": "N14",
+          "target": "lib/db.ts",
+          "symbol": "SelectProduct",
+          "consumer": "app/(dashboard)/products-table.tsx",
+          "used": true
+        },
+        {
+          "id": "N15",
+          "target": "lib/db.ts",
+          "symbol": "SelectProduct",
+          "consumer": "app/(dashboard)/product.tsx",
+          "used": true
+        },
+        {
+          "id": "N16",
+          "target": "lib/db.ts",
+          "symbol": "SelectProduct",
+          "consumer": "app/login/page.tsx",
+          "used": false
+        }
       ],
       "mutations": [
-        {"id":"M01","file":"app/(dashboard)/page.tsx","removeImport":"import { ProductsTable } from './products-table';","removeJSX":"ProductsTable","target":"app/(dashboard)/products-table.tsx","symbol":"ProductsTable","orphan":true},
-        {"id":"M02","file":"app/(dashboard)/layout.tsx","removeImport":"import { SearchInput } from './search';","removeJSX":"SearchInput","target":"app/(dashboard)/search.tsx","symbol":"SearchInput","orphan":true},
-        {"id":"M03","file":"app/login/page.tsx","removeImport":"import { Button } from '@/components/ui/button';","removeJSX":"Button","target":"components/ui/button.tsx","symbol":"Button","orphan":false}
+        {
+          "id": "M01",
+          "file": "app/(dashboard)/page.tsx",
+          "removeImport": "import { ProductsTable } from './products-table';",
+          "removeJSX": "ProductsTable",
+          "target": "app/(dashboard)/products-table.tsx",
+          "symbol": "ProductsTable",
+          "orphan": true
+        },
+        {
+          "id": "M02",
+          "file": "app/(dashboard)/layout.tsx",
+          "removeImport": "import { SearchInput } from './search';",
+          "removeJSX": "SearchInput",
+          "target": "app/(dashboard)/search.tsx",
+          "symbol": "SearchInput",
+          "orphan": true
+        },
+        {
+          "id": "M03",
+          "file": "app/login/page.tsx",
+          "removeImport": "import { Button } from '@/components/ui/button';",
+          "removeJSX": "Button",
+          "target": "components/ui/button.tsx",
+          "symbol": "Button",
+          "orphan": false
+        }
+      ],
+      "split": "development"
+    },
+    {
+      "id": "react-hook-form",
+      "split": "holdout",
+      "url": "https://github.com/react-hook-form/react-hook-form.git",
+      "sha": "8d7bd6c2c774fd9b4310e8cbc07d36ce1cacf736",
+      "sourcePrefixes": [
+        "src/"
+      ],
+      "probes": [
+        {
+          "id": "R01",
+          "target": "src/useWatch.ts",
+          "symbol": "useWatch",
+          "consumer": "src/useController.ts",
+          "used": true
+        },
+        {
+          "id": "R02",
+          "target": "src/useWatch.ts",
+          "symbol": "useWatch",
+          "consumer": "src/useForm.ts",
+          "used": false
+        },
+        {
+          "id": "R03",
+          "target": "src/useFormState.ts",
+          "symbol": "useFormState",
+          "consumer": "src/useController.ts",
+          "used": true
+        },
+        {
+          "id": "R04",
+          "target": "src/useFormState.ts",
+          "symbol": "useFormState",
+          "consumer": "src/useWatch.ts",
+          "used": false
+        },
+        {
+          "id": "R05",
+          "target": "src/useIsomorphicLayoutEffect.ts",
+          "symbol": "useIsomorphicLayoutEffect",
+          "consumer": "src/useFormState.ts",
+          "used": true
+        },
+        {
+          "id": "R06",
+          "target": "src/useIsomorphicLayoutEffect.ts",
+          "symbol": "useIsomorphicLayoutEffect",
+          "consumer": "src/logic/createFormControl.ts",
+          "used": false
+        },
+        {
+          "id": "R07",
+          "target": "src/useFormControlContext.ts",
+          "symbol": "useFormControlContext",
+          "consumer": "src/useFieldArray.ts",
+          "used": true
+        },
+        {
+          "id": "R08",
+          "target": "src/useFormControlContext.ts",
+          "symbol": "useFormControlContext",
+          "consumer": "src/useForm.ts",
+          "used": false
+        }
+      ]
+    },
+    {
+      "id": "tanstack-table",
+      "split": "holdout",
+      "url": "https://github.com/TanStack/table.git",
+      "sha": "1cfb2e57cbfecf25e3d4ee1bda32fbd65e4e0327",
+      "sourcePrefixes": [
+        "packages/table-core/src/",
+        "packages/react-table/src/"
+      ],
+      "probes": [
+        {
+          "id": "T01",
+          "target": "packages/table-core/src/core/rows/constructRow.ts",
+          "symbol": "constructRow",
+          "consumer": "packages/table-core/src/core/row-models/createCoreRowModel.ts",
+          "used": true
+        },
+        {
+          "id": "T02",
+          "target": "packages/table-core/src/core/rows/constructRow.ts",
+          "symbol": "constructRow",
+          "consumer": "packages/table-core/src/core/table/constructTable.ts",
+          "used": false
+        },
+        {
+          "id": "T03",
+          "target": "packages/table-core/src/core/columns/constructColumn.ts",
+          "symbol": "constructColumn",
+          "consumer": "packages/table-core/src/core/columns/coreColumnsFeature.utils.ts",
+          "used": true
+        },
+        {
+          "id": "T04",
+          "target": "packages/table-core/src/core/columns/constructColumn.ts",
+          "symbol": "constructColumn",
+          "consumer": "packages/table-core/src/core/table/constructTable.ts",
+          "used": false
+        },
+        {
+          "id": "T05",
+          "target": "packages/table-core/src/core/coreFeatures.ts",
+          "symbol": "coreFeatures",
+          "consumer": "packages/table-core/src/core/table/constructTable.ts",
+          "used": true
+        },
+        {
+          "id": "T06",
+          "target": "packages/table-core/src/core/coreFeatures.ts",
+          "symbol": "coreFeatures",
+          "consumer": "packages/table-core/src/core/rows/constructRow.ts",
+          "used": false
+        },
+        {
+          "id": "T07",
+          "target": "packages/table-core/src/core/table/coreTablesFeature.utils.ts",
+          "symbol": "table_syncExternalStateToBaseAtoms",
+          "consumer": "packages/table-core/src/core/table/constructTable.ts",
+          "used": true
+        },
+        {
+          "id": "T08",
+          "target": "packages/table-core/src/core/table/coreTablesFeature.utils.ts",
+          "symbol": "table_syncExternalStateToBaseAtoms",
+          "consumer": "packages/table-core/src/core/rows/constructRow.ts",
+          "used": false
+        }
       ]
     }
   ],
   "knip": {
-    "version":"6.45.1",
-    "comparisonScope":"Only Next.js repository's three controlled import/JSX removals; Knip unused export/file status is different from BlastRadius differential orphan result.",
-    "runArgs":["--reporter","json","--no-progress","--no-exit-code"]
+    "version": "6.45.1",
+    "comparisonScope": "Only Next.js repository's three controlled import/JSX removals; Knip unused export/file status is different from BlastRadius differential orphan result.",
+    "runArgs": [
+      "--reporter",
+      "json",
+      "--no-progress",
+      "--no-exit-code"
+    ]
   }
 }

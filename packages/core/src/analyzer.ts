@@ -22,17 +22,49 @@ export function analyzeFile(file:string,source:string):FileFacts{
   };
   const propParamNames=new Map<string,string>();
   const pushSymbol=(name:string,kind:string,node:ts.Node,exported:boolean,possibleSideEffect:boolean=false)=>{
-    if(facts.symbols.some(s=>s.name===name))return;
+    const existing=facts.symbols.find(s=>s.name===name);
+    if(existing){
+      if(directTypeValuePairs.has(name)&&kind!=='typealias'){
+        // Retain the runtime value's executable nature and initializer risk,
+        // even when the type alias was encountered first.
+        existing.kind=kind;
+        existing.possibleSideEffect ||= possibleSideEffect;
+        existing.exported ||= exported;
+      }
+      return;
+    }
     facts.symbols.push({name,kind,...loc(sf,node),exported,possibleSideEffect});
   };
-  const pushExport=(exported:string,local:string|undefined,node:ts.Node,other:Partial<ExportFact>={})=>
+  const pushExport=(exported:string,local:string|undefined,node:ts.Node,other:Partial<ExportFact>={})=>{
+    if(directTypeValuePairs.has(exported)&&local===exported&&!other.source&&!other.star&&
+       facts.exports.some(e=>e.exported===exported&&e.local===local&&!e.source&&!e.star))return;
     facts.exports.push({exported,local,...loc(sf,node),...other});
+  };
   // TypeScript overload signatures and their implementation are one binding.
   // Only collapse declarations backed by an actual same-name function body;
   // duplicate exports without an implementation remain ambiguous.
   const overloadImplementations=new Set(sf.statements.filter((st):st is ts.FunctionDeclaration=>
     ts.isFunctionDeclaration(st)&&!!st.body).map(st=>st.name?.text||
       (hasModifier(st,ts.SyntaxKind.DefaultKeyword)?'default':'')));
+  // A TypeScript type alias and a runtime value may legally share one exported
+  // identifier (e.g. react-hook-form's FormState type + FormState component).
+  // Coalesce ONLY an exact direct type-alias/variable pair, not duplicate
+  // same-namespace exports, overloaded declarations, or re-export collisions.
+  const directDeclarations=new Map<string,string[]>();
+  const record=(name:string,kind:string)=>{
+    const kinds=directDeclarations.get(name)||[];kinds.push(kind);directDeclarations.set(name,kinds);
+  };
+  for(const st of sf.statements){
+    if(!hasModifier(st,ts.SyntaxKind.ExportKeyword))continue;
+    if(ts.isTypeAliasDeclaration(st))record(st.name.text,'type');
+    else if(ts.isVariableStatement(st)){
+      for(const decl of st.declarationList.declarations)
+        if(ts.isIdentifier(decl.name))record(decl.name.text,'value');
+    }else if((ts.isFunctionDeclaration(st)||ts.isClassDeclaration(st)||
+      ts.isInterfaceDeclaration(st)||ts.isEnumDeclaration(st))&&st.name)record(st.name.text,'other');
+  }
+  const directTypeValuePairs=new Set([...directDeclarations].filter(([,kinds])=>
+    kinds.length===2&&kinds.includes('type')&&kinds.includes('value')).map(([name])=>name));
   function boundIdentifiers(name:ts.BindingName):ts.Identifier[]{
     if(ts.isIdentifier(name))return [name];
     return name.elements.flatMap(e=>ts.isOmittedExpression(e)?[]:boundIdentifiers(e.name));

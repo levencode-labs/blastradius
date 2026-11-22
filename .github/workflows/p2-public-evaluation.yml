@@ -2,7 +2,7 @@ name: Independent pinned public-source accuracy and Knip comparison
 
 on:
   push:
-    branches: [eval/p2-public-corpus-knip]
+    branches: [main, 'eval/**']
     paths:
       - .github/workflows/p2-public-evaluation.yml
       - evaluation/public/**
@@ -15,13 +15,13 @@ on:
   workflow_dispatch:
 
 # This workflow executes no scripts, builds, install hooks, npm binaries or dependencies
-# from the three inspected public projects. Its own Knip comparator is separately locked.
+# from the five inspected public projects. Its own Knip comparator is separately locked.
 permissions:
   contents: read
 
 jobs:
   measure:
-    name: 3 pinned repos · TypeChecker oracle · Knip 6.45.1
+    name: 5 pinned repos (3 development + 2 holdout) · TypeChecker oracle · Knip 6.45.1
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -44,7 +44,7 @@ jobs:
           git diff --exit-code -- package.json package-lock.json evaluation/public/knip-tool/package.json evaluation/public/knip-tool/package-lock.json
       - name: Compile BlastRadius from committed TypeScript
         run: npm run build
-      - name: Clone exactly three pinned public source snapshots (no install/build)
+      - name: Clone exactly five pinned public source snapshots (no install/build)
         run: node evaluation/public/checkout.mjs --directory '${{ runner.temp }}/br-public-sources'
       - name: Score independent static reference oracle and controlled Knip overlap
         run: |
