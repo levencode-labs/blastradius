@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "status": "PRE_SCORE_BLIND_FREEZE",
+  "freezeBaseBlastRadius": "0b5e822017cf3b0f991d8b05555b6bd2783cf7b1",
+  "sourceSelection": "Read-only upstream source at exact SHA, independent of BlastRadius predictions. Prior P6 cohort is exposed by source-backed P2 fix, and cannot count as pristine release holdout.",
+  "policy": "Do not edit targets, symbols, consumer, used or source commits after first comparison. If compiler oracle disagrees, classify as independent oracle failure, never silently rewrite label. If P7 drives engine fixes, recruit an entirely new P8 holdout. All graph coverage UNKNOWN separate from TN.",
+  "repositories": [
+    {
+      "id": "tanstack-query",
+      "split": "p7_pristine",
+      "url": "https://github.com/TanStack/query.git",
+      "sha": "0827cf2cb22e2c81ef210271c25fc50e9f1e7328",
+      "sourcePrefixes": [
+        "packages/query-core/src/",
+        "packages/react-query/src/"
+      ],
+      "probes": [
+        {
+          "id": "P701",
+          "target": "packages/query-core/src/queryCache.ts",
+          "symbol": "QueryCache",
+          "consumer": "packages/query-core/src/queryClient.ts",
+          "used": true
+        },
+        {
+          "id": "P702",
+          "target": "packages/query-core/src/query.ts",
+          "symbol": "Query",
+          "consumer": "packages/query-core/src/queryCache.ts",
+          "used": true
+        },
+        {
+          "id": "P703",
+          "target": "packages/query-core/src/mutationCache.ts",
+          "symbol": "MutationCache",
+          "consumer": "packages/query-core/src/queryClient.ts",
+          "used": true
+        },
+        {
+          "id": "P704",
+          "target": "packages/query-core/src/utils.ts",
+          "symbol": "hashKey",
+          "consumer": "packages/query-core/src/queryClient.ts",
+          "used": true
+        },
+        {
+          "id": "P705",
+          "target": "packages/query-core/src/query.ts",
+          "symbol": "Query",
+          "consumer": "packages/react-query/src/useQuery.ts",
+          "used": false
+        },
+        {
+          "id": "P706",
+          "target": "packages/query-core/src/utils.ts",
+          "symbol": "hashKey",
+          "consumer": "packages/query-core/src/queryCache.ts",
+          "used": false
+        }
+      ]
+    },
+    {
+      "id": "ark-ui",
+      "split": "p7_pristine",
+      "url": "https://github.com/chakra-ui/ark.git",
+      "sha": "844114eee1583674bc0d03979c56717c752b913c",
+      "sourcePrefixes": [
+        "packages/react/src/"
+      ],
+      "probes": [
+        {
+          "id": "P707",
+          "target": "packages/react/src/components/accordion/use-accordion.ts",
+          "symbol": "useAccordion",
+          "consumer": "packages/react/src/components/accordion/accordion-root.tsx",
+          "used": true
+        },
+        {
+          "id": "P708",
+          "target": "packages/react/src/components/accordion/use-accordion-context.ts",
+          "symbol": "AccordionProvider",
+          "consumer": "packages/react/src/components/accordion/accordion-root.tsx",
+          "used": true
+        },
+        {
+          "id": "P709",
+          "target": "packages/react/src/components/accordion/use-accordion-context.ts",
+          "symbol": "useAccordionContext",
+          "consumer": "packages/react/src/components/accordion/accordion-item.tsx",
+          "used": true
+        },
+        {
+          "id": "P710",
+          "target": "packages/react/src/components/accordion/use-accordion-item-props-context.ts",
+          "symbol": "useAccordionItemPropsContext",
+          "consumer": "packages/react/src/components/accordion/accordion-item-content.tsx",
+          "used": true
+        },
+        {
+          "id": "P711",
+          "target": "packages/react/src/components/accordion/use-accordion.ts",
+          "symbol": "useAccordion",
+          "consumer": "packages/react/src/components/accordion/accordion-item-content.tsx",
+          "used": false
+        },
+        {
+          "id": "P712",
+          "target": "packages/react/src/components/accordion/use-accordion-context.ts",
+          "symbol": "AccordionProvider",
+          "consumer": "packages/react/src/components/accordion/accordion-item-content.tsx",
+          "used": false
+        }
+      ]
+    },
+    {
+      "id": "shadcn-ui",
+      "split": "p7_pristine",
+      "url": "https://github.com/shadcn-ui/ui.git",
+      "sha": "bfa64ff4d1cb7317d2403ecb176df6826d4caffc",
+      "sourcePrefixes": [
+        "packages/shadcn/src/"
+      ],
+      "probes": [
+        {
+          "id": "P713",
+          "target": "packages/shadcn/src/utils/file-helper.ts",
+          "symbol": "withFileBackup",
+          "consumer": "packages/shadcn/src/utils/file-helper.test.ts",
+          "used": true
+        },
+        {
+          "id": "P714",
+          "target": "packages/shadcn/src/utils/file-helper.ts",
+          "symbol": "FileBackupError",
+          "consumer": "packages/shadcn/src/utils/file-helper.test.ts",
+          "used": true
+        },
+        {
+          "id": "P715",
+          "target": "packages/shadcn/src/utils/file-helper.ts",
+          "symbol": "FILE_BACKUP_SUFFIX",
+          "consumer": "packages/shadcn/src/utils/file-helper.test.ts",
+          "used": true
+        },
+        {
+          "id": "P716",
+          "target": "packages/shadcn/src/utils/file-helper.ts",
+          "symbol": "restoreFileBackup",
+          "consumer": "packages/shadcn/src/utils/file-helper.test.ts",
+          "used": false
+        },
+        {
+          "id": "P717",
+          "target": "packages/shadcn/src/utils/dry-run.ts",
+          "symbol": "dryRunComponents",
+          "consumer": "packages/shadcn/src/utils/dry-run.test.ts",
+          "used": true
+        },
+        {
+          "id": "P718",
+          "target": "packages/shadcn/src/utils/dry-run.ts",
+          "symbol": "dryRunComponents",
+          "consumer": "packages/shadcn/src/utils/file-helper.test.ts",
+          "used": false
+        }
+      ]
+    }
+  ]
+}
