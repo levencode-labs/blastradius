@@ -29,7 +29,7 @@ assert.equal(new Set(labels).size,labels.length);
 for(const r of manifest.repositories){
  assert.match(r.id,/^[a-z0-9-]+$/);
  assert.ok(r.sourcePrefixes.length>0);
- for(const prefix of r.sourcePrefixes)assert.ok(!prefix.includes('..')&&!prefix.startsWith('/')&&prefix.endsWith('/'),'Unsafe source prefix');
+ for(const prefix of r.sourcePrefixes)assert.ok(!prefix.includes('..')&&!prefix.startsWith('/')&&(prefix.endsWith('/')||/\.(?:ts|tsx|js|jsx)$/.test(prefix)),'Unsafe source prefix');
  assert.match(r.sha,/^[a-f0-9]{40}$/);assert.match(r.url,/^https:\/\/github\.com\//);
  for(const p of r.probes){assert.equal(typeof p.used,'boolean');assert.ok(p.target.endsWith('.ts')||p.target.endsWith('.tsx'));assert.ok(p.consumer);assert.ok(p.symbol);}
 }
