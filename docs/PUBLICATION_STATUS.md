@@ -21,3 +21,7 @@ A preview-only unfrozen `npm install` is used because a reviewed lockfile has no
 - Review transitive dependency licenses and npm distribution.
 
 Release is blocked until evidence for every mandatory gate is recorded.
+
+## Windows stdio investigation
+
+The initial Node 22/24 Windows CI jobs reached the official SDK stdio E2E and remained in progress while Linux/macOS completed. The repository originally pinned `@modelcontextprotocol/sdk@1.20.0`. The SDK has documented Windows stdio client shutdown issues fixed in its later v1 branch. The exact version was updated to `1.32.2`; **the Windows fix is a hypothesis until CI confirms success on that exact code**. Do not mark the affected earlier jobs PASS, and retain their run URLs in the PR.
