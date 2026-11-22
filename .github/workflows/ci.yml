@@ -1,8 +1,7 @@
-name: Cross-platform CI (development preview)
+name: Cross-platform CI (development preview, frozen npm dependencies)
 
-# No releases or publishing occur in this workflow. This preview is private:true.
+# No releases, publishing, global config edits, or permission elevation.
 # Node 22 + 24 on Linux x64, Windows x64, macOS Apple Silicon and macOS Intel.
-# A pinned dependency lockfile is still required before the v0.1.0 release gate.
 
 on:
   push:
@@ -33,17 +32,26 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      # Preview-only install: registry DNS is unavailable in the local authoring
-      # environment, so a complete frozen lockfile cannot yet be produced.
-      # NEVER treat a green preview matrix as release acceptance without a lock.
-      - name: Install preview dependencies (not frozen)
-        run: npm install --no-audit --no-fund --ignore-scripts --no-package-lock
+      - name: Validate exact frozen lockfile BEFORE install
+        run: node ci/verify-frozen-lock.mjs
 
-      - name: Record runtime and top-level dependencies
+      - name: Frozen clean install (no lifecycle scripts)
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Check lockfile was not changed by npm ci
+        run: git diff --exit-code -- package.json package-lock.json
+
+      - name: Record runtime and complete dependency graph
         run: |
           node --version
           npm --version
-          npm ls --depth=0
+          npm ls --all
+
+      - name: Check third-party license inventory and installed metadata
+        run: node ci/audit-third-party.mjs --check-installed
+
+      - name: Test rejection of tampered/unfrozen dependency metadata
+        run: node --test ci/test-frozen-lock.mjs
 
       - name: TypeScript compile
         run: npm run build
@@ -60,5 +68,5 @@ jobs:
       - name: Validate packed CLI, Core, MCP and Skill layout
         run: node ci/verify-distribution.mjs
 
-      - name: Verify npm package contents (no publication)
-        run: npm pack --dry-run --json
+      - name: Build real npm tarball twice and prove byte reproducibility
+        run: node ci/verify-packaging.mjs
