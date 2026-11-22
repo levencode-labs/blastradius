@@ -51,7 +51,8 @@ test('P1 computed import of *only string literals* resolves exactly, no manufact
 
 test('P1 template import with strictly literal interpolation is source-proven',t=>{
   const quote=String.fromCharCode(96);
-  const code="export const Widget=()=>import("+quote+'./FloatingUIMiddleware'+quote+");";
+  const interpolation=String.fromCharCode(36,123)+'"FloatingUIMiddleware"}';
+  const code="export const Widget=()=>import("+quote+'./'+interpolation+quote+");";
   const g=graphOf(t,{[entry]:code,[field]:widget});
   assert.equal(hasDynamic(g),true,'literal-only template parts can be evaluated without code execution');
   assert.equal(g.diagnostics.some(d=>d.file===entry&&d.code==='DYNAMIC_IMPORT_UNRESOLVED'),false);
