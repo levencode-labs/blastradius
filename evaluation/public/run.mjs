@@ -57,6 +57,7 @@ function resolveAlias(checker,sym){
 function inspectAllNamedImports(root,files,program,checker){
   const allowed=new Set(files);const candidates=[];
   const omitted={externalOrUnresolved:0,nonNamedImport:0,unrecognizedDeclarations:0,duplicate:0};
+  let attemptedNamedImports=0;
   for(const consumer of files){
     const sf=program.getSourceFile(path.join(root,consumer));if(!sf)throw Error('Missing source file in TypeChecker: '+consumer);
     const named=[];
@@ -67,6 +68,7 @@ function inspectAllNamedImports(root,files,program,checker){
       for(const imp of bindings.elements){
         const exportedName=imp.propertyName?.text||imp.name.text;
         if(exportedName==='default'){omitted.nonNamedImport++;continue;}
+        attemptedNamedImports++;
         const alias=checker.getSymbolAtLocation(imp.name),sym=resolveAlias(checker,alias);
         if(!sym){omitted.externalOrUnresolved++;continue;}
         const declarations=(sym.getDeclarations()||[]).filter(d=>allowed.has(posix(path.relative(root,d.getSourceFile().fileName)))&&d.name&&ts.isIdentifier(d.name));
@@ -92,7 +94,7 @@ function inspectAllNamedImports(root,files,program,checker){
   const byPair=new Map();
   for(const x of candidates){const key=[x.consumer,x.target,x.symbol].join('\0');if(byPair.has(key)){omitted.duplicate++;const prev=byPair.get(key);prev.used||=x.used;prev.refCount+=x.refCount;}else byPair.set(key,x);}
   const ordered=[...byPair.values()].sort((a,b)=>a.consumer.localeCompare(b.consumer)||a.target.localeCompare(b.target)||a.symbol.localeCompare(b.symbol));
-  return {candidatePairs:ordered.length,omitted,pairs:ordered};
+  return {candidatePairs:ordered.length,attemptedNamedImports,omitted,pairs:ordered};
 }
 
 function inspectChecker(spec,root,files){
@@ -167,7 +169,9 @@ function inspectGraph(spec,root,oracle){
   const cm={tp:0,tn:0,fp:0,fn:0};
   for(const x of full){if(x.used&&x.predicted)cm.tp++;else if(!x.used&&!x.predicted)cm.tn++;else if(!x.used&&x.predicted)cm.fp++;else cm.fn++;}
   const fullResults={...cm,samples:full.length,precision:cm.tp+cm.fp?cm.tp/(cm.tp+cm.fp):null,recall:cm.tp+cm.fn?cm.tp/(cm.tp+cm.fn):null,
-    omitted:oracle.all.omitted,mismatches:full.filter(x=>x.used!==x.predicted).slice(0,100)};
+    omitted:oracle.all.omitted,attemptedNamedImports:oracle.all.attemptedNamedImports,
+    unknownNamedImportShare:oracle.all.attemptedNamedImports?oracle.all.omitted.externalOrUnresolved/oracle.all.attemptedNamedImports:null,
+    mismatches:full.filter(x=>x.used!==x.predicted).slice(0,100)};
   return {probes:checked,fullNamedImports:fullResults,graph:{files:graph.facts.length,nodes:graph.nodes.length,edges:graph.edges.length,indexMs:Math.round(elapsedMs),coverage:graph.coverage,diagnosticsByCode:Object.fromEntries([...new Set(graph.diagnostics.map(x=>x.code))].sort().map(code=>[code,graph.diagnostics.filter(x=>x.code===code).length]))}};
 }
 function confusion(rows,expectedField='used',resultField='used'){
@@ -234,9 +238,9 @@ function compareKnip(spec,root,bin){
     return out;
   }finally{fs.rmSync(tmp,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
 }
-const report={schemaVersion:1,corpusSha256:sha(fs.readFileSync(path.join(base,'corpus.json'))),generatedAt:new Date().toISOString(),
- methodology:'Static named/exported TypeScript symbol-reference pairs; independent compiler checks manual probes before BlastRadius; Knip only on 3 controlled real Next.js source mutations, with baseline delta.',
- toolchain:{node:process.version,typescript:ts.version,knipPinnedVersion:corpus.knip.version},repositories:[],comparison:[],total:null};
+const report={schemaVersion:2,corpusSha256:sha(fs.readFileSync(path.join(base,'corpus.json'))),generatedAt:new Date().toISOString(),
+ methodology:'Five pinned public repositories in immutable development/holdout cohorts; independent TypeChecker checks manual labels before graph scoring; UNKNOWN named imports and dynamic graph boundaries are separate; Knip only on three unchanged Next.js mutations.',
+ toolchain:{node:process.version,typescript:ts.version,knipPinnedVersion:corpus.knip.version},repositories:[],comparison:[],total:null,bySplit:null};
 let failed=false;
 try{
   for(const spec of corpus.repositories){
@@ -246,7 +250,7 @@ try{
     const checker=inspectChecker(spec,root,files);
     const graph=inspectGraph(spec,root,checker);
     const stats=confusion(graph.probes);
-    report.repositories.push({id:spec.id,url:spec.url,sha:spec.sha,sourceFiles:files.length,metricUnit:'manually selected static source-symbol/consumer pairs',...graph,confusion:stats});
+    report.repositories.push({id:spec.id,split:spec.split,url:spec.url,sha:spec.sha,sourceFiles:files.length,metricUnit:'manually selected static source-symbol/consumer pairs',...graph,confusion:stats});
     if(spec.mutations)report.comparison=compareKnip(spec,root,knipBin);
   }
   const rows=report.repositories.flatMap(x=>x.probes),stats=confusion(rows);
@@ -256,22 +260,59 @@ try{
   for(const x of exhaustive){for(const k of Object.keys(aggregate))aggregate[k]+=x[k];}
   report.allNamedImports={...aggregate,precision:aggregate.tp+aggregate.fp?aggregate.tp/(aggregate.tp+aggregate.fp):null,
     recall:aggregate.tp+aggregate.fn?aggregate.tp/(aggregate.tp+aggregate.fn):null,
-    perRepo:exhaustive.map(x=>({repo:x.repo,tp:x.tp,tn:x.tn,fp:x.fp,fn:x.fn,samples:x.samples,precision:x.precision,recall:x.recall,omitted:x.omitted})),
+    perRepo:exhaustive.map(x=>({repo:x.repo,tp:x.tp,tn:x.tn,fp:x.fp,fn:x.fn,samples:x.samples,precision:x.precision,recall:x.recall,omitted:x.omitted,attemptedNamedImports:x.attemptedNamedImports,unknownNamedImportShare:x.unknownNamedImportShare})),
     errors:exhaustive.flatMap(x=>x.mismatches.map(m=>({repo:x.repo,...m}))).slice(0,120)};
+  // Keep observed development vs precommitted holdout accuracy disjoint. No imputation:
+  // non-resolved named bindings and graph coverage warnings never become TN.
+  report.bySplit=Object.fromEntries(['development','holdout'].map(split=>{
+    const repos=report.repositories.filter(x=>x.split===split);
+    assert.ok(repos.length, 'Missing evaluation split '+split);
+    const manual=confusion(repos.flatMap(x=>x.probes));
+    const named={tp:0,tn:0,fp:0,fn:0,samples:0};
+    const omissions={externalOrUnresolved:0,nonNamedImport:0,unrecognizedDeclarations:0,duplicate:0};
+    let attemptedNamedImports=0,unresolvedImports=0,dynamicEdges=0,unsupportedFiles=0,complete=0;
+    for(const r of repos){
+      for(const k of Object.keys(named))named[k]+=r.fullNamedImports[k];
+      for(const k of Object.keys(omissions))omissions[k]+=r.fullNamedImports.omitted[k];
+      attemptedNamedImports+=r.fullNamedImports.attemptedNamedImports;
+      unresolvedImports+=r.graph.coverage.unresolvedImports||0;
+      dynamicEdges+=r.graph.coverage.dynamicEdges||0;
+      unsupportedFiles+=r.graph.coverage.unsupportedFiles||0;
+      if(r.graph.coverage.complete)complete++;
+    }
+    return [split,{
+      repositoryIds:repos.map(r=>r.id),manual,
+      namedImports:{...named,precision:named.tp+named.fp?named.tp/(named.tp+named.fp):null,
+        recall:named.tp+named.fn?named.tp/(named.tp+named.fn):null},
+      unknown:{
+        attemptedNamedImportBindings:attemptedNamedImports,
+        externalOrUnresolvedNamedBindings:omissions.externalOrUnresolved,
+        unknownNamedImportShare:attemptedNamedImports?omissions.externalOrUnresolved/attemptedNamedImports:null,
+        otherOmittedImports:omissions.nonNamedImport,
+        unrecognizedDeclarations:omissions.unrecognizedDeclarations,
+        duplicatePairs:omissions.duplicate,
+        graph:{completeRepositories:complete,totalRepositories:repos.length,unresolvedImports,dynamicEdges,unsupportedFiles}
+      }
+    }];
+  }));
   const mismatch=rows.filter(p=>p.used!==p.graph.used);
   report.mismatches=mismatch.map(p=>({id:p.id,target:p.target+'#'+p.symbol,consumer:p.consumer,expected:p.used,actual:p.graph.used}));
   report.knipCompared=report.comparison.length;
   report.unknownCoverage=report.repositories.map(x=>({repo:x.id,coverage:x.graph.coverage}));
   const knipMissing=report.comparison.length!==3;
-  failed=knipMissing||stats.precision===null||stats.recall===null||stats.precision<0.95||stats.recall<0.90||
-    report.allNamedImports.precision===null||report.allNamedImports.recall===null||
-    report.allNamedImports.precision<0.95||report.allNamedImports.recall<0.90||
-    // This exact pinned 220-pair corpus exposed 13 source-backed false negatives.
-    // Treat every known independently resolved missed binding as a regression,
-    // rather than relaxing the population threshold or removing difficult cases.
-    report.allNamedImports.fn!==0||report.allNamedImports.fp!==0;
-  report.acceptance={pass:!failed,thresholds:{curatedPrecision:0.95,curatedRecall:0.90,knownStaticCorpusFalseNegatives:0,knownStaticCorpusFalsePositives:0},caveat:'Only pinned independent static named imports are graded; the three full projects have UNKNOWN global coverage, and this is not population-wide real-project precision/recall.'};
+  const eligible=s=>s&&s.precision!==null&&s.recall!==null&&s.precision>=0.95&&s.recall>=0.90;
+  const dev=report.bySplit.development,holdout=report.bySplit.holdout;
+  // A held-out failure stays visible and red. Never dilute it in an aggregate or
+  // tune the analyzer against holdout labels in this PR.
+  failed=knipMissing||!eligible(dev.manual)||!eligible(dev.namedImports)||
+    !eligible(holdout.manual)||!eligible(holdout.namedImports)||
+    dev.namedImports.fp!==0||dev.namedImports.fn!==0||
+    holdout.namedImports.fp!==0||holdout.namedImports.fn!==0;
+  report.acceptance={pass:!failed,thresholds:{manualPrecision:0.95,manualRecall:0.90,
+    developmentFalseNegatives:0,developmentFalsePositives:0,
+    holdoutFalseNegatives:0,holdoutFalsePositives:0},holdoutKeptSeparate:true,
+    caveat:'These are two purposively chosen held-out repositories, not a representative population. UNKNOWN import bindings, graph diagnostics, external and dynamic consumers are separately reported and are never negative evidence.'};
 }catch(e){failed=true;report.error={message:e.message,stack:String(e.stack).slice(0,1800)};}
 fs.mkdirSync(path.dirname(outFile),{recursive:true});fs.writeFileSync(outFile,JSON.stringify(report,null,2)+'\n');
-console.log(JSON.stringify({status:failed?'FAILED':'PASS',reportFile:outFile,total:report.total,allNamedImports:report.allNamedImports&&{tp:report.allNamedImports.tp,tn:report.allNamedImports.tn,fp:report.allNamedImports.fp,fn:report.allNamedImports.fn,precision:report.allNamedImports.precision,recall:report.allNamedImports.recall},comparator:report.comparison.map(x=>({id:x.id,expected:x.expectedOrphan,br:x.blastRadius.found,knipExport:x.knip.newUnusedExport,knipFile:x.knip.newUnusedFile})),error:report.error?.message}));
+console.log(JSON.stringify({status:failed?'FAILED':'PASS',reportFile:outFile,total:report.total,allNamedImports:report.allNamedImports&&{tp:report.allNamedImports.tp,tn:report.allNamedImports.tn,fp:report.allNamedImports.fp,fn:report.allNamedImports.fn,precision:report.allNamedImports.precision,recall:report.allNamedImports.recall},comparator:report.comparison.map(x=>({id:x.id,expected:x.expectedOrphan,br:x.blastRadius.found,knipExport:x.knip.newUnusedExport,knipFile:x.knip.newUnusedFile})),bySplit:report.bySplit&&Object.fromEntries(Object.entries(report.bySplit).map(([name,s])=>[name,{named:s.namedImports,unknown:s.unknown}])),error:report.error?.message}));
 if(failed)process.exitCode=1;

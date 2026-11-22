@@ -4,17 +4,19 @@
 
 ## Provenance and sampling
 
-`corpus.json` selects **three real public GitHub repositories at exact immutable Git commit SHAs**:
+`corpus.json` selects **five real public GitHub repositories at exact immutable Git commit SHAs**, separated into two non-overlapping cohorts:
 
-| Project | Domain | Exact commit |
-| --- | --- | --- |
-| `juliencrn/usehooks-ts` | TypeScript React hooks and demo/test consumers | `61949134144d3690fe9f521260a16c779a6d3797` |
-| `pmndrs/zustand` | React state manager, value/type re-exports | `9fed2eb2f3af672da9f7bf694b996df3831fc207` |
-| `vercel/nextjs-postgres-nextauth-tailwindcss-template` | Next.js App Router pages and imported components | `fe026711c19ac3ee4589c86a738f59b84e611559` |
+| Cohort | Project | Domain | Exact commit |
+| --- | --- | --- | --- |
+| Development | `juliencrn/usehooks-ts` | TypeScript React hooks and demo/test consumers | `61949134144d3690fe9f521260a16c779a6d3797` |
+| Development | `pmndrs/zustand` | React state manager, value/type re-exports | `9fed2eb2f3af672da9f7bf694b996df3831fc207` |
+| Development | `vercel/nextjs-postgres-nextauth-tailwindcss-template` | Next.js App Router pages and imported components | `fe026711c19ac3ee4589c86a738f59b84e611559` |
+| Holdout | `react-hook-form/react-hook-form` | React hooks, generic types, overloads, controllers | `8d7bd6c2c774fd9b4310e8cbc07d36ce1cacf736` |
+| Holdout | `TanStack/table` | multi-package TypeScript/React adapter, framework interfaces | `1cfb2e57cbfecf25e3d4ee1bda32fbd65e4e0327` |
 
-The **32 targeted source-file-to-exported-symbol consumer pairs** were labeled manually using the pinned upstream text *before running BlastRadius* (8 React hooks, 8 Zustand, 16 Next). They include explicit positives and negatives, default route context, named imports, JSX and type-only references. The official TypeScript compiler independently verifies *every* label at a concrete reference site. If TypeChecker disagrees, the evaluation fails `ORACLE_DISAGREEMENT`: the test never silently relabels a case to match the engine. The oracle does not use BlastRadius's graph, result JSON or reachability. Tests measure **static direct references only**, not indirect runtime effects or externally visible API safety.
+The **original 32 development pairs and 16 new holdout pairs** were labeled manually using the pinned upstream text *before running BlastRadius* (8 usehooks-ts, 8 Zustand, 16 Next.js, 8 React Hook Form, 8 TanStack Table). They include explicit positives and negatives, default route context, named imports, JSX and type-only references. The official TypeScript compiler independently verifies *every* label at a concrete reference site. If TypeChecker disagrees, the evaluation fails `ORACLE_DISAGREEMENT`: the test never silently relabels a case to match the engine. The oracle does not use BlastRadius's graph, result JSON or reachability. Tests measure **static direct references only**, not indirect runtime effects or externally visible API safety.
 
-This is a **purposive sample, not a random representative sample**. Thus results on these 32 pairs must not be called general real-world precision/recall. Dynamic imports, unresolved dependencies and public-entry roots have separate coverage counters; a missing edge under incomplete coverage is never permission to delete code. The runner records every labeled pair, mismatch, and diagnostic rather than showing only passing examples.
+This is a **purposive sample, not a random representative sample**. Thus results on these 48 pairs must not be called general real-world precision/recall. The holdout is never used to select engine fixes in this evaluation PR, and its errors cannot be averaged away by the development cohort. Dynamic imports, unresolved dependencies and public-entry roots have separate coverage counters; a missing edge under incomplete coverage is never permission to delete code. The runner records every labeled pair, mismatch, and diagnostic rather than showing only passing examples.
 
 ## What is compared with Knip
 
@@ -48,8 +50,14 @@ The report contains individual probe predictions, compiler evidence, per-reposit
 
 ## Expanded compiler census and fixes
 
-In addition to the 32 manual probes, `run.mjs` uses a separate TypeScript Program to enumerate every **compiler-resolvable local named-import binding** in the pinned selection (220 at the initial SHA), compares each with BlastRadius's resolved reference edges, and records TP/TN/FP/FN per repository and omitted/unresolved counts. A schema-stable `result.json` is emitted even on test failure. No file from the public corpus is modified outside the three explicitly named Next.js mutation copies, and no expected label is derived from BlastRadius itself.
+In addition to the 32 manual probes, `run.mjs` uses a separate TypeScript Program to enumerate every **compiler-resolvable local named-import binding** in the pinned selection (220 at the initial three-repository SHA; expanded holdout counts must come from hosted CI evidence), compares each with BlastRadius's resolved reference edges, and records TP/TN/FP/FN per repository and omitted/unresolved counts. A schema-stable `result.json` is emitted even on test failure. No file from the public corpus is modified outside the three explicitly named Next.js mutation copies, and no expected label is derived from BlastRadius itself.
 
 The baseline is archived at [`docs/evidence/p2-public-baseline.json`](../../docs/evidence/p2-public-baseline.json). It exposed thirteen real missed references: nine from TS function overload export aliases and four from NextAuth destructuring export declarations. `tests/public-source-regressions.test.mjs` provides independent reduced failing cases and negative controls. These known mistakes are now **hard failure gates** in the pinned source corpus, not averaged away by the >=95%/90% scoped thresholds.
 
+The schema v2 report adds distinct `bySplit.development` and `bySplit.holdout` sections for manual labels, independent named-import census, and UNKNOWN signals. The `unknownNamedImportShare` denominator is attempted *named import bindings*, not all project uses; separate dynamic, unsupported and unresolved graph counts remain visible. A failed holdout becomes a FAIL with a persisted machine-readable report, not a smaller denominator or an automatic label change. The original three-repository baseline files remain unmodified.
+
 This benchmark measures **statically resolved import relations**, not all references in arbitrary code, dead-code safety, dynamic access, project runtime, side-effect equivalence or complete external public API coverage. Separate Knip observations are only on the three controlled mutation deltas and must not be translated into false claims about equal features.
+
+## Holdout provenance (2026-11-22)
+
+The two holdout repositories were pinned and sixteen positive/negative source-symbol pairs selected from the stated upstream file contents **before** running BlastRadius on those commits. Fixed labels are independent of the engine and must be checked with the TypeScript compiler, not rewritten on a mismatch. TanStack Table's source graph may be incomplete (workspace package exports, nested tsconfig, dynamic roots); incompleteness must remain UNKNOWN in the evidence, not be silently mapped to a true negative. The existing three-source baseline and Knip 6.45.1 mutation comparison remain mandatory and unchanged. No public upstream files are modified or scripts executed.
