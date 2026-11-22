@@ -79,3 +79,7 @@ The two new upstream pins were selected from source text **before** scoring Blas
 ## P5: New untouched evaluation after Floating UI repair
 
 The React Redux and React Router exact pins and 16 independent manual labels were committed before any BlastRadius predictions. They are separately scored as `bySplit.fresh_holdout`. The previous seven projects and 64 labels are unchanged, including the full original red/green Floating UI evidence. The older `unseen_holdout` is a historical label but has been exposed by code changes. No FP/FN or TypeChecker disagreement in the new cohort may be relabeled or silently excluded. Missing/unresolved external links and graph coverage warnings remain UNKNOWN. Keep full 8× matrix + byte parity, all three Knip controls, and no release.
+
+## First observed P5 fresh-cohort accuracy (scoped)
+
+Source-pinned first nine-project [GitHub run #45026352897](https://github.com/levencode-labs/blastradius/actions/runs/45026352897) independently checked all 80 unchanged hand labels (48 TP, 32 TN, 0 FP/FN) and 3,627 compiler-resolvable named-import pairs (3,611 TP, 16 TN, 0 FP/FN). The truly previously untouched React Redux/Router group contributed 937 TP, 4 TN, 0 FP/FN, while 108/1,049 attempted named imports remained independently unresolved/external and **0/9 full graphs were complete**. The report must not generalize these scoped measurements to deletion safety, dynamic loading, all routes or public APIs. Original Knip comparisons are unchanged. See [P5 source-exact evidence](../../docs/evidence/P5_FRESH_HOLDOUT.md).
