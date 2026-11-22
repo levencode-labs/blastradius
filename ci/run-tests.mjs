@@ -29,8 +29,15 @@ if(!selected.length){
 }
 console.log(`Test mode: ${mode}; files: ${selected.map(p=>path.relative(root,p)).join(', ')}`);
 const result=spawnSync(process.execPath,['--test',...selected],{
-  cwd:root,stdio:'inherit',env:process.env,windowsHide:true
+  cwd:root,stdio:'inherit',env:process.env,windowsHide:true,
+  // Keep an unresponsive live protocol session a visible FAILED check rather
+  // than a 30-minute CI hang. This timeout is identical on every OS.
+  timeout:mode==='protocol'?90_000:undefined
 });
-if(result.error){console.error(result.error);process.exit(2);}
+if(result.error){
+  if(result.error.code==='ETIMEDOUT')console.error('MCP_PROTOCOL_TIMEOUT: official SDK stdio test exceeded 90000ms (NOT PASS)');
+  else console.error(result.error);
+  process.exit(2);
+}
 if(result.signal){console.error(`Test subprocess terminated by ${result.signal}`);process.exit(1);}
 process.exit(result.status===null?1:result.status);

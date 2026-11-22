@@ -15,7 +15,8 @@ const cli=path.join(repo,'dist/packages/cli/src/main.js');
 function write(root,file,data){const dest=path.join(root,file);fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,data);}
 const decode=call=>JSON.parse(call.content.find(part=>part.type==='text').text);
 
-test('MCP stdio: initialize, list, sequential call, schema rejection, path isolation, Git diff, explain, shutdown',async t=>{
+test('MCP stdio: initialize, list, sequential call, schema rejection, path isolation, Git diff, explain, shutdown',{timeout:70_000},async t=>{
+  const stage=(name)=>console.error(`MCP_STDIO_STAGE ${name}`);
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'br-protocol-'));
   t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
   write(root,'.gitignore','.blastradius/\n');
@@ -26,31 +27,45 @@ test('MCP stdio: initialize, list, sequential call, schema rejection, path isola
   execFileSync('git',['-C',root,'-c','user.name=Fixture','-c','user.email=fixture@example.test','commit','-qm','baseline']);
   const transport=new StdioClientTransport({command:process.execPath,args:[cli,'mcp','--stdio','--root',root],stderr:'pipe'});
   const client=new Client({name:'blastradius-smoke',version:'0.0.1'},{capabilities:{}});
-  t.after(async()=>{try{await client.close();}catch{}try{await transport.close();}catch{}});
+  t.after(async()=>{stage('cleanup:close-client');try{await client.close();}catch{}stage('cleanup:close-transport');try{await transport.close();}catch{}stage('cleanup:done');});
+  stage('connect:begin');
   await client.connect(transport);
+  stage('connect:done');
+  stage('listTools:begin');
   const catalog=await client.listTools();
+  stage('listTools:done');
   assert.deepEqual(catalog.tools.map(x=>x.name).sort(),['br_analyze_diff','br_explain','br_impact','br_resolve_symbol','br_status']);
+  stage('status:begin');
   const before=decode(await client.callTool({name:'br_status',arguments:{}}));
   assert.ok(['not_indexed','possibly_stale','ready'].includes(before.status));
+  stage('impact:begin');
   const impact=decode(await client.callTool({name:'br_impact',arguments:{target:{file:'src/lib.ts',symbol:'used'}}}));
   assert.equal(impact.summary.routes,1);
+  stage('resolve:begin');
   const resolved=decode(await client.callTool({name:'br_resolve_symbol',arguments:{file:'src/lib.ts',name:'used'}}));
   assert.equal(resolved.status,'resolved');
+  stage('invalid-input:begin');
   const invalid=await client.callTool({name:'br_impact',arguments:{target:{file:'src/lib.ts'},limit:'4'}});
   assert.equal(invalid.isError,true,'low-level MCP SDK did not validate call arguments');
   assert.equal(decode(invalid).error.code,'INVALID_ARGUMENT');
+  stage('workspace-isolation:begin');
   const outside=await client.callTool({name:'br_resolve_symbol',arguments:{file:'../outside.ts',name:'secret'}});
   assert.equal(outside.isError,true);
   assert.equal(decode(outside).error.code,'WORKSPACE_ACCESS_DENIED');
   write(root,'src/main.ts','console.log(1);');
+  stage('git-diff:begin');
   const diff=decode(await client.callTool({name:'br_analyze_diff',arguments:{base:'HEAD',target:'working_tree',mode:'orphans'}}));
   assert.equal(diff.findings[0]?.code,'NEW_ORPHAN_EXPORT',JSON.stringify(diff));
+  stage('explain:begin');
   const detail=decode(await client.callTool({name:'br_explain',arguments:{findingId:diff.findings[0].id,snapshot:diff.snapshot}}));
   assert.equal(detail.snapshot,diff.snapshot);
   assert.ok(detail.before.chain.length>1);
+  stage('stale-snapshot:begin');
   const stale=await client.callTool({name:'br_explain',arguments:{findingId:diff.findings[0].id,snapshot:'g_not_the_snapshot'}});
   assert.equal(stale.isError,true);
   assert.equal(decode(stale).error.code,'SNAPSHOT_STALE');
+  stage('status-after:begin');
   const after=decode(await client.callTool({name:'br_status',arguments:{}}));
   assert.ok(after.graphVersion);
+  stage('assertions:done');
 });
