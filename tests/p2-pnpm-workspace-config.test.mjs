@@ -4,7 +4,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
-import {buildGraph, scanWorkspace, loadGitSnapshot} from '../dist/packages/core/src/index.js';
+import {buildGraph} from '../dist/packages/core/src/index.js';
+import {scanWorkspace,loadGitSnapshot} from '../dist/packages/core/src/files.js';
 
 // P6 independent Radix Primitives source @ eb3a2b7091293e27df8f9ba906632d8daa3d81a3:
 // root package.json has NO workspaces, pnpm-workspace.yaml declares
