@@ -83,3 +83,15 @@ The React Redux and React Router exact pins and 16 independent manual labels wer
 ## First observed P5 fresh-cohort accuracy (scoped)
 
 Source-pinned first nine-project [GitHub run #45026352897](https://github.com/levencode-labs/blastradius/actions/runs/45026352897) independently checked all 80 unchanged hand labels (48 TP, 32 TN, 0 FP/FN) and 3,627 compiler-resolvable named-import pairs (3,611 TP, 16 TN, 0 FP/FN). The truly previously untouched React Redux/Router group contributed 937 TP, 4 TN, 0 FP/FN, while 108/1,049 attempted named imports remained independently unresolved/external and **0/9 full graphs were complete**. The report must not generalize these scoped measurements to deletion safety, dynamic loading, all routes or public APIs. Original Knip comparisons are unchanged. See [P5 source-exact evidence](../../docs/evidence/P5_FRESH_HOLDOUT.md).
+
+## P6: new independent blind monorepo cohort (frozen before initial scoring)
+
+This research-only cohort is **separate from all nine previous repositories** and was chosen by reading upstream source at exact commit SHA, before running BlastRadius:
+
+| New split `blind_holdout` | Exact upstream Git SHA | Source-annotated probes |
+| --- | --- | --- |
+| `radix-ui/primitives` | `eb3a2b7091293e27df8f9ba906632d8daa3d81a3` | W01–W06, components/JSX and explicit unused negative controls |
+| `vercel/swr` | `8148ef012fd5b317d1e8ec2da4b2ca0673f63c0f` | W07–W12, internal imports/exports and negatives |
+| `pmndrs/jotai` | `5fe0e825f9674b16162e6952c0a1afea01c1485f` | W13–W18, React hooks, function overloads and negatives |
+
+The prior **nine repository entries and all 80 labels remain semantically unchanged**; the P6 cohort adds six source-annotated labels per project (18 total), each asserted by the independent official TypeScript TypeChecker before scoring. New aggregate counts are **12 repos / 98 labels**, with all prior 3 Knip 6.45.1 controlled mutations preserved. Both manual and compiler-enumerated direct import pairs have separate precision/recall and UNKNOWN/omission coverage for `blind_holdout`. The first run's outcomes MUST be reported verbatim and may not be used to rewrite these labels or shrink the evaluation. Any defect learned from P6 exposes this cohort and mandates another genuinely new holdout before claiming release-level independent accuracy. See [pre-score provenance](../../docs/evidence/P6_BLIND_HOLDOUT.md).
