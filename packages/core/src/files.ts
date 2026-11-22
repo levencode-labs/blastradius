@@ -2,6 +2,7 @@ import {createHash} from 'node:crypto';
 import {lstatSync, readFileSync, readdirSync, realpathSync, existsSync, statSync} from 'node:fs';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
+import tsSyntax from 'typescript';
 import type {Config, Diagnostic} from './types.js';
 
 export const codeExtensions = /\.(?:ts|tsx|js|jsx|mts|cts|mjs|cjs)$/i;
@@ -25,6 +26,112 @@ export function matchesGlob(name: string, glob: string): boolean {
     .replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\u0000/g,'(?:.*/)?').replace(/\u0001/g,'.*').replace(/\u0002/g,'[^/]*');
   return new RegExp('^' + s + '$').test(name);
 }
+
+// Resolve only configurations recorded by this exact workspace snapshot.
+// pnpm support is intentionally a bounded *literal* subset, not a YAML
+// interpreter; ambiguous/negated/aliased workspace patterns remain UNKNOWN.
+function workspacePatterns(files:Map<string,string>):string[]{
+  const root=files.get('package.json');
+  if(!root)throw Error('Workspace configuration has no root package manifest');
+  const pkg=JSON.parse(root) as Record<string,unknown>;
+  let patterns:unknown;
+  if(pkg.workspaces!==undefined){
+    const ws=pkg.workspaces;
+    patterns=Array.isArray(ws)?ws:
+      ws&&typeof ws==='object'?(ws as {packages?:unknown}).packages:undefined;
+  }else{
+    const yaml=files.get('pnpm-workspace.yaml');
+    if(!yaml)throw Error('No root npm or pnpm workspace declaration');
+    const found:string[]=[];let inPackages=false;let header=false;
+    for(const line of yaml.replace(/\r\n/g,'\n').split('\n')){
+      if(!inPackages){
+        if(/^packages:\s*(?:#.*)?$/.test(line)){inPackages=true;header=true;}
+        else if(/^packages:/.test(line))throw Error('Unsupported pnpm workspace packages syntax');
+        continue;
+      }
+      if(/^\S/.test(line))break; // next top-level YAML field
+      const trimmed=line.trim();
+      if(!trimmed||trimmed.startsWith('#'))continue;
+      const quoted=/^\s{2,}-\s+(['"])([^'"]+)\1\s*(?:#.*)?$/.exec(line);
+      const plain=/^\s{2,}-\s+([A-Za-z0-9_.*\/-]+)\s*(?:#.*)?$/.exec(line);
+      const value=quoted?.[2]||plain?.[1];
+      if(!value||!/^(?:[A-Za-z0-9_.-]+|\*)(?:\/(?:[A-Za-z0-9_.-]+|\*))*$/.test(value)||
+         value.split('/').some(x=>x==='.'||x==='..'))
+        throw Error('Unsupported or unsafe pnpm workspace item: '+trimmed);
+      found.push(value);
+    }
+    if(!header||!found.length)throw Error('Missing literal pnpm workspace packages');
+    patterns=found;
+  }
+  if(!Array.isArray(patterns)||!patterns.length||
+     patterns.some((p:unknown)=>typeof p!=='string'||!p||p.startsWith('!')||p.startsWith('/')||
+        p.includes('\\')||p.includes('\0')||p.split('/').some(x=>x==='..'||x==='.'||!x)))
+    throw Error('Unsupported or unsafe workspace patterns');
+  return (patterns as string[]).map(p=>p.replace(/^\.\//,''));
+}
+function extendedConfigPath(files:Map<string,string>,filename:string,spec:string):string{
+  if(!spec||spec.includes('\\')||spec.includes('\0')||path.posix.isAbsolute(spec))
+    throw Error('Unsupported TypeScript config extends: '+spec);
+  const dir=path.posix.dirname(filename);
+  if(spec.startsWith('./')||spec.startsWith('../')){
+    const rel=path.posix.normalize(path.posix.join(dir,spec.endsWith('.json')?spec:spec+'.json'));
+    if(rel==='..'||rel.startsWith('../')||rel.startsWith('/'))
+      throw Error('TypeScript extends escapes snapshot root: '+spec);
+    return rel;
+  }
+  if(spec.split('/').some(x=>!x||x==='.'||x==='..')||spec.includes(':'))
+    throw Error('Unsupported workspace config extends: '+spec);
+  const patterns=workspacePatterns(files);
+  const owners=new Map<string,string[]>();
+  for(const [name,body] of files){
+    if(!name.endsWith('/package.json'))continue;
+    const ownerDir=path.posix.dirname(name);
+    if(!patterns.some(p=>matchesGlob(ownerDir,p)))continue;
+    let manifest:Record<string,unknown>;
+    try{manifest=JSON.parse(body) as Record<string,unknown>;}catch{
+      throw Error('Unparseable workspace package manifest: '+name);
+    }
+    if(typeof manifest.name!=='string')continue;
+    const names=owners.get(manifest.name)||[];
+    names.push(ownerDir);owners.set(manifest.name,names);
+  }
+  const candidates=[...owners.keys()].filter(n=>spec===n||spec.startsWith(n+'/'))
+    .sort((a,b)=>b.length-a.length);
+  if(!candidates.length)throw Error('Unowned workspace package config: '+spec);
+  const chosen=candidates[0],dirs=owners.get(chosen)!;
+  if(dirs.length!==1)throw Error('Ambiguous workspace package config owner: '+spec);
+  const sub=spec===chosen?'tsconfig.json':spec.slice(chosen.length+1);
+  if(!sub||sub.startsWith('/')||sub.includes('\\')||sub.split('/').some(x=>!x||x==='.'||x==='..'))
+    throw Error('Unsafe package config subpath: '+spec);
+  const rel=path.posix.normalize(path.posix.join(dirs[0],sub.endsWith('.json')?sub:sub+'.json'));
+  if(!rel.startsWith(dirs[0]+'/'))throw Error('Package config escapes owner: '+spec);
+  return rel;
+}
+/** Hydrate only transitive tsconfig extends (including package-style JSON).
+ * Readers must provide bytes from the SAME live or Git snapshot. No node_modules.
+ */
+function hydrateExtendedConfigs(files:Map<string,string>,read:(file:string)=>string|undefined):void{
+  const pending=[...files.keys()].filter(p=>/^tsconfig[^/]*\.json$/.test(path.posix.basename(p)));
+  const visited=new Set<string>();
+  for(let i=0;i<pending.length&&i<4096;i++){
+    const current=pending[i];
+    if(visited.has(current))continue;visited.add(current);
+    const raw=files.get(current);if(raw===undefined)continue;
+    const config=tsSyntax.parseConfigFileTextToJson(current,raw);
+    if(config.error||typeof config.config?.extends!=='string')continue;
+    let inherited:string;
+    try{inherited=extendedConfigPath(files,current,config.config.extends);}catch{continue;}
+    if(!inherited.endsWith('.json'))continue;
+    if(!files.has(inherited)){
+      let content:string|undefined;
+      try{content=read(inherited);}catch{continue;}
+      if(content===undefined||Buffer.byteLength(content,'utf8')>1_000_000)continue;
+      files.set(inherited,content);
+    }
+    pending.push(inherited);
+  }
+}
+
 const defaults = new Set(['node_modules','.git','.blastradius','dist','build','.next','coverage','.turbo','.pnpm','vendor']);
 export function scanWorkspace(root: string, config: Config = {}): {files: Map<string,string>;diagnostics: Diagnostic[]} {
   root = path.resolve(root);
@@ -49,6 +156,11 @@ export function scanWorkspace(root: string, config: Config = {}): {files: Map<st
     }
   }
   visit(root);
+  hydrateExtendedConfigs(files,relative=>{
+    const abs=resolveInside(root,relative);
+    if(!existsSync(abs)||!lstatSync(abs).isFile()||statSync(abs).size>1_000_000)return undefined;
+    return readFileSync(abs,'utf8');
+  });
   if(config.git?.includeUntracked===false){
     try{
       const tracked=new Set(git(root,['ls-files','--cached','-z']).toString('utf8').split('\0').filter(Boolean));
@@ -84,17 +196,26 @@ function readBlobs(root:string, ids: Array<{path:string;sha:string}>): Map<strin
 export function loadGitSnapshot(root:string,ref:string='HEAD'): Map<string,string> {
   const staged=ref==='index';
   const output=staged?git(root,['ls-files','--stage','-z']):git(root,['ls-tree','-r','-z',ref]);
-  const ids: Array<{path:string;sha:string}>=[];
+  const ids:Array<{path:string;sha:string}>=[];
+  const jsonBlobs=new Map<string,string>();
   for(const part of output.toString('utf8').split('\0')){
-    if(!part)continue;const tab=part.indexOf('\t');if(tab<0)continue;
-    const metadata=part.slice(0,tab).split(' ');const file=part.slice(tab+1);
-    if(!codeExtensions.test(file)&&!/(?:^|\/)(?:tsconfig[^/]*\.json|package\.json|blastradius\.config\.json)$/.test(file))continue;
-    const sha=staged?metadata[1]:metadata[2];const mode=metadata[0];
-    if(mode==='120000')continue; // git symlink: never follow it
-    if(!/^[a-f0-9]{40,64}$/.test(sha))continue;
+    if(!part)continue;
+    const tab=part.indexOf('\t');if(tab<0)continue;
+    const metadata=part.slice(0,tab).split(' '),file=part.slice(tab+1);
+    const sha=staged?metadata[1]:metadata[2],mode=metadata[0];
+    if(mode==='120000'||!['100644','100755'].includes(mode)||!/^[a-f0-9]{40,64}$/.test(sha))continue;
+    if(file.endsWith('.json'))jsonBlobs.set(file,sha);
+    if(!codeExtensions.test(file)&&
+       !/(?:^|\/)(?:tsconfig[^/]*\.json|package\.json|blastradius\.config\.json)$/.test(file)&&
+       file!=='pnpm-workspace.yaml')continue;
     ids.push({path:file,sha});
   }
-  return readBlobs(root,ids);
+  const files=readBlobs(root,ids);
+  hydrateExtendedConfigs(files,relative=>{
+    const sha=jsonBlobs.get(relative);
+    return sha?readBlobs(root,[{path:relative,sha}]).get(relative):undefined;
+  });
+  return files;
 }
 /** Filter each Git state using its own config, not today's worktree config. */
 export function filterSnapshotFiles(files:Map<string,string>,config:Config):Map<string,string> {
@@ -130,56 +251,11 @@ export function projectOptions(root:string,files:Map<string,string>,relative:str
     const json=parsed.config || {};
     let inherited:import('typescript').CompilerOptions={};
     if(typeof json.extends==='string'){
-      const spec:string=json.extends;
-      let baseRel:string;
-      if(spec.startsWith('./')||spec.startsWith('../')){
-        const base=spec.endsWith('.json')?spec:spec+'.json';
-        baseRel=toPosix(path.posix.normalize(path.posix.join(path.posix.dirname(filename),base)));
-      }else{
-        // A bare TypeScript "extends" can reference a *package* subpath. Only
-        // trust uniquely owned workspace packages recorded by the same
-        // snapshot; never look in node_modules, fetch, or execute a config.
-        if(path.posix.isAbsolute(spec)||spec.includes('\\')||spec.includes('\0')||
-           spec.split('/').includes('..')||spec.split('/').includes('.'))
-          throw Error('Unsupported package tsconfig extends: '+spec);
-        const rootManifest=files.get('package.json');
-        if(!rootManifest)throw Error('Package tsconfig extends has no root workspace manifest: '+spec);
-        const rootPkg=JSON.parse(rootManifest) as Record<string,unknown>;
-        const ws=rootPkg.workspaces;
-        const patterns=Array.isArray(ws)?ws:
-          ws&&typeof ws==='object'?(ws as {packages?:unknown}).packages:undefined;
-        if(!Array.isArray(patterns)||!patterns.length||
-           patterns.some((p:unknown)=>typeof p!=='string'||p.startsWith('!')||p.includes('..')))
-          throw Error('Unsupported root workspace patterns for package tsconfig extends: '+spec);
-        const patternsNormalized=patterns.map((p:string)=>p.replace(/^\.\//,''));
-        const owned=new Map<string,string[]>();
-        for(const [manifestFile,body] of files){
-          if(!manifestFile.endsWith('/package.json'))continue;
-          const dir=path.posix.dirname(manifestFile);
-          if(!patternsNormalized.some(p=>matchesGlob(dir,p)))continue;
-          let parsed:Record<string,unknown>;
-          try{parsed=JSON.parse(body) as Record<string,unknown>;}catch{
-            throw Error('Unparseable owned workspace manifest: '+manifestFile);
-          }
-          if(typeof parsed.name!=='string')continue;
-          const current=owned.get(parsed.name)||[];
-          current.push(dir);owned.set(parsed.name,current);
-        }
-        const packages=[...owned.keys()].filter(n=>spec===n||spec.startsWith(n+'/'))
-          .sort((a,b)=>b.length-a.length);
-        if(!packages.length)throw Error('Unowned package tsconfig extends: '+spec);
-        const chosen=packages[0],dirs=owned.get(chosen)!;
-        if(dirs.length!==1)throw Error('Ambiguous workspace package tsconfig extends: '+spec);
-        const rel=spec===chosen?'tsconfig.json':spec.slice(chosen.length+1);
-        if(!rel||rel.startsWith('/')||rel.includes('\\')||rel.split('/').some(p=>!p||p==='.'||p==='..'))
-          throw Error('Unsafe package tsconfig extends subpath: '+spec);
-        const normalized=rel.endsWith('.json')?rel:rel+'.json';
-        baseRel=path.posix.normalize(path.posix.join(dirs[0],normalized));
-        if(!baseRel.startsWith(dirs[0]+'/'))
-          throw Error('Package tsconfig extends escapes owned workspace: '+spec);
-      }
-      if(files.has(baseRel)) inherited=parse(baseRel,visited);
+      const baseRel=extendedConfigPath(files,filename,json.extends);
+      if(files.has(baseRel))inherited=parse(baseRel,visited);
       else throw Error('tsconfig extends missing or not snapshot-resolvable: '+baseRel);
+    }else if(json.extends!==undefined){
+      throw Error('Unsupported non-string tsconfig extends');
     }
     const converted=ts.convertCompilerOptionsFromJson(
       json.compilerOptions||{},path.join(root,path.dirname(filename)),filename);
