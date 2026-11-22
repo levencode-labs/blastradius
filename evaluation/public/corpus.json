@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "selectionMethod": "Development cohort: three previously evaluated pinned projects. Holdout cohort: two additional pinned, source-read and labeled projects selected without inspecting BlastRadius predictions. Neither cohort is representative; do not relabel after scoring.",
+  "selectionMethod": "The original five development/exposed-holdout inputs and 48 labels are frozen from P3. Two additional genuinely unseen pinned monorepos with manually chosen static links, positive and negative, are assigned to a third independent cohort before examining any BlastRadius prediction. Observationally scoped and not population representative.",
   "repositories": [
     {
       "id": "usehooks-ts",
@@ -424,6 +424,142 @@
           "symbol": "table_syncExternalStateToBaseAtoms",
           "consumer": "packages/table-core/src/core/rows/constructRow.ts",
           "used": false
+        }
+      ]
+    },
+    {
+      "id": "floating-ui",
+      "split": "unseen_holdout",
+      "url": "https://github.com/floating-ui/floating-ui.git",
+      "sha": "c3042f1f37d96dfadff1d8894daa31e120d89ed4",
+      "sourcePrefixes": [
+        "packages/core/src/",
+        "packages/react/src/"
+      ],
+      "probes": [
+        {
+          "id": "F01",
+          "target": "packages/react/src/utils/createAttribute.ts",
+          "symbol": "createAttribute",
+          "consumer": "packages/react/src/hooks/useHover.ts",
+          "used": true
+        },
+        {
+          "id": "F02",
+          "target": "packages/react/src/utils/createAttribute.ts",
+          "symbol": "createAttribute",
+          "consumer": "packages/react/src/hooks/useDismiss.ts",
+          "used": true
+        },
+        {
+          "id": "F03",
+          "target": "packages/react/src/utils/createAttribute.ts",
+          "symbol": "createAttribute",
+          "consumer": "packages/react/src/hooks/useClick.ts",
+          "used": false
+        },
+        {
+          "id": "F04",
+          "target": "packages/react/src/utils/clearTimeoutIfSet.ts",
+          "symbol": "clearTimeoutIfSet",
+          "consumer": "packages/react/src/hooks/useHover.ts",
+          "used": true
+        },
+        {
+          "id": "F05",
+          "target": "packages/react/src/utils/clearTimeoutIfSet.ts",
+          "symbol": "clearTimeoutIfSet",
+          "consumer": "packages/react/src/hooks/useDismiss.ts",
+          "used": false
+        },
+        {
+          "id": "F06",
+          "target": "packages/core/src/computeCoordsFromPlacement.ts",
+          "symbol": "computeCoordsFromPlacement",
+          "consumer": "packages/core/src/computePosition.ts",
+          "used": true
+        },
+        {
+          "id": "F07",
+          "target": "packages/core/src/computeCoordsFromPlacement.ts",
+          "symbol": "computeCoordsFromPlacement",
+          "consumer": "packages/core/src/middleware/shift.ts",
+          "used": false
+        },
+        {
+          "id": "F08",
+          "target": "packages/core/src/constants.ts",
+          "symbol": "originSides",
+          "consumer": "packages/core/src/middleware/offset.ts",
+          "used": true
+        }
+      ]
+    },
+    {
+      "id": "tanstack-form",
+      "split": "unseen_holdout",
+      "url": "https://github.com/TanStack/form.git",
+      "sha": "5de1a8de01e3d63a0e5225a7e659a384f3a0effb",
+      "sourcePrefixes": [
+        "packages/form-core/src/",
+        "packages/react-form/src/"
+      ],
+      "probes": [
+        {
+          "id": "Q01",
+          "target": "packages/react-form/src/useIsomorphicLayoutEffect.ts",
+          "symbol": "useIsomorphicLayoutEffect",
+          "consumer": "packages/react-form/src/useForm.tsx",
+          "used": true
+        },
+        {
+          "id": "Q02",
+          "target": "packages/react-form/src/useIsomorphicLayoutEffect.ts",
+          "symbol": "useIsomorphicLayoutEffect",
+          "consumer": "packages/react-form/src/useField.tsx",
+          "used": true
+        },
+        {
+          "id": "Q03",
+          "target": "packages/react-form/src/useIsomorphicLayoutEffect.ts",
+          "symbol": "useIsomorphicLayoutEffect",
+          "consumer": "packages/react-form/src/createFormHook.tsx",
+          "used": false
+        },
+        {
+          "id": "Q04",
+          "target": "packages/react-form/src/useForm.tsx",
+          "symbol": "useForm",
+          "consumer": "packages/react-form/src/createFormHook.tsx",
+          "used": true
+        },
+        {
+          "id": "Q05",
+          "target": "packages/react-form/src/useForm.tsx",
+          "symbol": "useForm",
+          "consumer": "packages/react-form/src/useField.tsx",
+          "used": false
+        },
+        {
+          "id": "Q06",
+          "target": "packages/react-form/src/useField.tsx",
+          "symbol": "Field",
+          "consumer": "packages/react-form/src/useForm.tsx",
+          "used": true
+        },
+        {
+          "id": "Q07",
+          "target": "packages/react-form/src/useField.tsx",
+          "symbol": "Field",
+          "consumer": "packages/react-form/src/useFieldGroup.tsx",
+          "used": false
+        },
+        {
+          "id": "Q08",
+          "target": "packages/react-form/src/useFormGroup.tsx",
+          "symbol": "FormGroup",
+          "consumer": "packages/react-form/src/useForm.tsx",
+          "used": true
         }
       ]
     }
