@@ -21,7 +21,7 @@ BlastRadius — локальный анализатор для TypeScript, JavaS
 ```sh
 git clone https://github.com/levencode-labs/blastradius.git
 cd blastradius
-npm install
+npm ci --ignore-scripts --no-audit --no-fund
 npm run build
 node dist/packages/cli/src/main.js index --root /absolute/path/to/project --json
 node dist/packages/cli/src/main.js impact src/hooks/useAuth.ts#useAuth --root /absolute/path/to/project --json
@@ -42,7 +42,7 @@ node dist/packages/cli/src/main.js diff --base HEAD --root /absolute/path/to/pro
 
 ## Текущий статус
 
-Есть работающий TypeScript AST-граф, пути tsconfig, named/default exports, базовые re-exports, JSX и props, роуты Next.js, SQLite-кэш, Git-снимки, CLI, обработчики пяти MCP-инструментов и Skill. **78/78 локальных тестов** прошли на текущем этапе: анализ графа, регрессии и строгая проверка MCP-контрактов. Исправлены ложная достижимость констант, сломанные импорты, фильтрация Git-снимков и `index --force`; добавлены маршруты/тесты в итог diff и привязка `br_explain` к snapshot. Отдельно остаются семантический TypeChecker, 30 эталонных golden-fixtures, реальный прогон MCP по официальному SDK, Windows/macOS CI, сравнение с Knip и публикация npm. Тест живого MCP-stdio обязателен во всех ячейках CI. Локальная попытка закончилась `ERR_MODULE_NOT_FOUND` до начала проверок протокола: отсутствует SDK и недоступен npm Registry. Результат MCP остаётся непроверенным. [Отчёт о продолжении разработки](docs/IMPLEMENTATION_UPDATE_2026-11-22.md) и [статус публикации и CI](docs/PUBLICATION_STATUS.md). Проект пока не позиционируется как готовый MVP.
+Основной граф TS/JS, CLI, MCP и Skill доступны в исходниках. **30 формальных golden-сценариев и 120 базовых тестов проходят**, а [CI на Linux, Windows и macOS (8/8)](https://github.com/levencode-labs/blastradius/actions/runs/45003627005) подтвердила настоящий MCP stdio на Node 22/24. [P1](docs/P1_SUPPLY_CHAIN.md) добавляет зафиксированный `package-lock.json`, неизменяемый `npm ci`, проверку лицензий зависимостей и реальную сборку/установку npm-архива. Остаются независимые измерения точности на реальных проектах, сложная семантика TypeChecker, проверка юридических текстов лицензий и релизная приёмка; автоматически удалять найденный код нельзя.
 
 ## Лицензия
 

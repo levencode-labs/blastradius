@@ -24,13 +24,13 @@ The existing full matrix is maintained: Ubuntu 24.04 x64, Windows 2025 x64, macO
 3. Assert `package.json` and `package-lock.json` remain unchanged.
 4. Check all installed transitive package metadata against the committed inventory and SPDX license allowlist; run six negative-control tests.
 5. Compile TypeScript; execute the pre-existing Core, CLI, 30 goldens, TypeChecker tests and the **real official MCP SDK** stdio smoke test.
-6. Verify preview files; produce **two real npm tarballs** in different temporary directories and require matching SHA-256/SHA-512 and complete allowed file roster, without publishing.
+6. Verify preview files; produce **two real npm tarballs** in different temporary directories with identical SHA-256/SHA-512, install the **actual tarball** into a separate clean consumer without lifecycle scripts and run the packaged CLI `--help`. No publication.
 
 All jobs install independently from a clean checkout. A green CI matrix is required on the **exact PR head**, followed by independent main-commit checks after merge. No matrix entry may be removed after failure.
 
 ## Distribution and license boundaries
 
-`npm pack` still creates a *dependency-requiring source-built development package*, **not a standalone offline installer**. Package contents are restricted to the built `dist`, Skill and documented license/README files; no tests, fixture source trees, `node_modules`, `.env` or build cache. The CLI and MCP are validated against the installed dependency tree in CI, and the bundle reproducibility check runs twice per job. Cross-platform byte identity and long-term fixed npm CLI-version reproducibility remain additional checks, not assumed.
+`npm pack` still creates a *dependency-requiring source-built development package*, **not a standalone offline installer**. Package contents are restricted to the built `dist`, Skill and documented license/README files; no tests, fixture source trees, `node_modules`, `.env` or build cache. The CLI and MCP are validated against the installed source dependency tree in CI; an independent clean consumer additionally installs the generated `.tgz` and executes the packaged CLI. The bundle reproducibility check runs twice per job. Cross-platform byte identity and long-term fixed npm CLI-version reproducibility remain additional checks, not assumed.
 
 [The inventory](THIRD_PARTY_LICENSES.md) gives the exact 98 package locations and their license metadata. All current entries declare MIT, ISC, BSD-2-Clause, BSD-3-Clause or Apache-2.0. **Metadata agreement is not a legal license/NOTICE sign-off:** project maintainers must still review actual license text, attributions, re-distribution obligations and security provenance before `v0.1.0`.
 

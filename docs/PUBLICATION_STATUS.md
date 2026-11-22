@@ -1,29 +1,22 @@
-> **P2 update, 2026-11-22:** All 30 formal golden fixtures and eight independent TypeChecker oracle checks now pass locally; the extra boundary suite brings this to 120/120 local tests. See [accuracy evidence](P2_ACCURACY.md). The main/source preview and B-radar hero artwork are published. A fresh P2 CI on its exact SHA is still required, and the v0.1.0 release gates below remain open.
-
 # Publication and CI status
 
-BlastRadius is being published as a **source-only development preview (`0.0.1-dev`)**. GitHub is the source repository. The package is intentionally `private: true`; do not publish npm or tag `v0.1.0`.
+**State: unreleased source-only development preview `0.0.1-dev`**, `private: true`. There is **no npm package release, no v0.1.0 tag, and no permission to publish** from this task.
 
-## Local evidence (2026-11-22)
+## Verified existing P2 evidence
 
-On the authoring Linux environment with Node 22.16.0: `npm test` ran **78 tests, 78 passed, none skipped**, and `node ci/verify-distribution.mjs` passed. The local official SDK MCP smoke **did not run**: `@modelcontextprotocol/sdk` was missing and registry DNS was unavailable. The local number is not cross-platform or SDK integration acceptance.
+- Main SHA `6b6daff1f0a2ae85c6b76412dea46fa6e5d0e717`: [GitHub Actions #45003627005](https://github.com/levencode-labs/blastradius/actions/runs/45003627005), **8/8 PASS** (Ubuntu, Windows, macOS ARM64/Intel × Node 22/24).
+- All 30 formal handwritten golden cases, 120 baseline tests, eight independent TypeChecker probes and actual MCP SDK stdio on every CI cell passed. Fixture-only FP/FN results are **not** measured real-world accuracy.
 
-## Required CI
+## P1 dependency and distribution hardening
 
-The workflow `.github/workflows/ci.yml` covers Linux x64, Windows x64, macOS ARM64, and macOS Intel, each with Node 22 and Node 24, with all eight jobs required and `fail-fast: false`. It installs dependencies, builds, exercises the Core/CLI tests, runs live MCP stdio protocol tests with the official SDK, and checks the package contents.
+- npm v3 lockfile with **98 exact third-party package locations**, each from the public npm registry with SHA-512 integrity. Verified SHA-256: `6ed4a0d76c2ca5b315183e0d003de014ba38e30ddda990ad47d75ac12d6242c4`. [Source artifact run #45010837672](https://github.com/levencode-labs/blastradius/actions/runs/45010837672).
+- Exact P1 first-stage SHA `ed9b4a10ce23f1c9a64f08e8a6fb69b569666412` passed **8/8 frozen `npm ci` push + 8/8 PR jobs**: [push #45011541337](https://github.com/levencode-labs/blastradius/actions/runs/45011541337) and [PR #45011582483](https://github.com/levencode-labs/blastradius/actions/runs/45011582483).
+- The [P1 branch/PR](https://github.com/levencode-labs/blastradius/pull/4) adds an isolated consumer install of the actual tarball and CLI `--help` smoke on every OS/Node combination. **This later change requires its own exact-head full green before merge.**
+- Installed dependency license metadata and checked-in [98-location SPDX catalog](THIRD_PARTY_LICENSES.md) are examined on each host. This is **not** full manual legal review of license texts, copyright or NOTICE obligations.
+- The `npm pack` archive contains CLI, Core, MCP and Skill but **not** embedded runtime dependencies. It is **not** an offline one-file package.
 
-A preview-only unfrozen `npm install` is used because a reviewed lockfile has not yet been committed. **Any green CI is preliminary**, not release approval. Do not narrow the OS or Node matrix to make a failing run green.
+The unchanged eight-cell CI matrix uses `npm ci --ignore-scripts --no-audit --no-fund`, validates all declared installed packages and reproducibly packs an archive twice with matching bytes. It never publishes. See [P1 design and provenance](P1_SUPPLY_CHAIN.md).
 
-## Release gates still open
+## Remaining blockers for v0.1.0
 
-- Pin and commit a dependency lock, verify frozen installation from scratch on all supported platforms.
-- Ensure live official SDK MCP initialization/list/call/error/close tests pass.
-- Complete and verify all 30 golden regression fixtures specified in the technical specification.
-- Measure precision/recall, dynamic/public API protection and large project performance independently.
-- Review transitive dependency licenses and npm distribution.
-
-Release is blocked until evidence for every mandatory gate is recorded.
-
-## Windows stdio investigation
-
-The initial Node 22/24 Windows CI jobs reached the official SDK stdio E2E and remained in progress while Linux/macOS completed. The repository originally pinned `@modelcontextprotocol/sdk@1.20.0`. The SDK has documented Windows stdio client shutdown issues fixed in its later v1 branch. The exact version was updated to `1.32.2`; **the Windows fix is a hypothesis until CI confirms success on that exact code**. Do not mark the affected earlier jobs PASS, and retain their run URLs in the PR.
+Independent pinned real-project precision/recall, broader semantic coverage, monorepo/concurrency benchmarks, complete third-party license-text/NOTICE and security provenance review, package-manager/toolchain version provenance, and formal final release acceptance. Results from one SHA must not be attributed to another. All eight CI cells remain mandatory even after a failed attempt.
