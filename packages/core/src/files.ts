@@ -63,11 +63,15 @@ function workspacePatterns(files:Map<string,string>):string[]{
     if(!header||!found.length)throw Error('Missing literal pnpm workspace packages');
     patterns=found;
   }
-  if(!Array.isArray(patterns)||!patterns.length||
-     patterns.some((p:unknown)=>typeof p!=='string'||!p||p.startsWith('!')||p.startsWith('/')||
-        p.includes('\\')||p.includes('\0')||p.split('/').some(x=>x==='..'||x==='.'||!x)))
+  if(!Array.isArray(patterns)||!patterns.length||patterns.some((p:unknown)=>typeof p!=='string'))
     throw Error('Unsupported or unsafe workspace patterns');
-  return (patterns as string[]).map(p=>p.replace(/^\.\//,''));
+  // npm workspace arrays legally include './packages/*'. Normalize that
+  // leading anchor BEFORE validating segments, preserving old P1 behavior.
+  const normalized=(patterns as string[]).map(p=>p.replace(/^\.\//,''));
+  if(normalized.some(p=>!p||p.startsWith('!')||p.startsWith('/')||
+       p.includes('\\')||p.includes('\0')||p.split('/').some(x=>x==='..'||x==='.'||!x)))
+    throw Error('Unsupported or unsafe workspace patterns');
+  return normalized;
 }
 function extendedConfigPath(files:Map<string,string>,filename:string,spec:string):string{
   if(!spec||spec.includes('\\')||spec.includes('\0')||path.posix.isAbsolute(spec))
