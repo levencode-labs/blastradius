@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const corpus=JSON.parse(readFileSync(new URL('../evaluation/public/corpus.json',import.meta.url),'utf8'));
-test('three development, two exposed, and two fresh untouched pinned holdout monorepos',()=>{
+test('seven unchanged historical sources and two new untouched public holdouts',()=>{
   assert.equal(corpus.schemaVersion,1);
   assert.deepEqual(corpus.repositories.map(x=>[x.id,x.split,x.sha]),[
     ['usehooks-ts','development','61949134144d3690fe9f521260a16c779a6d3797'],
@@ -12,24 +12,32 @@ test('three development, two exposed, and two fresh untouched pinned holdout mon
     ['react-hook-form','holdout','8d7bd6c2c774fd9b4310e8cbc07d36ce1cacf736'],
     ['tanstack-table','holdout','1cfb2e57cbfecf25e3d4ee1bda32fbd65e4e0327'],
     ['floating-ui','unseen_holdout','c3042f1f37d96dfadff1d8894daa31e120d89ed4'],
-    ['tanstack-form','unseen_holdout','5de1a8de01e3d63a0e5225a7e659a384f3a0effb']
+    ['tanstack-form','unseen_holdout','5de1a8de01e3d63a0e5225a7e659a384f3a0effb'],
+    ['react-redux','fresh_holdout','8e54f5b9dbbdcc972c120ad3ce3c1c57fc2e89fd'],
+    ['react-router','fresh_holdout','9916920a490c018eb78d7cc8c55a0efd6e9feac9']
   ]);
   const dev=corpus.repositories.filter(r=>r.split==='development');
   const hold=corpus.repositories.filter(r=>r.split==='holdout');
   const unseen=corpus.repositories.filter(r=>r.split==='unseen_holdout');
+  const fresh=corpus.repositories.filter(r=>r.split==='fresh_holdout');
   assert.deepEqual(dev.map(r=>r.probes.length),[8,8,16]);
   assert.deepEqual(hold.map(r=>r.probes.length),[8,8]);
   assert.deepEqual(unseen.map(r=>r.probes.length),[8,8]);
+  assert.deepEqual(fresh.map(r=>r.probes.length),[8,8]);
   assert.equal(corpus.repositories.flatMap(r=>r.mutations||[]).length,3);
   assert.ok(hold.every(r=>!r.mutations));
   assert.ok(unseen.every(r=>!r.mutations));
+  assert.ok(fresh.every(r=>!r.mutations));
+  assert.deepEqual(corpus.repositories.slice(5,7).flatMap(r=>r.probes.map(p=>p.id)),
+    [...Array.from({length:8},(_,i)=>'F'+String(i+1).padStart(2,'0')),
+     ...Array.from({length:8},(_,i)=>'Q'+String(i+1).padStart(2,'0'))]);
   assert.deepEqual(corpus.repositories.slice(0,5).flatMap(r=>r.probes.map(q=>q.id)),
     ['H01','H02','H03','H04','H05','H06','H07','H08','Z01','Z02','Z03','Z04','Z05','Z06','Z07','Z08',
     ...Array.from({length:16},(_,i)=>'N'+String(i+1).padStart(2,'0')),
     ...Array.from({length:8},(_,i)=>'R'+String(i+1).padStart(2,'0')),
     ...Array.from({length:8},(_,i)=>'T'+String(i+1).padStart(2,'0'))]);
   const probes=corpus.repositories.flatMap(r=>r.probes.map(p=>p.id));
-  assert.equal(probes.length,64);
+  assert.equal(probes.length,80);
   assert.equal(new Set(probes).size,probes.length);
   for(const r of corpus.repositories){
     assert.match(r.sha,/^[0-9a-f]{40}$/);

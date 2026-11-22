@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "kind": "first-untouched-nine-source-accuracy",
+  "sourceCommit": "46dd36bbe8cfa27fc3fe8fb1551b0d0305d7e8b7",
+  "alignedGitTree": "7310f73b64788ee6bf39d0879d8a06c193a4aae5",
+  "corpusSha256": "a43b3cb031b228a2d45b6e35696015e7b2387419d79611692b5113517abeef8a",
+  "sevenPrecedingCorpusSha256": "5cdf015173021d722983aaf3a92f504fea958af283bc9fffc429c1b93be3094b",
+  "sources": [
+    {
+      "id": "react-redux",
+      "repo": "reduxjs/react-redux",
+      "sha": "8e54f5b9dbbdcc972c120ad3ce3c1c57fc2e89fd",
+      "pinnedManualLabels": [
+        "U01",
+        "U02",
+        "U03",
+        "U04",
+        "U05",
+        "U06",
+        "U07",
+        "U08"
+      ]
+    },
+    {
+      "id": "react-router",
+      "repo": "remix-run/react-router",
+      "sha": "9916920a490c018eb78d7cc8c55a0efd6e9feac9",
+      "pinnedManualLabels": [
+        "V01",
+        "V02",
+        "V03",
+        "V04",
+        "V05",
+        "V06",
+        "V07",
+        "V08"
+      ]
+    }
+  ],
+  "ci": {
+    "independentFirstPush": {
+      "runId": 45026352897,
+      "conclusion": "success",
+      "artifactId": 14755034083,
+      "zipSha256": "85cf73f09d43c89a78bcaa8af8323fe3e446340574b0267fa149bf415e83ba39"
+    }
+  },
+  "manual": {
+    "tp": 48,
+    "tn": 32,
+    "fp": 0,
+    "fn": 0,
+    "samples": 80
+  },
+  "allIndependentNamedImports": {
+    "tp": 3611,
+    "tn": 16,
+    "fp": 0,
+    "fn": 0,
+    "samples": 3627,
+    "precision": 1,
+    "recall": 1
+  },
+  "bySplit": {
+    "development": {
+      "tp": 215,
+      "tn": 5,
+      "fp": 0,
+      "fn": 0,
+      "samples": 220
+    },
+    "holdout": {
+      "tp": 2084,
+      "tn": 1,
+      "fp": 0,
+      "fn": 0,
+      "samples": 2085
+    },
+    "historicalExposedFloatingCohort": {
+      "tp": 375,
+      "tn": 6,
+      "fp": 0,
+      "fn": 0,
+      "samples": 381
+    },
+    "freshHoldout": {
+      "tp": 937,
+      "tn": 4,
+      "fp": 0,
+      "fn": 0,
+      "samples": 941,
+      "manual": {
+        "tp": 12,
+        "tn": 4,
+        "fp": 0,
+        "fn": 0,
+        "samples": 16
+      },
+      "perRepo": [
+        {
+          "id": "react-redux",
+          "tp": 70,
+          "tn": 2,
+          "fp": 0,
+          "fn": 0,
+          "samples": 72
+        },
+        {
+          "id": "react-router",
+          "tp": 867,
+          "tn": 2,
+          "fp": 0,
+          "fn": 0,
+          "samples": 869
+        }
+      ],
+      "unknown": {
+        "attemptedNamedImportBindings": 1049,
+        "externalOrUnresolvedNamedBindings": 108,
+        "unknownNamedImportShare": 0.10295519542421354,
+        "graph": {
+          "completeRepositories": 0,
+          "totalRepositories": 2,
+          "unresolvedImports": 123,
+          "dynamicEdges": 1739,
+          "unsupportedFiles": 80
+        }
+      }
+    }
+  },
+  "knipControlledMutations": {
+    "comparatorVersion": "6.45.1",
+    "results": [
+      {
+        "id": "M01",
+        "blastRadiusOrphan": true,
+        "knipUnusedExport": false,
+        "knipUnusedFile": true
+      },
+      {
+        "id": "M02",
+        "blastRadiusOrphan": true,
+        "knipUnusedExport": false,
+        "knipUnusedFile": true
+      },
+      {
+        "id": "M03",
+        "blastRadiusOrphan": false,
+        "knipUnusedExport": false,
+        "knipUnusedFile": false
+      }
+    ]
+  },
+  "limitations": [
+    "All nine full project graphs are incomplete",
+    "Only static compiler-resolvable named import pairs were graded",
+    "External, unresolved, dynamic, plugin and public API consumers are UNKNOWN and cannot be counted as TN",
+    "Former Floating UI cohort was used for a code fix and must not be treated as fresh",
+    "This fresh cohort was evaluated once without tuning engine to its outputs; any future tuning would expose it",
+    "No v0.1.0, npm publish or release"
+  ]
+}

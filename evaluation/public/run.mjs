@@ -238,8 +238,8 @@ function compareKnip(spec,root,bin){
     return out;
   }finally{fs.rmSync(tmp,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
 }
-const report={schemaVersion:3,corpusSha256:sha(fs.readFileSync(path.join(base,'corpus.json'))),generatedAt:new Date().toISOString(),
- methodology:'Seven pinned public repositories: three development, two previously exposed holdout, and two sealed unseen holdout. Original five inputs unchanged. Manual labels validated by independent TypeChecker; UNKNOWN stays separate. Knip only on three unchanged Next.js mutations.',
+const report={schemaVersion:4,corpusSha256:sha(fs.readFileSync(path.join(base,'corpus.json'))),generatedAt:new Date().toISOString(),
+ methodology:'Nine pinned public source repositories: seven old unchanged, two new fresh unseen. Former Floating UI holdout exposed by repair. Compiler oracle, per-split strict FP/FN and UNKNOWN, unchanged Knip 6.45.1.',
  toolchain:{node:process.version,typescript:ts.version,knipPinnedVersion:corpus.knip.version},repositories:[],comparison:[],total:null,bySplit:null};
 let failed=false;
 try{
@@ -264,7 +264,7 @@ try{
     errors:exhaustive.flatMap(x=>x.mismatches.map(m=>({repo:x.repo,...m}))).slice(0,120)};
   // Keep observed development vs precommitted holdout accuracy disjoint. No imputation:
   // non-resolved named bindings and graph coverage warnings never become TN.
-  report.bySplit=Object.fromEntries(['development','holdout','unseen_holdout'].map(split=>{
+  report.bySplit=Object.fromEntries(['development','holdout','unseen_holdout','fresh_holdout'].map(split=>{
     const repos=report.repositories.filter(x=>x.split===split);
     assert.ok(repos.length, 'Missing evaluation split '+split);
     const manual=confusion(repos.flatMap(x=>x.probes));
@@ -301,7 +301,8 @@ try{
   report.unknownCoverage=report.repositories.map(x=>({repo:x.id,coverage:x.graph.coverage}));
   const knipMissing=report.comparison.length!==3;
   const eligible=s=>s&&s.precision!==null&&s.recall!==null&&s.precision>=0.95&&s.recall>=0.90;
-  const dev=report.bySplit.development,holdout=report.bySplit.holdout,unseen=report.bySplit.unseen_holdout;
+  const dev=report.bySplit.development,holdout=report.bySplit.holdout,unseen=report.bySplit.unseen_holdout,
+    fresh=report.bySplit.fresh_holdout;
   // A held-out failure stays visible and red. Never dilute it in an aggregate or
   // tune the analyzer against holdout labels in this PR.
   failed=knipMissing||!eligible(dev.manual)||!eligible(dev.namedImports)||
@@ -309,12 +310,15 @@ try{
     dev.namedImports.fp!==0||dev.namedImports.fn!==0||
     holdout.namedImports.fp!==0||holdout.namedImports.fn!==0||
     !eligible(unseen.manual)||!eligible(unseen.namedImports)||
-    unseen.namedImports.fp!==0||unseen.namedImports.fn!==0;
+    unseen.namedImports.fp!==0||unseen.namedImports.fn!==0||
+    !eligible(fresh.manual)||!eligible(fresh.namedImports)||
+    fresh.namedImports.fp!==0||fresh.namedImports.fn!==0;
   report.acceptance={pass:!failed,thresholds:{manualPrecision:0.95,manualRecall:0.90,
     developmentFalseNegatives:0,developmentFalsePositives:0,
     holdoutFalseNegatives:0,holdoutFalsePositives:0,
-    unseenHoldoutFalseNegatives:0,unseenHoldoutFalsePositives:0},holdoutKeptSeparate:true,
-    caveat:'Previously exposed holdout was used to fix one known bug, so it is no longer unbiased; the new independent unseen cohort remains separate. Purposively selected projects are not population-representative. UNKNOWN graph and import bindings never count as negative evidence.'};
+    unseenHoldoutFalseNegatives:0,unseenHoldoutFalsePositives:0,
+    freshHoldoutFalseNegatives:0,freshHoldoutFalsePositives:0},holdoutKeptSeparate:true,
+    caveat:'Former Floating UI holdout is exposed by engine repair; only fresh_holdout was unseen before this run. None of these purposive samples proves global accuracy, and UNKNOWN never becomes TN or deletion permission.'};
 }catch(e){failed=true;report.error={message:e.message,stack:String(e.stack).slice(0,1800)};}
 fs.mkdirSync(path.dirname(outFile),{recursive:true});fs.writeFileSync(outFile,JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify({status:failed?'FAILED':'PASS',reportFile:outFile,total:report.total,allNamedImports:report.allNamedImports&&{tp:report.allNamedImports.tp,tn:report.allNamedImports.tn,fp:report.allNamedImports.fp,fn:report.allNamedImports.fn,precision:report.allNamedImports.precision,recall:report.allNamedImports.recall},comparator:report.comparison.map(x=>({id:x.id,expected:x.expectedOrphan,br:x.blastRadius.found,knipExport:x.knip.newUnusedExport,knipFile:x.knip.newUnusedFile})),bySplit:report.bySplit&&Object.fromEntries(Object.entries(report.bySplit).map(([name,s])=>[name,{named:s.namedImports,unknown:s.unknown}])),error:report.error?.message}));
