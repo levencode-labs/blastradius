@@ -21,12 +21,29 @@ export function analyzeFile(file:string,source:string):FileFacts{
     for(const item of name.elements){const prop=item.propertyName||item.name;if(ts.isIdentifier(prop))facts.propReads.push({component,prop:prop.text,...loc(sf,prop)});}
   };
   const propParamNames=new Map<string,string>();
+  // A TypeScript type and a runtime value may legitimately share one export name
+  // (React Hook Form: export type FormState + export const FormState). Only this
+  // verified two-namespace case is coalesced, never duplicate same-space exports.
+  const dualNamespaceLocalExports=new Set<string>();
   const pushSymbol=(name:string,kind:string,node:ts.Node,exported:boolean,possibleSideEffect:boolean=false)=>{
-    if(facts.symbols.some(s=>s.name===name))return;
+    const previous=facts.symbols.find(s=>s.name===name);
+    if(previous){
+      if(dualNamespaceLocalExports.has(name)){
+        previous.exported ||= exported;
+        previous.possibleSideEffect ||= possibleSideEffect;
+        // Preserve runtime symbol kind and initializer effects, even when the
+        // type alias happens to appear first in the file.
+        if(kind!=='typealias'&&kind!=='interface')previous.kind=kind;
+      }
+      return;
+    }
     facts.symbols.push({name,kind,...loc(sf,node),exported,possibleSideEffect});
   };
-  const pushExport=(exported:string,local:string|undefined,node:ts.Node,other:Partial<ExportFact>={})=>
+  const pushExport=(exported:string,local:string|undefined,node:ts.Node,other:Partial<ExportFact>={})=>{
+    if(dualNamespaceLocalExports.has(exported)&&local===exported&&!other.source&&!other.star &&
+      facts.exports.some(e=>e.exported===exported&&e.local===local&&!e.source&&!e.star))return;
     facts.exports.push({exported,local,...loc(sf,node),...other});
+  };
   // TypeScript overload signatures and their implementation are one binding.
   // Only collapse declarations backed by an actual same-name function body;
   // duplicate exports without an implementation remain ambiguous.
@@ -37,6 +54,25 @@ export function analyzeFile(file:string,source:string):FileFacts{
     if(ts.isIdentifier(name))return [name];
     return name.elements.flatMap(e=>ts.isOmittedExpression(e)?[]:boundIdentifiers(e.name));
   }
+  const directDeclarations=new Map<string,{types:number;values:number}>();
+  const record=(name:string,space:'types'|'values')=>{
+    const counts=directDeclarations.get(name)||{types:0,values:0};
+    counts[space]++;directDeclarations.set(name,counts);
+  };
+  for(const st of sf.statements){
+    if(!hasModifier(st,ts.SyntaxKind.ExportKeyword))continue;
+    if((ts.isTypeAliasDeclaration(st)||ts.isInterfaceDeclaration(st))&&st.name){
+      record(st.name.text,'types');
+    }else if(ts.isVariableStatement(st)){
+      for(const decl of st.declarationList.declarations)
+        for(const id of boundIdentifiers(decl.name))record(id.text,'values');
+    }else if((ts.isFunctionDeclaration(st)&&!!st.body)||ts.isClassDeclaration(st)||ts.isEnumDeclaration(st)){
+      if(st.name)record(st.name.text,'values');
+    }
+  }
+  for(const [name,counts] of directDeclarations)
+    if(counts.types===1&&counts.values===1)dualNamespaceLocalExports.add(name);
+
   for(const st of sf.statements){
     if(ts.isImportDeclaration(st)&&ts.isStringLiteralLike(st.moduleSpecifier)){
       const spec=st.moduleSpecifier.text;const clause=st.importClause;
