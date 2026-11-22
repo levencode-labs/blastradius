@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "selectionMethod": "The original five development/exposed-holdout inputs and 48 labels are frozen from P3. Two additional genuinely unseen pinned monorepos with manually chosen static links, positive and negative, are assigned to a third independent cohort before examining any BlastRadius prediction. Observationally scoped and not population representative.",
+  "selectionMethod": "Seven original pinned public repositories and all 64 manual labels remain untouched. Two new public source repositories and 16 manually labeled positive/negative relations selected before running BlastRadius. The original Floating UI cohort has been exposed by repair; fresh_holdout is independently unseen.",
   "repositories": [
     {
       "id": "usehooks-ts",
@@ -559,6 +559,140 @@
           "target": "packages/react-form/src/useFormGroup.tsx",
           "symbol": "FormGroup",
           "consumer": "packages/react-form/src/useForm.tsx",
+          "used": true
+        }
+      ]
+    },
+    {
+      "id": "react-redux",
+      "split": "fresh_holdout",
+      "url": "https://github.com/reduxjs/react-redux.git",
+      "sha": "8e54f5b9dbbdcc972c120ad3ce3c1c57fc2e89fd",
+      "sourcePrefixes": [
+        "src/"
+      ],
+      "probes": [
+        {
+          "id": "U01",
+          "target": "src/components/Context.ts",
+          "symbol": "ReactReduxContext",
+          "consumer": "src/hooks/useDispatch.ts",
+          "used": true
+        },
+        {
+          "id": "U02",
+          "target": "src/components/Context.ts",
+          "symbol": "ReactReduxContext",
+          "consumer": "src/hooks/useSelector.ts",
+          "used": true
+        },
+        {
+          "id": "U03",
+          "target": "src/components/Context.ts",
+          "symbol": "ReactReduxContext",
+          "consumer": "src/connect/selectorFactory.ts",
+          "used": false
+        },
+        {
+          "id": "U04",
+          "target": "src/utils/Subscription.ts",
+          "symbol": "createSubscription",
+          "consumer": "src/components/Provider.tsx",
+          "used": true
+        },
+        {
+          "id": "U05",
+          "target": "src/utils/Subscription.ts",
+          "symbol": "createSubscription",
+          "consumer": "src/components/connect.tsx",
+          "used": true
+        },
+        {
+          "id": "U06",
+          "target": "src/utils/Subscription.ts",
+          "symbol": "createSubscription",
+          "consumer": "src/hooks/useDispatch.ts",
+          "used": false
+        },
+        {
+          "id": "U07",
+          "target": "src/utils/useIsomorphicLayoutEffect.ts",
+          "symbol": "useIsomorphicLayoutEffect",
+          "consumer": "src/components/Provider.tsx",
+          "used": true
+        },
+        {
+          "id": "U08",
+          "target": "src/hooks/useStore.ts",
+          "symbol": "createStoreHook",
+          "consumer": "src/hooks/useDispatch.ts",
+          "used": true
+        }
+      ]
+    },
+    {
+      "id": "react-router",
+      "split": "fresh_holdout",
+      "url": "https://github.com/remix-run/react-router.git",
+      "sha": "9916920a490c018eb78d7cc8c55a0efd6e9feac9",
+      "sourcePrefixes": [
+        "packages/react-router/lib/"
+      ],
+      "probes": [
+        {
+          "id": "V01",
+          "target": "packages/react-router/lib/router/navigation.ts",
+          "symbol": "validateDocumentNavigationTarget",
+          "consumer": "packages/react-router/lib/dom/lib.tsx",
+          "used": true
+        },
+        {
+          "id": "V02",
+          "target": "packages/react-router/lib/router/navigation.ts",
+          "symbol": "validateDocumentNavigationTarget",
+          "consumer": "packages/react-router/lib/router/history.ts",
+          "used": false
+        },
+        {
+          "id": "V03",
+          "target": "packages/react-router/lib/router/matcher.ts",
+          "symbol": "V6RegExMatcher",
+          "consumer": "packages/react-router/lib/router/router.ts",
+          "used": true
+        },
+        {
+          "id": "V04",
+          "target": "packages/react-router/lib/router/matcher.ts",
+          "symbol": "V6RegExMatcher",
+          "consumer": "packages/react-router/lib/dom/lib.tsx",
+          "used": false
+        },
+        {
+          "id": "V05",
+          "target": "packages/react-router/lib/router/url.ts",
+          "symbol": "ABSOLUTE_URL_REGEX",
+          "consumer": "packages/react-router/lib/dom/lib.tsx",
+          "used": true
+        },
+        {
+          "id": "V06",
+          "target": "packages/react-router/lib/router/router.ts",
+          "symbol": "createRouter",
+          "consumer": "packages/react-router/lib/components.tsx",
+          "used": true
+        },
+        {
+          "id": "V07",
+          "target": "packages/react-router/lib/router/router.ts",
+          "symbol": "createRouter",
+          "consumer": "packages/react-router/lib/dom/lib.tsx",
+          "used": true
+        },
+        {
+          "id": "V08",
+          "target": "packages/react-router/lib/components.tsx",
+          "symbol": "Router",
+          "consumer": "packages/react-router/lib/dom/lib.tsx",
           "used": true
         }
       ]
