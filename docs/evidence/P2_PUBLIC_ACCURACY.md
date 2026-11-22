@@ -25,9 +25,24 @@ Two distinct engine failures were reproduced on upstream source:
 
 The new `tests/public-source-regressions.test.mjs` has independent reduced source cases and negative controls; no existing golden was changed. The benchmark now fails closed if any of the **previously known** named-import FP/FN persists, even if a relaxed average-threshold comparison would pass.
 
-## Outcome and boundaries
+## Post-fix independent results (actual GitHub Actions)
 
-**Outcome must be filled only from the actual latest CI artifact on the accepted exact head.** The P2 public-source GitHub workflow saves a machine-readable `result.json` on every run. Record its precise TP/TN/FP/FN and Knip deltas without rounding away unknowns; the original baseline remains checked in.
+The pinned benchmark on exact source SHA `9325eeaa096655693b6bf838a1e4dd14a9dd8dfe` completed successfully in the [push run #45015554834](https://github.com/levencode-labs/blastradius/actions/runs/45015554834) and [PR run #45015559427](https://github.com/levencode-labs/blastradius/actions/runs/45015559427). The unmodified corpus digest in the pre-/post-fix results is **`1fa3676635fc1c257e83818f8f711cf2d1052bd6b9b36fd2b355a7b3a200cdb5`**. The raw result is saved as [`p2-public-post-fix.json`](p2-public-post-fix.json), as well as in the exact SHA CI artifacts.
+
+| Exact upstream commit | Eligible named-import pairs | TP | TN | FP | FN | Scoped precision | Scoped recall |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| usehooks-ts | 97 | 97 | 0 | 0 | 0 | 100% | 100% |
+| Zustand | 35 | 31 | 4 | 0 | 0 | 100% | 100% |
+| Next.js Postgres template | 88 | 87 | 1 | 0 | 0 | 100% | 100% |
+| **Totals** | **220** | **215** | **5** | **0** | **0** | **100%** | **100%** |
+
+These metrics are limited to the **220 compiler-resolvable local named import binding comparisons**, and are not precision/recall of all graph links, routes, unused code or production refactors. **All three full-project graphs are incomplete**. Source-scoped unresolved/external import exclusions: 159 usehooks-ts, 136 Zustand, 52 Next.js; additional non-named imports are separately omitted. Graph coverage flags include unresolved/dynamic/unsupported counts of 99/254/8, 10/45/15, and 2/48/0 respectively, for usehooks-ts/Zustand/Next. Nothing omitted is counted as TN.
+
+**Knip 6.45.1 overlap:** two controlled Next.js removals (`ProductsTable` and `SearchInput`) produced `NEW_ORPHAN_EXPORT` with `certainty: unknown`, `deletionAdvice: review` in BlastRadius, and *new unused-file* findings in Knip, not unused-export findings. The third case removed one consumer of shared `Button`: neither reported a new orphan/file. Because semantics differ and global coverage is incomplete, this agreement **does not** measure Knip's comparative general precision or prove deletions safe.
+
+### Accuracy boundaries
+
+This is **not** a held-out population-representative sample. Remaining work includes more frameworks and TS project references, external/conditional exports, complex type/namespace indirection, dynamic imports, plugin roots and genuinely labeled orphan outcomes. No statistic here justifies automatically deleting code or publishing `v0.1.0`.
 
 Known boundaries remain: TS overloads, dynamic property access, runtime registries, next/router conventions, `package.json` export conditions, `react` HOCs and external consumers. A statically verified source edge is **not** proof of runtime behavior or safe deletion. Missing root coverage and `UNKNOWN` findings are excluded from denominators and reported separately. A held-out independent corpus is still required before v0.1.0 release acceptance.
 
