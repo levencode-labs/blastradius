@@ -1,0 +1,10 @@
+{
+  "complete": false,
+  "diagnosticCodes": [
+    "POSSIBLE_PROP_USAGE"
+  ],
+  "mode": "graph",
+  "reachability": {
+    "symbol:src/Button.tsx#Button": true
+  }
+}

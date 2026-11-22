@@ -1,0 +1,11 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/app/layout.tsx": "export default function Layout(){return null;}",
+    "src/app/products/page.tsx": "export default function Page(){return null;}",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-012",
+  "mode": "graph",
+  "title": "Next.js parent layout reaches child page routes"
+}

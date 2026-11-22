@@ -1,0 +1,11 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/Widget.tsx": "export function Widget(){ return <div/>; }",
+    "src/main.tsx": "import {Widget} from './Widget'; const app = <Widget />;",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-008",
+  "mode": "graph",
+  "title": "JSX tag reference resolves imported React component"
+}

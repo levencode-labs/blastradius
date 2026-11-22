@@ -1,0 +1,13 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/a.ts": "export * from './lib';",
+    "src/b.ts": "export * from './a';",
+    "src/lib.ts": "export function foo(){}",
+    "src/main.ts": "import {foo} from './b'; foo();",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-005",
+  "mode": "graph",
+  "title": "Transitive export-star barrel follows the exact exported name"
+}

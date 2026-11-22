@@ -1,0 +1,18 @@
+{
+  "complete": true,
+  "diagnosticCodes": [],
+  "edges": [
+    [
+      "route:/products:src/app/products/page.tsx",
+      "export:src/app/layout.tsx#default",
+      "route_entry"
+    ]
+  ],
+  "mode": "graph",
+  "reachability": {
+    "symbol:src/app/layout.tsx#Layout": true
+  },
+  "routes": [
+    "/products"
+  ]
+}

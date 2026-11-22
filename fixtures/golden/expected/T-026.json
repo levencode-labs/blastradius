@@ -1,0 +1,13 @@
+{
+  "indexFindings": [
+    {
+      "certainty": "verified",
+      "code": "NEW_ORPHAN_EXPORT",
+      "deletionAdvice": "candidate",
+      "file": "src/lib.ts",
+      "symbol": "foo"
+    }
+  ],
+  "mode": "staged_diff",
+  "worktreeFindings": []
+}

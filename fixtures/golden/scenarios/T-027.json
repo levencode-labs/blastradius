@@ -1,0 +1,12 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/lib.ts": "export function foo(){}",
+    "src/main.ts": "import {foo} from './lib'; foo();",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-027",
+  "mode": "diff",
+  "title": "Unchanged working tree must produce no findings",
+  "update": {}
+}

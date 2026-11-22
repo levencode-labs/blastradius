@@ -1,0 +1,15 @@
+{
+  "complete": true,
+  "diagnosticCodes": [],
+  "edges": [
+    [
+      "symbol:src/main.ts#x",
+      "export:src/types.ts#User",
+      "type_references"
+    ]
+  ],
+  "mode": "graph",
+  "reachability": {
+    "symbol:src/types.ts#User": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/lib.test.ts": "import {foo} from './lib'; foo();",
+    "src/lib.ts": "export function foo(){return 1;}",
+    "src/main.ts": "import {foo} from './lib'; foo();",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-013",
+  "mode": "diff",
+  "title": "Removing production use leaves an export test-only",
+  "update": {
+    "src/main.ts": "export const keep = 1;"
+  }
+}

@@ -51,6 +51,9 @@ jobs:
       - name: Core, CLI and MCP contract tests (no SDK mocks)
         run: node ci/run-tests.mjs unit
 
+      - name: Independent P2 golden accuracy evidence (no snapshot updates)
+        run: node ci/golden-report.mjs --check
+
       - name: Official MCP SDK stdio E2E (required, never skipped)
         run: node ci/run-tests.mjs protocol
 

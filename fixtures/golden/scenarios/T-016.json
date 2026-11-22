@@ -1,0 +1,14 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/lib.ts": "export function foo(){return 1;}",
+    "src/main.ts": "import {foo} from './lib'; foo();",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-016",
+  "mode": "diff",
+  "title": "Removing a provider while its importer remains is BROKEN_REFERENCE",
+  "update": {
+    "src/lib.ts": "export function other(){return 1;}"
+  }
+}

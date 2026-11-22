@@ -1,0 +1,15 @@
+{
+  "complete": true,
+  "diagnosticCodes": [],
+  "edges": [
+    [
+      "export:src/b.ts#foo",
+      "export:src/a.ts#foo",
+      "reexports"
+    ]
+  ],
+  "mode": "graph",
+  "reachability": {
+    "symbol:src/lib.ts#foo": true
+  }
+}

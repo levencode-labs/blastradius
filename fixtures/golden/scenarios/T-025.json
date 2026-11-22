@@ -1,0 +1,15 @@
+{
+  "files": {
+    "package.json": "{\"name\": \"example\", \"exports\": {\".\": \"./src/api.ts\"}}",
+    "src/api.ts": "export function foo(){}",
+    "src/main.ts": "console.log('ready');",
+    "src/other.ts": "export function bar(){}",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-025",
+  "mode": "diff",
+  "title": "Changing package exports removes a previously public binding",
+  "update": {
+    "package.json": "{\"name\": \"example\", \"exports\": {\".\": \"./src/other.ts\"}}"
+  }
+}

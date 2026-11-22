@@ -1,0 +1,11 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/main.ts": "import type {User} from './types'; const x: User={id:1}; console.log(x);",
+    "src/types.ts": "export type User={id:number};",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-023",
+  "mode": "graph",
+  "title": "Type-only imports must not make runtime production symbol reachable"
+}

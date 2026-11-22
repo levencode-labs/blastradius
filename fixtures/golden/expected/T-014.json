@@ -1,0 +1,16 @@
+{
+  "findings": [
+    {
+      "certainty": "verified",
+      "code": "NOW_STORY_ONLY",
+      "deletionAdvice": "review",
+      "file": "src/Widget.tsx",
+      "reasonsContain": [
+        "ONLY_STORY_CONSUMERS"
+      ],
+      "symbol": "Widget"
+    }
+  ],
+  "mode": "diff",
+  "status": "ok"
+}

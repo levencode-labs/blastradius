@@ -1,0 +1,15 @@
+{
+  "complete": true,
+  "diagnosticCodes": [],
+  "edges": [
+    [
+      "symbol:src/main.tsx#app",
+      "export:src/Widget.tsx#Widget",
+      "renders"
+    ]
+  ],
+  "mode": "graph",
+  "reachability": {
+    "symbol:src/Widget.tsx#Widget": true
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "complete": false,
+  "diagnosticCodes": [
+    "DYNAMIC_IMPORT_UNRESOLVED"
+  ],
+  "mode": "graph",
+  "reachability": {
+    "symbol:src/pages/A.ts#a": false
+  }
+}

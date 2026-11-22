@@ -1,0 +1,11 @@
+{
+  "files": {
+    "package.json": "{\"name\":\"example\",\"private\":true}",
+    "src/lib.ts": "export function foo(){}",
+    "src/main.ts": "import {foo as alias} from './lib'; alias();",
+    "tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"jsx\":\"react-jsx\"}}"
+  },
+  "id": "T-003",
+  "mode": "graph",
+  "title": "Aliased import resolves to original provider symbol"
+}

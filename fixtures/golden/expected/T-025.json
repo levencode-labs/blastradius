@@ -1,0 +1,16 @@
+{
+  "findings": [
+    {
+      "certainty": "verified",
+      "code": "REMOVED_PUBLIC_API",
+      "deletionAdvice": "blocked",
+      "file": "src/api.ts",
+      "reasonsContain": [
+        "PUBLIC_API_PROTECTED"
+      ],
+      "symbol": "foo"
+    }
+  ],
+  "mode": "diff",
+  "status": "ok"
+}

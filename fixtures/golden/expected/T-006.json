@@ -1,0 +1,9 @@
+{
+  "complete": true,
+  "diagnosticCodes": [],
+  "mode": "graph",
+  "reachability": {
+    "symbol:src/lib.ts#foo": true,
+    "symbol:src/lib.ts#unused": false
+  }
+}

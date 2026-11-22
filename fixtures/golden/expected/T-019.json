@@ -1,0 +1,16 @@
+{
+  "findings": [
+    {
+      "certainty": "verified",
+      "code": "NEW_ORPHAN_EXPORT",
+      "deletionAdvice": "blocked",
+      "file": "src/register.ts",
+      "reasonsContain": [
+        "POSSIBLE_SIDE_EFFECT"
+      ],
+      "symbol": "token"
+    }
+  ],
+  "mode": "diff",
+  "status": "ok"
+}
