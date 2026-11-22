@@ -1,0 +1,39 @@
+name: P1 lockfile bootstrap (one-time, no publishing)
+
+on:
+  push:
+    branches: [build/p1-frozen-install]
+    paths:
+      - .github/workflows/p1-lockfile-bootstrap.yml
+      - package.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Create npm v3 lock without scripts
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Verify lockfile root, integrity and registry origin
+        run: |
+          node --input-type=module -e 'import fs from "node:fs";import assert from "node:assert/strict";const pkg=JSON.parse(fs.readFileSync("package.json"));const l=JSON.parse(fs.readFileSync("package-lock.json"));assert.equal(l.lockfileVersion,3);assert.equal(l.name,pkg.name);assert.equal(l.version,pkg.version);assert.deepEqual(l.packages[""].dependencies,pkg.dependencies);assert.deepEqual(l.packages[""].devDependencies,pkg.devDependencies);for(const [p,x] of Object.entries(l.packages)){if(!p)continue;assert.match(x.integrity||"",/^sha(?:512|256|1)-/);assert.match(x.resolved||"",/^https:\/\/registry\.npmjs\.org\//);}console.log("lockfile root and SRI verified",Object.keys(l.packages).length-1);'
+          sha256sum package-lock.json
+      - name: Upload exact lockfile artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: blastradius-p1-lockfile
+          path: package-lock.json
+          if-no-files-found: error
+          retention-days: 7
