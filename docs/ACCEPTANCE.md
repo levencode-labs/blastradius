@@ -28,7 +28,7 @@
 | Persistent cache | SQLite snapshots and invalidation, symlink and corruption protections | Multiple concurrent processes, crash/cancel recovery, long-running project memory profiles |
 | CLI and MCP | 78 baseline tests, five MCP tools, live stdio E2E on previously checked CI SHA | Full audited flags/compatibility matrix and formal response schema/documentation stability |
 | Accuracy | All 30 curated goldens and 8 TypeChecker checks; 0 FP/FN on **39 annotated assertions only** | Independent pinned public-repository corpora, unbiased labeling, precision ≥95% / recall ≥90% with unknown coverage disclosed |
-| Reproducibility | npm lockfile v3 (98 SHA-512-integrity packages), clean `npm ci` on 8 OS/Node cells, strict SPDX metadata inventory and repeated real npm pack + consumer smoke in P1 | Cross-version package-byte comparison, full license text/NOTICE review, security provenance and independent release approvals |
+| Reproducibility | npm lockfile v3 (98 SHA-512-integrity packages), clean `npm ci` on 8 OS/Node cells, strict SPDX metadata inventory and repeated real npm pack + consumer smoke in P1 | 8-cell cross-OS tarball SHA equality (mandatory P1 aggregation), full license text/NOTICE review, security provenance and independent release approvals |
 | Performance | One synthetic 5,001-file timing in old preview | Repeat p50/p95, RSS and cold/warm updates on real repositories, 50k-file evaluation |
 
 **No task may reduce the CI matrix after a failure to manufacture a pass. No release, tag, or npm publication is part of P1.**

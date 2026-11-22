@@ -15,6 +15,8 @@
 - Installed dependency license metadata and checked-in [98-location SPDX catalog](THIRD_PARTY_LICENSES.md) are examined on each host. This is **not** full manual legal review of license texts, copyright or NOTICE obligations.
 - The `npm pack` archive contains CLI, Core, MCP and Skill but **not** embedded runtime dependencies. It is **not** an offline one-file package.
 
+An additional mandatory `package-byte-parity` job compares each cell's genuine tarball SHA-256 and fails closed on any missing/different artifact. An original Windows/Linux byte difference traced to `LICENSE` CRLF checkout (Windows 1092 bytes versus LF 1071), so `.gitattributes` now requests LF for `LICENSE` on all hosts. The full gate must be green on the exact new SHA before merge.
+
 The unchanged eight-cell CI matrix uses `npm ci --ignore-scripts --no-audit --no-fund`, validates all declared installed packages and reproducibly packs an archive twice with matching bytes. It never publishes. See [P1 design and provenance](P1_SUPPLY_CHAIN.md).
 
 ## Remaining blockers for v0.1.0

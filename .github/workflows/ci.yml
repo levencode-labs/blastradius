@@ -70,3 +70,35 @@ jobs:
 
       - name: Build real npm tarball twice and prove byte reproducibility
         run: node ci/verify-packaging.mjs
+
+      - name: Upload exact OS / Node package digest (no source files)
+        uses: actions/upload-artifact@v4
+        with:
+          name: p1-pack-${{ matrix.os }}-node${{ matrix.node }}
+          path: ci/.artifacts/pack-digest.json
+          if-no-files-found: error
+          retention-days: 14
+
+  package-byte-parity:
+    name: Verify identical package bytes across all eight runners
+    if: always()
+    needs: [test]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out comparison code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Download all eight hash-only artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: p1-pack-*
+          path: ${{ runner.temp }}/p1-package-artifacts
+          merge-multiple: false
+      - name: Reject missing or divergent package bytes
+        run: node ci/verify-cross-platform-pack.mjs '${{ runner.temp }}/p1-package-artifacts'

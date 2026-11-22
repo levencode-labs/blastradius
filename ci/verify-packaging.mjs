@@ -79,6 +79,14 @@ try{
     {cwd:consumer,encoding:'utf8',timeout:30000});
   assert.equal(probe.status,0,`Packed CLI --help failed: ${probe.stderr}`);
   assert.match(probe.stdout,/BlastRadius|blastradius/, 'Packed CLI did not return help');
+  // Write only SHA evidence after the real package and consumer checks completed.
+  const proofDir=path.join(base,'ci','.artifacts');
+  fs.mkdirSync(proofDir,{recursive:true});
+  fs.writeFileSync(path.join(proofDir,'pack-digest.json'),JSON.stringify({
+    schemaVersion:1,package:pkg.name,version:pkg.version,
+    sha256:a.sha256,size:a.size,entries:files.length,
+    lockSha256:createHash('sha256').update(fs.readFileSync(path.join(base,'package-lock.json'))).digest('hex')
+  },null,2)+'\n');
   console.log('Clean consumer: installed the actual tarball; CLI --help PASS; scripts disabled.');
   // Cross-run evidence: identify which packed source bytes differ across operating systems.
   // This does not normalize or hide differences; raw SHA-256 values are reported per file.
