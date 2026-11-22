@@ -80,6 +80,10 @@ try{
   assert.equal(probe.status,0,`Packed CLI --help failed: ${probe.stderr}`);
   assert.match(probe.stdout,/BlastRadius|blastradius/, 'Packed CLI did not return help');
   console.log('Clean consumer: installed the actual tarball; CLI --help PASS; scripts disabled.');
+  // Cross-run evidence: identify which packed source bytes differ across operating systems.
+  // This does not normalize or hide differences; raw SHA-256 values are reported per file.
+  const sourceDigests=a.data.files.map(f=>({path:f.path,size:f.size,sha256:createHash('sha256').update(fs.readFileSync(path.join(base,f.path))).digest('hex')}));
+  console.log('PACK_SOURCE_SHA256 '+JSON.stringify(sourceDigests));
   console.log(`npm pack deterministic: ${files.length} safe entries; ${a.size} bytes; sha256=${a.sha256}; ${process.platform}/${process.version}.`);
   console.log('Preview tarball uses runtime dependency installation; not an offline/self-contained distribution. No publication occurred.');
 }finally{fs.rmSync(work,{recursive:true,force:true,maxRetries:10,retryDelay:200});}
