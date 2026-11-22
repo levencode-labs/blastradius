@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/social-preview.jpg" width="960" alt="BlastRadius — Trace impact. Find orphaned code. Symbol-aware analysis, routes and tests, Git diff evidence." />
+
 # BlastRadius
 
 **Know what a change can hit. Find what it leaves behind.**
