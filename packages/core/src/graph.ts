@@ -83,25 +83,36 @@ export function buildGraph({root,files,config={},reuseFacts,saveFacts,extraDiagn
         const name=[...workspacePackages.keys()].sort((a,b)=>b.length-a.length).find(n=>specifier===n||specifier.startsWith(n+'/'));
         if(name){
           const pkg=workspacePackages.get(name)!;const sub=specifier===name?'.':'./'+specifier.slice(name.length+1);
-          const exports=pkg.manifest.exports;let entry:unknown;
+          const exports=pkg.manifest.exports,hasExportMap=exports!==undefined;
+          let entry:unknown;
           if(sub==='.'&&typeof exports==='string')entry=exports;
-          else if(exports&&typeof exports==='object')entry=(exports as Record<string,unknown>)[sub];
-          const prefer=(e:unknown):string|undefined=>typeof e==='string'?e:e&&typeof e==='object'?(prefer((e as Record<string,unknown>).import)||prefer((e as Record<string,unknown>).default)||prefer((e as Record<string,unknown>).types)):undefined;
-          // An explicit package "exports" map is authoritative for subpaths.
-          // Never turn an unlisted/blocked private import into a *verified*
-          // edge just because ./src/private.ts or ./private.ts exists in the
-          // workspace (TanStack Table). Do not guess dist->src equivalence.
-          const hasExportMap=exports!==undefined;
-          const rejectedSubpath=sub!=='.'&&hasExportMap&&(entry===undefined||entry===null);
-          if(rejectedSubpath){
-            diag('MODULE_RESOLUTION_FAILED',source,1,1,'Workspace package subpath lacks a proven supported export: '+specifier);
+          else if(exports&&typeof exports==='object'&&!Array.isArray(exports)){
+            const map=exports as Record<string,unknown>;
+            if(Object.prototype.hasOwnProperty.call(map,sub))entry=map[sub];
+            // A root-only conditional export map is also legal.
+            else if(sub==='.'&&Object.keys(map).every(k=>!k.startsWith('.')))entry=map;
+          }
+          // Import/default runtime conditions alone can authorize a verified
+          // source mapping. A present null import condition is a hard block.
+          // Declaration-only types never prove a runtime import.
+          const prefer=(e:unknown):string|undefined=>{
+            if(typeof e==='string')return e;
+            if(!e||typeof e!=='object'||Array.isArray(e))return undefined;
+            const c=e as Record<string,unknown>;
+            if(Object.prototype.hasOwnProperty.call(c,'import'))return prefer(c.import);
+            if(Object.prototype.hasOwnProperty.call(c,'default'))return prefer(c.default);
+            return undefined;
+          };
+          // Explicit package exports are authoritative for root and subpaths.
+          // Never infer dist-to-src, nor fall back from blocked paths.
+          const blocked=hasExportMap&&(entry===undefined||entry===null||!prefer(entry));
+          if(blocked){
+            diag('MODULE_RESOLUTION_FAILED',source,1,1,'Workspace package has no proven runtime source export: '+specifier);
           }else{
-            // Legacy deep-source fallback is allowed only when the package has
-            // no explicit export map. An explicitly exported source subpath
-            // still resolves when its exact exported target is in the snapshot.
-            const fallback=sub==='.'
+            // Legacy source fallback exists only without an explicit exports map.
+            const fallback=hasExportMap?[]:sub==='.'
               ?[pkg.manifest.module,pkg.manifest.main,pkg.manifest.types,'./src/index.ts','./index.ts']
-              :hasExportMap?[]:[sub];
+              :[sub];
             const candidates=[prefer(entry),...fallback].filter((x):x is string=>typeof x==='string');
             for(const candidate of candidates){const base=path.posix.normalize(path.posix.join(pkg.dir,candidate));
               const possibilities=[base,base+'.ts',base+'.tsx',base+'.js',base+'.jsx',base+'/index.ts',base+'/index.tsx'];
