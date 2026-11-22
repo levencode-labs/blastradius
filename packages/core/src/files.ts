@@ -130,7 +130,7 @@ export function projectOptions(root:string,files:Map<string,string>,relative:str
     const json=parsed.config || {};
     let inherited:import('typescript').CompilerOptions={};
     if(typeof json.extends==='string'){
-      const spec=json.extends;
+      const spec:string=json.extends;
       let baseRel:string;
       if(spec.startsWith('./')||spec.startsWith('../')){
         const base=spec.endsWith('.json')?spec:spec+'.json';
