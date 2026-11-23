@@ -1,0 +1,7 @@
+# P4 — truthful indexedProjects in MCP status
+
+Original source-backed issue: the public CLI/Core/MCP status returned hardcoded `indexedProjects:0` even after indexing Radix/Ark/shadcn-style workspaces. Tests-only PR #25 `29655c628e7772dac160bab1c18ab6cf55008f51`, [Ubuntu Node22 first RED #45157247554](https://github.com/levencode-labs/blastradius/actions/runs/45157247554), job 137633228794: nested tsconfigs expected 2 got 0; tsconfig-free source expected 1 got 0; empty-source negative 0 remained PASS. No source execution, original independent corpus unchanged.
+
+The fix counts nearest source-owning `tsconfig.json` roots only after indexing or diff, with one fallback for unconfigured source and zero for empty source; the root solution config with no own source does not invent a third project. `status` reuses the in-memory indexing count without additional filesystem scan and does not claim a precise count for persisted-but-not-current snapshots. Live official SDK stdio smoke asserts the count. This does not add complete project references semantics, and neither validates every supported client application.
+
+OpenCode V2 example in `docs/MCP_SETUP.md` matches [official current V2 MCP documentation](https://opencode.ai/docs/mcp-servers) (`mcp.servers`, `disabled`, `protocol=legacy`), no global or credential changes. Release remains disabled, `private:true`, version `0.0.1-dev`. Full 8 OS/Node, byte parity, independent source/Knip and merge SHA gates required.

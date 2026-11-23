@@ -12,7 +12,7 @@ Local impact analysis · Git differential orphan detection · CLI + MCP + Agent 
 
 </div>
 
-> **Development preview (0.0.1-dev), not a v0.1.0 release.** The 30 curated goldens, 120 baseline tests and live official MCP SDK stdio have passed hosted CI. A frozen npm v3 lock, provenance/license metadata check and repeatable packed-consumer smoke are now tracked by [P1](docs/P1_SUPPLY_CHAIN.md). Real-project accuracy, complete TypeChecker semantics and license-text/NOTICE sign-off remain open. Never auto-delete orphan findings.
+> **Development preview (0.0.1-dev), not a v0.1.0 release.** The original 30 goldens and live official MCP SDK stdio have passed hosted CI, with additional pinned public-source regressions and a separate first-score independent corpus. Test counts and the exact SHA gates are recorded in [Acceptance](docs/ACCEPTANCE.md); do not infer graph completeness from a green scoped oracle. A frozen npm v3 lock, provenance/license metadata check and repeatable packed-consumer smoke are now tracked by [P1](docs/P1_SUPPLY_CHAIN.md). Real-project accuracy, complete TypeChecker semantics and license-text/NOTICE sign-off remain open. Never auto-delete orphan findings.
 
 BlastRadius helps coding agents and developers answer two questions **before and after a refactor**:
 
@@ -77,7 +77,7 @@ These are not proof that either declaration can safely be deleted. External cons
 
 ### Independent public-source evaluation
 
-The [pinned independent source/Knip study](docs/evidence/P2_PUBLIC_ACCURACY.md) reproduces and fixes 13 missed static bindings in real usehooks-ts and Next.js source, then scores **215 true-positive and 5 true-negative relations with no FP/FN among 220 compiler-resolvable pairs**. The full projects nevertheless have **incomplete/unknown graph coverage**; these metrics must not be generalized or treated as authorization to remove code. See the [before/after evidence](docs/evidence/p2-public-post-fix.json) and limitations before interpreting the result.
+The historical [three-project accuracy study](docs/evidence/P2_PUBLIC_ACCURACY.md) found 13 missed bindings and fixed them. A later **15-repository source-pinned evaluation** on the first-score P7 SHA `b9b53cc053bf0978c50d86a463ddcdc8d677ec1b` measured **70 TP, 46 TN, 0 FP/FN among 116 independently annotated references**, and **8749 TP, 30 TN, 0 FP/FN among 8779 compiler-resolvable named-import pairs**; the 18 P7 labels were frozen in a separate earlier commit. P7 alone had **5310 external or unresolved imports out of 10124 attempted** and all three entire graphs were incomplete. The complete 15-repo evaluation remains a *curated static subset*, not a representative precision/recall estimate or code-deletion authorization. See [P7 evidence](docs/evidence/P7_FIRST_SCORE.md) and [UNKNOWN boundaries](docs/evidence/P2_REMAINING_UNKNOWN.md).
 
 ## Implementation status
 
@@ -86,10 +86,10 @@ The [pinned independent source/Knip study](docs/evidence/P2_PUBLIC_ACCURACY.md) 
 | TypeScript AST, static imports, exports, barrels | Basic graph and resolution implemented | Compiler-backed semantic identity, ambiguity and more workspaces |
 | React and Next.js | JSX references/props and App/Pages route patterns | Advanced HOCs, redirects, special routes, richer prop spreads |
 | Git differential orphan analysis | HEAD/index/worktree, broken references, affected route/test summary and test/story classification | Git rename identity, complex public API/side-effect cases |
-| SQLite | Persistent graphs, file facts, transactional writes, forced rebuild and cache symlink protection | Process concurrency, hardening and migration matrix |
+| SQLite | Persistent graphs, file facts, transactional writes and symlink protection; source-backed SQLite lock classification regression in PR #23 | More concurrent process modes, cancellation/crash recovery and migration matrix |
 | CLI | Core commands with JSON | Full pagination and stricter input contracts |
 | MCP and Skill | Five input-validated tools, snapshot-bound explain and agent Skill; official SDK stdio PASS in all 8 CI cells | Additional clients/resources, formal response contract and integration breadth |
-| Acceptance | 120 P2 baseline tests + 30 hand-labeled goldens + 8 TypeChecker oracles and 8-cell CI PASS | Real-world pinned precision/recall, richer semantic model, repeatable performance and v0.1.0 release review |
+| Acceptance | 30 golden fixtures, official SDK CI, 15 SHA-pinned public-source evaluation with explicit UNKNOWN; 5k/50k repeated synthetic profiles from a separate exact PR SHA | Real monorepo repeated p50/p95, complete graph coverage boundaries, independent post-change untouched holdout, legal review, v0.1.0 release decision |
 
 The full [requirements and acceptance matrix](docs/ACCEPTANCE.md) distinguishes tests that ran locally from targets and unverified behaviors.
 
