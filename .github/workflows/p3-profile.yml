@@ -1,0 +1,44 @@
+name: P3 5k/50k synthetic performance evidence (not release)
+on:
+  pull_request:
+    paths:
+      - benchmarks/p3-profile.mjs
+      - .github/workflows/p3-profile.yml
+      - packages/core/src/**
+  push:
+    branches: [main, 'test/p3-linear-module-resolution-*']
+    paths:
+      - benchmarks/p3-profile.mjs
+      - .github/workflows/p3-profile.yml
+      - packages/core/src/**
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  profile:
+    name: 5k x3 + 50k x3 repeated, cold/warm/edit, p50/p95/RSS
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact frozen dependencies
+        run: node ci/verify-frozen-lock.mjs
+      - name: npm ci, no lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Compile exact source
+        run: npm run build
+      - name: Run standalone 5k and 50k profiles
+        run: node --expose-gc benchmarks/p3-profile.mjs --large --output ci/.artifacts/p3-profile.json
+      - name: Upload machine-readable results even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blastradius-p3-performance
+          path: ci/.artifacts/p3-profile.json
+          if-no-files-found: warn
+          retention-days: 30
