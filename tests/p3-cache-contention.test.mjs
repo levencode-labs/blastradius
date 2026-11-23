@@ -8,8 +8,11 @@ import {DatabaseSync} from 'node:sqlite';
 
 const engine=new URL('../dist/packages/core/src/cache.js',import.meta.url).href;
 const makeRoot=t=>{
-  const root=fs.mkdtempSync(path.join(os.tmpdir(),'br-cache-contention-'));
-  t.after(()=>fs.rmSync(root,{recursive:true,force:true,maxRetries:8,retryDelay:100}));
+  const created=fs.mkdtempSync(path.join(os.tmpdir(),'br-cache-contention-'));
+  // macOS os.tmpdir() may use /var -> /private/var symlink. The real CLI
+  // canonicalizes its workspace root; unit tests must do the same.
+  const root=fs.realpathSync(created);
+  t.after(()=>fs.rmSync(created,{recursive:true,force:true,maxRetries:8,retryDelay:100}));
   fs.mkdirSync(path.join(root,'.blastradius'));
   return root;
 };
