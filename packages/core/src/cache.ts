@@ -24,7 +24,13 @@ export class GraphCache{
       // Release the handle before throwing, otherwise fixture cleanup and recovery
       // fail with EPERM even when the diagnostic itself is correct.
       try{opened?.close();}catch{}
-      throw new Error('CACHE_CORRUPTED: cannot open SQLite cache ('+String(e)+'); remove .blastradius/cache.sqlite after taking a backup');
+      // A normal concurrent writer may block schema initialization. That is
+      // not evidence of corruption: never tell users to delete valid data.
+      // Only the explicit SQLite lock/busy signals are classified as transient.
+      const detail=String(e);
+      if(/\\bSQLITE_(?:BUSY|LOCKED)\\b|database (?:schema )?is locked/i.test(detail))
+        throw new Error('CACHE_BUSY: SQLite cache is locked by another process; retry after it completes');
+      throw new Error('CACHE_CORRUPTED: cannot open SQLite cache ('+detail+'); remove .blastradius/cache.sqlite after taking a backup');
     }
   }
   private init(){this.db.exec(`
