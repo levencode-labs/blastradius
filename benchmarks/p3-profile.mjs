@@ -33,13 +33,13 @@ function once(n){
 }
 try{
  for(const n of args.includes('--large')?[5000,50000]:[5000]){
-  const repeats=n===50000?1:3,rows=[];
+  const repeats=3,rows=[];
   for(let j=0;j<repeats;j++){global.gc?.();const m=once(n);rows.push(m);console.log(JSON.stringify({size:n,iteration:j+1,values:m}));}
   const metrics={count:n,repeats,samples:rows,peakRssMB:Math.max(...rows.map(z=>z.rssMB)),
    p50ColdMs:perc(rows.map(z=>z.coldMs),.5),p95ColdMs:perc(rows.map(z=>z.coldMs),.95),
    p50WarmMs:perc(rows.map(z=>z.warmMs),.5),p95WarmMs:perc(rows.map(z=>z.warmMs),.95),
    p50EditMs:perc(rows.map(z=>z.editMs),.5),p95EditMs:perc(rows.map(z=>z.editMs),.95),
-   caveat:repeats===1?'One 50k observation; p50/p95 omitted':'Three synthetic runs; not population latency'};
+   caveat:'Three synthetic repetitions; p50/p95 from exactly three observed runs, not population latency'};
   report.results.push(metrics);
  }
  report.status='MEASURED';

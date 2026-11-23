@@ -16,7 +16,7 @@ permissions:
   contents: read
 jobs:
   profile:
-    name: 5k repeated + 50k single, cold/warm/edit, p50/p95/RSS
+    name: 5k x3 + 50k x3 repeated, cold/warm/edit, p50/p95/RSS
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
