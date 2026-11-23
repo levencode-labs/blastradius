@@ -33,6 +33,17 @@ export function buildGraph({root,files,config={},reuseFacts,saveFacts,extraDiagn
     const f=analyzeFile(file,content);saveFacts?.(f);return f;
   });
   const byFile=new Map(facts.map(f=>[f.file,f]));
+  // Build the exact directory set ONCE from the immutable source snapshot.
+  // TypeScript calls ModuleResolutionHost.directoryExists for many imports;
+  // spreading every file key on each lookup scaled as O(files * imports).
+  const snapshotDirectories=new Set<string>(['.']);
+  for(const filename of files.keys()){
+    let dir=path.posix.dirname(filename);
+    while(dir!=='.'&&!snapshotDirectories.has(dir)){
+      snapshotDirectories.add(dir);
+      dir=path.posix.dirname(dir);
+    }
+  }
   const nodes=new Map<string,GraphNode>();const edges=new Map<string,GraphEdge>();
   const roots:Record<RootKind,string[]>={production:[],test:[],story:[],publicApi:[]};
   const diagnostics:Diagnostic[]=[...extraDiagnostics,...facts.flatMap(f=>f.diagnostics)];
@@ -52,6 +63,7 @@ export function buildGraph({root,files,config={},reuseFacts,saveFacts,extraDiagn
   const workspacePackages=new Map<string,{dir:string;manifest:Record<string,unknown>}>();
   for(const [filename,content] of files){if(!filename.endsWith('package.json'))continue;try{const manifest=JSON.parse(content) as Record<string,unknown>;if(typeof manifest.name==='string')workspacePackages.set(manifest.name,{dir:path.posix.dirname(filename),manifest});}catch{}}
   const resolvedModules=new Map<string,string|null>();
+  const resolvedOptions=new Map<string,ts.CompilerOptions>();
   function resolve(source:string,specifier:string):string|undefined{
     const key=source+'\0'+specifier;
     if(resolvedModules.has(key))return resolvedModules.get(key)||undefined;
@@ -59,7 +71,8 @@ export function buildGraph({root,files,config={},reuseFacts,saveFacts,extraDiagn
     let result:string|undefined;
     let declaredPathAlias=false;
     try{
-      const opts=projectOptions(root,files,source);
+      let opts=resolvedOptions.get(source);
+      if(!opts){opts=projectOptions(root,files,source);resolvedOptions.set(source,opts);}
       // A failed configured source alias is an unresolved project dependency,
       // not an innocent external npm import. Exclude the global "*" fallback,
       // which may legitimately route unmatched packages to node_modules.
@@ -70,7 +83,7 @@ export function buildGraph({root,files,config={},reuseFacts,saveFacts,extraDiagn
         const prefix=pattern.slice(0,wildcard),suffix=pattern.slice(wildcard+1);
         return specifier.startsWith(prefix)&&specifier.endsWith(suffix)&&specifier.length>=prefix.length+suffix.length;
       });
-      const host:ts.ModuleResolutionHost={fileExists(p){return files.has(toPosix(path.relative(root,p)));},readFile(p){return files.get(toPosix(path.relative(root,p)));},directoryExists(p){const rel=toPosix(path.relative(root,p));return rel==='.'||[...files.keys()].some(f=>f.startsWith(rel+'/'));},realpath(p){return p;},getCurrentDirectory(){return root;},getDirectories(){return [];}};
+      const host:ts.ModuleResolutionHost={fileExists(p){return files.has(toPosix(path.relative(root,p)));},readFile(p){return files.get(toPosix(path.relative(root,p)));},directoryExists(p){const rel=toPosix(path.relative(root,p));return rel==='.'||snapshotDirectories.has(rel);},realpath(p){return p;},getCurrentDirectory(){return root;},getDirectories(){return [];}};
       const r=ts.resolveModuleName(specifier,abs,opts,host).resolvedModule?.resolvedFileName;
       if(r){const rel=toPosix(path.relative(root,r));if(byFile.has(rel))result=rel;}
       // TypeScript resolution can miss a JSX file when a source snapshot is syntactically partial.

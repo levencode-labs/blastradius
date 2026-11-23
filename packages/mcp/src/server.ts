@@ -36,7 +36,7 @@ export async function startServer(root:string):Promise<void>{
     }catch(e){
       const message=e instanceof Error?e.message:String(e);
       const code=e instanceof InvalidToolInput?'INVALID_ARGUMENT':
-        /^(WORKSPACE_ACCESS_DENIED|FILE_NOT_FOUND|SYMBOL_NOT_FOUND|SNAPSHOT_STALE|SNAPSHOT_NOT_FOUND|CACHE_CORRUPTED):/.exec(message)?.[1]||'ANALYSIS_ERROR';
+        /^(WORKSPACE_ACCESS_DENIED|FILE_NOT_FOUND|SYMBOL_NOT_FOUND|SNAPSHOT_STALE|SNAPSHOT_NOT_FOUND|CACHE_CORRUPTED|CACHE_BUSY):/.exec(message)?.[1]||'ANALYSIS_ERROR';
       return {content:[{type:'text' as const,text:JSON.stringify({schemaVersion:1,status:'error',snapshot:null,incomplete:true,truncated:false,error:{code,message}})}],isError:true};
     }
   });
