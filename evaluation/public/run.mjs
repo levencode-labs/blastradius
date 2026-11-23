@@ -239,7 +239,7 @@ function compareKnip(spec,root,bin){
   }finally{fs.rmSync(tmp,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
 }
 const report={schemaVersion:4,corpusSha256:sha(fs.readFileSync(path.join(base,'corpus.json'))),generatedAt:new Date().toISOString(),
- methodology:'Twelve pinned public source repositories: all nine old entries and 80 labels unchanged; three new independently blind monorepos with 18 source-selected labels before any BlastRadius evaluation. Compiler TypeChecker oracle, strict disjoint FP/FN and UNKNOWN, unchanged Knip 6.45.1.',
+ methodology:'Fifteen source-pinned public repositories: 12 previous unchanged and three P7 pristine source-frozen monorepos with 18 labels, from a prior separate commit. Compiler TypeChecker oracle and strict independent cohort uncertainty. Compiler TypeChecker oracle, strict disjoint FP/FN and UNKNOWN, unchanged Knip 6.45.1.',
  toolchain:{node:process.version,typescript:ts.version,knipPinnedVersion:corpus.knip.version},repositories:[],comparison:[],total:null,bySplit:null};
 let failed=false;
 try{
@@ -264,7 +264,7 @@ try{
     errors:exhaustive.flatMap(x=>x.mismatches.map(m=>({repo:x.repo,...m}))).slice(0,120)};
   // Keep observed development vs precommitted holdout accuracy disjoint. No imputation:
   // non-resolved named bindings and graph coverage warnings never become TN.
-  report.bySplit=Object.fromEntries(['development','holdout','unseen_holdout','fresh_holdout','blind_holdout'].map(split=>{
+  report.bySplit=Object.fromEntries(['development','holdout','unseen_holdout','fresh_holdout','blind_holdout','p7_pristine'].map(split=>{
     const repos=report.repositories.filter(x=>x.split===split);
     assert.ok(repos.length, 'Missing evaluation split '+split);
     const manual=confusion(repos.flatMap(x=>x.probes));
@@ -302,7 +302,7 @@ try{
   const knipMissing=report.comparison.length!==3;
   const eligible=s=>s&&s.precision!==null&&s.recall!==null&&s.precision>=0.95&&s.recall>=0.90;
   const dev=report.bySplit.development,holdout=report.bySplit.holdout,unseen=report.bySplit.unseen_holdout,
-    fresh=report.bySplit.fresh_holdout,blind=report.bySplit.blind_holdout;
+    fresh=report.bySplit.fresh_holdout,blind=report.bySplit.blind_holdout,p7=report.bySplit.p7_pristine;
   // A held-out failure stays visible and red. Never dilute it in an aggregate or
   // tune the analyzer against holdout labels in this PR.
   failed=knipMissing||!eligible(dev.manual)||!eligible(dev.namedImports)||
@@ -314,14 +314,17 @@ try{
     !eligible(fresh.manual)||!eligible(fresh.namedImports)||
     fresh.namedImports.fp!==0||fresh.namedImports.fn!==0||
     !eligible(blind.manual)||!eligible(blind.namedImports)||
-    blind.namedImports.fp!==0||blind.namedImports.fn!==0;
+    blind.namedImports.fp!==0||blind.namedImports.fn!==0||
+    !eligible(p7.manual)||!eligible(p7.namedImports)||
+    p7.namedImports.fp!==0||p7.namedImports.fn!==0;
   report.acceptance={pass:!failed,thresholds:{manualPrecision:0.95,manualRecall:0.90,
     developmentFalseNegatives:0,developmentFalsePositives:0,
     holdoutFalseNegatives:0,holdoutFalsePositives:0,
     unseenHoldoutFalseNegatives:0,unseenHoldoutFalsePositives:0,
     freshHoldoutFalseNegatives:0,freshHoldoutFalsePositives:0,
-    blindHoldoutFalseNegatives:0,blindHoldoutFalsePositives:0},holdoutKeptSeparate:true,
-    caveat:'Prior nine projects retain their previous cohort semantics; blind_holdout Radix/SWR/Jotai was fixed before initial engine evaluation. Any findings leading to engine repair expose this cohort. Scoped compiler relations do not prove global accuracy or deletion safety; UNKNOWN never becomes TN.'};
+    blindHoldoutFalseNegatives:0,blindHoldoutFalsePositives:0,
+    p7PristineFalseNegatives:0,p7PristineFalsePositives:0},holdoutKeptSeparate:true,
+    caveat:'Prior 12 projects unchanged, P6 exposed by code changes. P7 was source-frozen before first model score; any P7-driven fix makes it exposed, requiring a new holdout. Unresolved/runtime/dynamic remain UNKNOWN, never TN or deletion permission.'};
 }catch(e){failed=true;report.error={message:e.message,stack:String(e.stack).slice(0,1800)};}
 fs.mkdirSync(path.dirname(outFile),{recursive:true});fs.writeFileSync(outFile,JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify({status:failed?'FAILED':'PASS',reportFile:outFile,total:report.total,allNamedImports:report.allNamedImports&&{tp:report.allNamedImports.tp,tn:report.allNamedImports.tn,fp:report.allNamedImports.fp,fn:report.allNamedImports.fn,precision:report.allNamedImports.precision,recall:report.allNamedImports.recall},comparator:report.comparison.map(x=>({id:x.id,expected:x.expectedOrphan,br:x.blastRadius.found,knipExport:x.knip.newUnusedExport,knipFile:x.knip.newUnusedFile})),bySplit:report.bySplit&&Object.fromEntries(Object.entries(report.bySplit).map(([name,s])=>[name,{named:s.namedImports,unknown:s.unknown}])),error:report.error?.message}));
