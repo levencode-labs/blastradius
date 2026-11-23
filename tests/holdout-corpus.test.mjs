@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const corpus=JSON.parse(readFileSync(new URL('../evaluation/public/corpus.json',import.meta.url),'utf8'));
-test('nine old immutable sources plus new P6 blind holdout',()=>{
+test('original nine, exposed P6, separately pre-frozen P7 remain immutable',()=>{
   assert.equal(corpus.schemaVersion,1);
   assert.deepEqual(corpus.repositories.slice(0,9).map(x=>[x.id,x.split,x.sha]),[
     ['usehooks-ts','development','61949134144d3690fe9f521260a16c779a6d3797'],
@@ -21,6 +21,7 @@ test('nine old immutable sources plus new P6 blind holdout',()=>{
   const unseen=corpus.repositories.filter(r=>r.split==='unseen_holdout');
   const fresh=corpus.repositories.filter(r=>r.split==='fresh_holdout');
   const blind=corpus.repositories.filter(r=>r.split==='blind_holdout');
+  const p7=corpus.repositories.filter(r=>r.split==='p7_pristine');
   assert.deepEqual(dev.map(r=>r.probes.length),[8,8,16]);
   assert.deepEqual(hold.map(r=>r.probes.length),[8,8]);
   assert.deepEqual(unseen.map(r=>r.probes.length),[8,8]);
@@ -35,6 +36,8 @@ test('nine old immutable sources plus new P6 blind holdout',()=>{
   assert.ok(unseen.every(r=>!r.mutations));
   assert.ok(fresh.every(r=>!r.mutations));
   assert.ok(blind.every(r=>!r.mutations));
+  const freeze=JSON.parse(readFileSync(new URL('../docs/evidence/P7_SOURCE_FREEZE.json',import.meta.url),'utf8'));
+  assert.deepEqual(p7,freeze.repositories,'P7 ground truth MUST be the pre-score source freeze');
   assert.deepEqual(corpus.repositories.slice(5,7).flatMap(r=>r.probes.map(p=>p.id)),
     [...Array.from({length:8},(_,i)=>'F'+String(i+1).padStart(2,'0')),
      ...Array.from({length:8},(_,i)=>'Q'+String(i+1).padStart(2,'0'))]);
@@ -44,9 +47,11 @@ test('nine old immutable sources plus new P6 blind holdout',()=>{
     ...Array.from({length:8},(_,i)=>'R'+String(i+1).padStart(2,'0')),
     ...Array.from({length:8},(_,i)=>'T'+String(i+1).padStart(2,'0'))]);
   const probes=corpus.repositories.flatMap(r=>r.probes.map(p=>p.id));
-  assert.deepEqual(corpus.repositories.slice(9).flatMap(r=>r.probes.map(p=>p.id)),Array.from({length:18},(_,i)=>'W'+String(i+1).padStart(2,'0')));
+  assert.deepEqual(corpus.repositories.slice(9,12).flatMap(r=>r.probes.map(p=>p.id)),Array.from({length:18},(_,i)=>'W'+String(i+1).padStart(2,'0')));
   assert.equal(corpus.repositories.slice(0,9).reduce((n,r)=>n+r.probes.length,0),80);
-  assert.equal(probes.length,98);
+  assert.equal(corpus.repositories.slice(0,12).reduce((n,r)=>n+r.probes.length,0),98);
+  assert.deepEqual(corpus.repositories.slice(12).flatMap(r=>r.probes.map(p=>p.id)),Array.from({length:18},(_,i)=>'P7'+String(i+1).padStart(2,'0')));
+  assert.equal(probes.length,116);
   assert.equal(new Set(probes).size,probes.length);
   for(const r of corpus.repositories){
     assert.match(r.sha,/^[0-9a-f]{40}$/);
