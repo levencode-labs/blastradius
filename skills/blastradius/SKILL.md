@@ -28,4 +28,6 @@ Use this Skill when an agent plans to delete a feature, rename or move a module,
 - Never treat `verified` as proof of runtime safety, or `no known consumers` as proof of no consumers.
 - If coverage is incomplete or any dynamic dependency can reach a candidate, report UNKNOWN/review and do not claim a safe deletion.
 - Keep project sources local. BlastRadius analyses are read-only except its own cache and an explicitly requested `init` config file.
+- An indexing status of `possibly_stale` is not proof that the current working tree was analyzed. An `indexedProjects` count is a scope summary, not full TypeScript project-reference coverage.
+- A `CACHE_BUSY` response means concurrent SQLite activity: retry after the other local process finishes; **do not delete the cache database to resolve a lock**. True `CACHE_CORRUPTED` remains a separate diagnostic requiring user-controlled backup/recovery.
 - MCP clients must mount only trusted local workspaces; never grant a remote agent arbitrary command execution via this Skill.

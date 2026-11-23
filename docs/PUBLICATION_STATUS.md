@@ -22,3 +22,9 @@ The unchanged eight-cell CI matrix uses `npm ci --ignore-scripts --no-audit --no
 ## Remaining blockers for v0.1.0
 
 Independent pinned real-project precision/recall, broader semantic coverage, monorepo/concurrency benchmarks, complete third-party license-text/NOTICE and security provenance review, package-manager/toolchain version provenance, and formal final release acceptance. Results from one SHA must not be attributed to another. All eight CI cells remain mandatory even after a failed attempt.
+
+## Updated public evidence and release prohibition (2026-11-23)
+
+The latest independently accepted source evaluation is [PR #22](https://github.com/levencode-labs/blastradius/pull/22) at merge SHA `d3aa2273070159cba37e019cbbf7a17ea8082615` ([8 platform + byte-parity action](https://github.com/levencode-labs/blastradius/actions/runs/45158415745), [15-pinned-source TypeChecker/Knip action](https://github.com/levencode-labs/blastradius/actions/runs/45158415723), both PASS). Scope is 116 independently annotated static pairs and 8779 compiler-resolvable direct named-import pairs, with 0 observed FP/FN **only inside these eligible denominators**; 0/3 pristine P7 full graphs complete. See [latest acceptance and unknown gates](ACCEPTANCE.md).
+
+P3/P4 source changes are under separate exact CI and must not inherit this accepted P7 SHA's result. Candidate improvements include concurrent SQLite lock error classification, large-source directory-index optimization, synthetic 5k/50k profiling and truthful MCP `indexedProjects`; each requires exact PR-SHA eight-cell push/PR plus package byte parity, independent source/Knip and merge-SHA retesting. A separate P8 source-only cohort is frozen before first evaluation for post-change release checks. None of these checks authorizes `v0.1.0` or automatic deletion; full dependency license texts, NOTICE and runtime/client behavior remain unaccepted.
