@@ -28,7 +28,7 @@ export class GraphCache{
       // not evidence of corruption: never tell users to delete valid data.
       // Only the explicit SQLite lock/busy signals are classified as transient.
       const detail=String(e);
-      if(/\\bSQLITE_(?:BUSY|LOCKED)\\b|database (?:schema )?is locked/i.test(detail))
+      if(/\bSQLITE_(?:BUSY|LOCKED)\b|database (?:schema )?is locked/i.test(detail))
         throw new Error('CACHE_BUSY: SQLite cache is locked by another process; retry after it completes');
       throw new Error('CACHE_CORRUPTED: cannot open SQLite cache ('+detail+'); remove .blastradius/cache.sqlite after taking a backup');
     }
