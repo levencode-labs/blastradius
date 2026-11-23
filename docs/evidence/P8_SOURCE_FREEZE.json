@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "status": "PRE_SCORE_BLIND_FREEZE",
+  "freezeBaseBlastRadius": "d3aa2273070159cba37e019cbbf7a17ea8082615",
+  "sourceSelection": "Manual read-only inspection of exact public GitHub file contents before any BlastRadius/TypeChecker predictions on these pins. Selection disjoint from all 15 previous evaluated repositories. P7 original source-score retained but now exposed by performance optimization engineering.",
+  "policy": "Do not rewrite P8 SHAs/probes after first score, or convert unresolved/UNKNOWN into true negatives. Compiler-oracle mismatch must fail as original evidence, not post-hoc relabel. If P8 drives an engine correction, mark it exposed and select P9. Never auto-delete or release from incomplete graph.",
+  "repositories": [
+    {
+      "id": "headlessui",
+      "url": "https://github.com/tailwindlabs/headlessui.git",
+      "sha": "eea57cf46fd6767ed1059012f7073b88eb159fba",
+      "sourcePrefixes": [
+        "packages/@headlessui-react/src/"
+      ],
+      "split": "p8_pristine",
+      "probes": [
+        {
+          "id": "P801",
+          "target": "packages/@headlessui-react/src/hooks/use-event.ts",
+          "symbol": "useEvent",
+          "consumer": "packages/@headlessui-react/src/components/dialog/dialog.tsx",
+          "used": true
+        },
+        {
+          "id": "P802",
+          "target": "packages/@headlessui-react/src/hooks/use-outside-click.ts",
+          "symbol": "useOutsideClick",
+          "consumer": "packages/@headlessui-react/src/components/dialog/dialog.tsx",
+          "used": true
+        },
+        {
+          "id": "P803",
+          "target": "packages/@headlessui-react/src/hooks/use-iso-morphic-effect.ts",
+          "symbol": "useIsoMorphicEffect",
+          "consumer": "packages/@headlessui-react/src/components/dialog/dialog.tsx",
+          "used": true
+        },
+        {
+          "id": "P804",
+          "target": "packages/@headlessui-react/src/hooks/use-event.ts",
+          "symbol": "useEvent",
+          "consumer": "packages/@headlessui-react/src/components/button/button.tsx",
+          "used": false
+        },
+        {
+          "id": "P805",
+          "target": "packages/@headlessui-react/src/hooks/use-outside-click.ts",
+          "symbol": "useOutsideClick",
+          "consumer": "packages/@headlessui-react/src/components/button/button.tsx",
+          "used": false
+        },
+        {
+          "id": "P806",
+          "target": "packages/@headlessui-react/src/hooks/use-iso-morphic-effect.ts",
+          "symbol": "useIsoMorphicEffect",
+          "consumer": "packages/@headlessui-react/src/components/button/button.tsx",
+          "used": false
+        }
+      ]
+    },
+    {
+      "id": "valtio",
+      "url": "https://github.com/pmndrs/valtio.git",
+      "sha": "26d8ca8cb6e5bb3b9516d429e50bc5aab1f42e0d",
+      "sourcePrefixes": [
+        "src/"
+      ],
+      "split": "p8_pristine",
+      "probes": [
+        {
+          "id": "P807",
+          "target": "src/vanilla.ts",
+          "symbol": "snapshot",
+          "consumer": "src/react.ts",
+          "used": true
+        },
+        {
+          "id": "P808",
+          "target": "src/vanilla.ts",
+          "symbol": "subscribe",
+          "consumer": "src/react.ts",
+          "used": true
+        },
+        {
+          "id": "P809",
+          "target": "src/react.ts",
+          "symbol": "useSnapshot",
+          "consumer": "src/react/utils/useProxy.ts",
+          "used": true
+        },
+        {
+          "id": "P810",
+          "target": "src/vanilla.ts",
+          "symbol": "proxy",
+          "consumer": "src/react.ts",
+          "used": false
+        },
+        {
+          "id": "P811",
+          "target": "src/vanilla.ts",
+          "symbol": "ref",
+          "consumer": "src/react.ts",
+          "used": false
+        },
+        {
+          "id": "P812",
+          "target": "src/react.ts",
+          "symbol": "useSnapshot",
+          "consumer": "src/vanilla.ts",
+          "used": false
+        }
+      ]
+    },
+    {
+      "id": "tanstack-router",
+      "url": "https://github.com/TanStack/router.git",
+      "sha": "ce46b21b901fefbfe629180820860a0116f10c9c",
+      "sourcePrefixes": [
+        "packages/react-router/src/"
+      ],
+      "split": "p8_pristine",
+      "probes": [
+        {
+          "id": "P813",
+          "target": "packages/react-router/src/useRouter.tsx",
+          "symbol": "useRouter",
+          "consumer": "packages/react-router/src/useNavigate.tsx",
+          "used": true
+        },
+        {
+          "id": "P814",
+          "target": "packages/react-router/src/utils.ts",
+          "symbol": "useLayoutEffect",
+          "consumer": "packages/react-router/src/useNavigate.tsx",
+          "used": true
+        },
+        {
+          "id": "P815",
+          "target": "packages/react-router/src/routerContext.tsx",
+          "symbol": "routerContext",
+          "consumer": "packages/react-router/src/useRouter.tsx",
+          "used": true
+        },
+        {
+          "id": "P816",
+          "target": "packages/react-router/src/useNavigate.tsx",
+          "symbol": "useNavigate",
+          "consumer": "packages/react-router/src/useRouter.tsx",
+          "used": false
+        },
+        {
+          "id": "P817",
+          "target": "packages/react-router/src/routerContext.tsx",
+          "symbol": "routerContext",
+          "consumer": "packages/react-router/src/useNavigate.tsx",
+          "used": false
+        },
+        {
+          "id": "P818",
+          "target": "packages/react-router/src/utils.ts",
+          "symbol": "useLayoutEffect",
+          "consumer": "packages/react-router/src/useRouter.tsx",
+          "used": false
+        }
+      ]
+    }
+  ]
+}
