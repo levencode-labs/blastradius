@@ -25,15 +25,15 @@ A read-only study at three exact pinned TypeScript/React/Next.js Git SHAs and Kn
 
 | Area | Verified preview evidence | Remaining v0.1.0 work |
 | --- | --- | --- |
-| Symbol graph | Imports/aliases/barrels, TypeScript paths, JSX, distinct export bindings; 8 independent TypeChecker alias checks | Fully semantic symbol identity, overload/merged declarations, multiple tsconfig/project refs, richer namespace cases |
+| Symbol graph | Scoped overload/type-value/namespace cases, safe bounded import expressions, workspace-owned pnpm tsconfig and exact conditional exports; compiler oracles | Full TS project references, external/public consumers, advanced HOC/prop value flow, dynamic runtime identity |
 | Impact and routes | React JSX, Next App/Pages and layout relationships, `apps/*` and `packages/*` Next roots | React Router, HOC/spread prop flow, interception routes and arbitrary bundler extensions |
 | Differential analysis | Git HEAD/index/worktree, newly orphaned unchanged exports, public API transitions, unambiguous unchanged-source rename, uncertainty warnings | Edited-file rename fingerprints, arbitrary dynamic imports, complete package API boundary matrix and external consumer evidence |
 | Conservative deletion | Side-effect and public API protection, unknown coverage handling, manual candidate review | Expand effect corpus, dynamic/plugin entry point policies; no automatic deletion in MVP |
-| Persistent cache | SQLite snapshots and invalidation, symlink and corruption protections | Multiple concurrent processes, crash/cancel recovery, long-running project memory profiles |
-| CLI and MCP | 78 baseline tests, five MCP tools, live stdio E2E on previously checked CI SHA | Full audited flags/compatibility matrix and formal response schema/documentation stability |
-| Accuracy | All 30 curated goldens and 8 TypeChecker checks; 0 FP/FN on **39 annotated assertions only** | Independent pinned public-repository corpora, unbiased labeling, precision ≥95% / recall ≥90% with unknown coverage disclosed |
-| Reproducibility | npm lockfile v3 (98 SHA-512-integrity packages), clean `npm ci` on 8 OS/Node cells, strict SPDX metadata inventory and repeated real npm pack + consumer smoke in P1 | 8-cell cross-OS tarball SHA equality (mandatory P1 aggregation), full license text/NOTICE review, security provenance and independent release approvals |
-| Performance | One synthetic 5,001-file timing in old preview | Repeat p50/p95, RSS and cold/warm updates on real repositories, 50k-file evaluation |
+| Persistent cache | SQLite snapshots/invalidation, symlink/corruption boundaries; real cross-process BUSY-vs-CORRUPTED source-backed recovery regression | Simultaneous write policies, crash/cancel recovery, schema migration compatibility and long-running profiles |
+| CLI and MCP | Five validated MCP tools, official SDK stdio E2E on 8 OS/Node cells, source-bounded JSON schemas; indexed-project status regression in P4 candidate | Client-specific OpenCode/Codex/Cursor/Claude E2E, stable response/schema contracts and broader tool UX |
+| Accuracy | 30 curated goldens plus 15 SHA-pinned public projects (116 manual and 8779 compiler-resolvable pairs, 0 observed FP/FN in those eligible units) | Unbiased representative sampling, after-change pristine holdout, explicit dynamic/external UNKNOWN and whole-graph limitations |
+| Reproducibility | npm lock v3 with 98 exact SHA-512 package locations, frozen `npm ci`, installed SPDX metadata and pack+consumer smoke; **8-cell cross-OS byte parity PASS** on accepted SHAs | Full source-license texts/NOTICE and redistribution audit, security/build provenance and independent release approvals |
+| Performance | Exact P3 candidate has 5000 × 3 and 50000 × 3 cold/warm/one-edit synthetic p50/p95 and RSS; algorithmic 160000-key RED evidence | Post-merge independent repeatable real monorepo p50/p95, multi-process contention and memory soak |
 
 **No task may reduce the CI matrix after a failure to manufacture a pass. No release, tag, or npm publication is part of P1.**
 
