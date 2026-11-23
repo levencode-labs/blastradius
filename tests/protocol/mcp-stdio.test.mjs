@@ -81,5 +81,6 @@ test('MCP stdio: initialize, list, sequential call, schema rejection, path isola
   stage('status-after:begin');
   const after=decode(await client.callTool({name:'br_status',arguments:{}}));
   assert.ok(after.graphVersion);
+  assert.equal(after.indexedProjects,1,'live SDK br_status must report the one source-owning fallback project');
   stage('assertions:done');
 });

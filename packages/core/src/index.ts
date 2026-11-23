@@ -15,6 +15,19 @@ export {analyzeFile} from './analyzer.js';
 export class BlastRadius{
   readonly root:string;readonly cache:GraphCache;
   private current?:Snapshot;
+  private currentProjectCount=0;
+  // Count nearest source-owning tsconfig roots; do not confuse an empty
+  // solution tsconfig with another independently indexed project.
+  private projectCount(files:Map<string,string>,graph:Snapshot):number{
+    const configs=[...files.keys()].filter(f=>f==='tsconfig.json'||f.endsWith('/tsconfig.json'))
+      .map(f=>path.posix.dirname(f)).sort((a,b)=>b.length-a.length);
+    const owners=new Set<string>();
+    for(const f of graph.facts){
+      const owner=configs.find(dir=>dir==='.'||f.file.startsWith(dir+'/'))||'<fallback>';
+      owners.add(owner);
+    }
+    return owners.size;
+  }
   constructor(root:string=process.cwd()) {this.root=realpathSync(path.resolve(root));this.cache=new GraphCache(this.root);}
   private graphFor(files:Map<string,string>,config:Config,extraDiagnostics:Snapshot['diagnostics']=[],force=false):Snapshot{
     const cached=force?undefined:this.cache.getSnapshot(snapshotId(files,config));
@@ -31,9 +44,10 @@ export class BlastRadius{
     const config=readConfig(this.root);
     const scanned=scanWorkspace(this.root,config);
     const graph=this.graphFor(scanned.files,config,scanned.diagnostics,force);
+    this.currentProjectCount=this.projectCount(scanned.files,graph);
     this.current=graph;return graph;
   }
-  status(){const g=this.current||this.cache.getLatest();return {schemaVersion:1,status:g?(this.current?'ready':'possibly_stale'):'not_indexed',indexedFiles:g?.facts.length||0,indexedProjects:0,graphVersion:g?.id||null,coverage:g?.coverage||{complete:false,unresolvedImports:0,dynamicEdges:0,unsupportedFiles:0}};}
+  status(){const g=this.current||this.cache.getLatest();return {schemaVersion:1,status:g?(this.current?'ready':'possibly_stale'):'not_indexed',indexedFiles:g?.facts.length||0,indexedProjects:this.current?this.currentProjectCount:0,graphVersion:g?.id||null,coverage:g?.coverage||{complete:false,unresolvedImports:0,dynamicEdges:0,unsupportedFiles:0}};}
   resolveSymbol(file:string,name:string){const rel=safeFilePath(this.root,file);const g=this.index();const matches=g.nodes.filter(n=>n.kind==='SYMBOL'&&n.file===rel&&n.name===name);return {schemaVersion:1,status:matches.length===1?'resolved':matches.length?'ambiguous':'not_found',snapshot:g.id,symbol:matches.length===1?matches[0]:undefined,candidates:matches.length!==1?matches:undefined};}
   impact(request:ImpactRequest):ImpactResult{
     const graph=this.index();return impact(graph,{...request,target:{...request.target,file:safeFilePath(this.root,request.target.file)}});
@@ -52,7 +66,7 @@ export class BlastRadius{
     const before=this.graphFor(beforeFiles,beforeConfig);
     const after=this.graphFor(next.files,afterConfig,next.diagnostics);
     const result=analyzeDiff(before,after,changed,limit,mode);
-    this.cache.saveReport(result);this.current=after;return result;
+    this.cache.saveReport(result);this.currentProjectCount=this.projectCount(next.files,after);this.current=after;return result;
   }
   explain(findingId:string,expectedSnapshot?:string){const r=this.cache.getReport();if(expectedSnapshot&&r?.snapshot!==expectedSnapshot)throw new Error('SNAPSHOT_STALE: finding belongs to a different snapshot');const f=r?.findings.find(x=>x.id===findingId);if(!f)throw new Error('Finding not found; run diff first');
     const before=r&&this.cache.getSnapshot(r.baseline);const nodes=new Map(before?.nodes.map(n=>[n.id,n]));
